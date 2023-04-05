@@ -1,3 +1,5 @@
+<!-- 
+
 # Primer spletne aplikacije z `bottle.py`
 
 * [![bottle.py](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/jaanos/OPB-bottle/master?urlpath=proxy/8080/) Aplikacija `bottle.py`
@@ -6,11 +8,12 @@
 
 Ta repozitorij vsebuje minimalen primer spletne aplikacije z ogrodjem [`bottle.py`](https://bottlepy.org/docs/dev/) in povezavo na podatkovno bazo [PostgreSQL](https://www.postgresql.org/) za potrebe predmeta [Osnove podatkovnih baz](https://github.com/jaanos/OPB).
 
-
+ -->
 ## ER diagram
 
-![ER diagram](banka.png)
+![ER diagram](ERdiagram.png)
 
+<!-- 
 ## Aplikacija
 
 Aplikacijo zaženemo tako, da poženemo program [`primer.py`](primer.py), npr.
@@ -35,3 +38,5 @@ Aplikacijo je mogoče poganjati tudi na spletu z orodjem [Binder](https://mybind
 Zaradi omejitev javne storitve [Binder](https://mybinder.org/) se povezava z bazo vzpostavi na vratih 443 (namesto običajnih 5432), za kar je bila potrebna posebna nastavitev strežnika.
 
 Zgornje skripte je možno prilagoditi tudi za druga ogrodja, kot npr. [Flask](https://palletsprojects.com/p/flask/) ali [Django](https://www.djangoproject.com/).
+
+ -->
