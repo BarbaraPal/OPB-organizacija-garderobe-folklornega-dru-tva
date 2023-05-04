@@ -1,2 +1,4 @@
-jupyter-server-proxy
-psycopg2
+psycopg2-binary
+pandas
+bottle
+dataclasses-json
