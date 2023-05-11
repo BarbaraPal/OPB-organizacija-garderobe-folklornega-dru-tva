@@ -180,4 +180,4 @@ def dodaj_opravo_kostumske_podobe(tabela):
            print('Vrednosti so že dodane!')
 
 
-dodaj_opravo_kostumske_podobe(slovar_podatkov['OpravaKostumskePodobe'])
+#dodaj_opravo_kostumske_podobe(slovar_podatkov['OpravaKostumskePodobe'])
