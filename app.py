@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 
 # uvozimo bottle.py
-from bottleext import get, post, run, request, template, redirect, static_file, url
+from bottleext import get, post, run, request, template, redirect, static_file, url, error
 
 # uvozimo ustrezne podatke za povezavo
 
@@ -41,6 +41,9 @@ repo = Repo()
 # Glavni program
 
 
+@error(404)
+def error_404(error):
+    return "Ta stran ne obstaja!"
 
 # poženemo strežnik na podanih vratih, npr. http://localhost:8080/
 if __name__ == "__main__":
