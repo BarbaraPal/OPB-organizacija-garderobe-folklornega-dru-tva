@@ -30,7 +30,7 @@ def dodaj_vrsto_oblacil(tabela):
     df_vrsta['Omara'] = df_vrsta['Omara'].astype(int)
     repo.df_to_sql_insert(df_vrsta,'VrstaOblacila')
 
-# dodaj_vrsto_oblacil(slovar_podatkov['VrstaOblacila'])
+#dodaj_vrsto_oblacil(slovar_podatkov['VrstaOblacila'])
 
 def dodaj_zgornje_dele(tabela_zgornji, tabela_vrsta):
     df_zgornji = pd.merge(tabela_vrsta,tabela_zgornji, left_on='Id', right_on='IdVrste').drop(['Id','IdVrste'], axis=1)
@@ -48,7 +48,7 @@ def dodaj_zgornje_dele(tabela_zgornji, tabela_vrsta):
     repo.df_to_sql_insert(df_glavna_oblacila,'GlavnaOblacila')
     repo.df_to_sql_insert(df_glavna_zgornji,'ZgornjiDel')
 
-# dodaj_zgornje_dele(slovar_podatkov['ZgornjiDel'], slovar_podatkov['VrstaOblacila'])
+#dodaj_zgornje_dele(slovar_podatkov['ZgornjiDel'], slovar_podatkov['VrstaOblacila'])
 
 def dodaj_spodnje_dele(tabela_spodnji, tabela_vrsta):
     df_spodnji = pd.merge(tabela_vrsta,tabela_spodnji, left_on='Id', right_on='IdVrste').drop(['Id','IdVrste'], axis=1)
@@ -103,10 +103,10 @@ def dodaj_dodatna_oblacila(tabela_dodatni, tabela_vrsta):
 
 def dodaj_plesalec(tabela):
     df_vrsta = tabela.drop('IdPlesalca', axis=1)
-    df_plesalec = df_vrsta.drop(['SirinaRamen', 'ObsegPrsi', 'DolzinaRokava', 'DolzinaOdPasuNavzdol', 'DolzinaTelesa', 'StevilkaNoge'], axis = 1)
+    df_plesalec = df_vrsta.drop(['DodatnaFunkcija','SirinaRamen', 'ObsegPrsi', 'DolzinaRokava', 'DolzinaOdPasuNavzdol', 'DolzinaTelesa', 'StevilkaNoge'], axis = 1)
     df_plesalec.columns = df_plesalec.columns.str.lower()
     df_plesalec.rename(columns ={'spol':'spolplesalca'}, inplace=True)
-    df_plesalec['dodatnafunkcija'] = df_plesalec['dodatnafunkcija'].astype(str)
+    
 
     repo.df_to_sql_insert(df_plesalec,'Plesalec')
 
@@ -174,7 +174,7 @@ def dodaj_opravo_kostumske_podobe(tabela):
        try:
            repo.df_to_sql_insert(tabela,'OpravaKostumskePodobe')
            print('Uspešno dodano!')
-       finally:
+       except:
            print('Vrednosti so že dodane!')
 
 
