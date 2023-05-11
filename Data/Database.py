@@ -3,10 +3,10 @@ import psycopg2, psycopg2.extensions, psycopg2.extras
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo problemov s šumniki
 
 from typing import List, TypeVar, Type, Callable, Tuple
-from Modeli import *
+from Data.Modeli import *
 from pandas import DataFrame
 from re import sub
-import auth_public as auth
+import Data.auth_public as auth
 from datetime import date
 from dataclasses_json import dataclass_json
 

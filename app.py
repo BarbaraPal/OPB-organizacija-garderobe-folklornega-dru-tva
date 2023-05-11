@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 
 # uvozimo bottle.py
-from bottleext import get, post, run, request, template, redirect, static_file, url
+from bottleext import get, post, run, request, template, redirect, static_file, url, error
 
 # uvozimo ustrezne podatke za povezavo
 

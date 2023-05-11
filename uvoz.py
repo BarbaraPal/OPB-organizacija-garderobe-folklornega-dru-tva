@@ -1,7 +1,7 @@
 import pandas as pd
 from pandas import DataFrame
-from Database import Repo
-from Modeli import *
+from Data.Database import Repo
+from Data.Modeli import *
 from typing import Dict
 from re import sub
 import dataclasses
