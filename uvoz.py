@@ -6,6 +6,8 @@ from typing import Dict
 from re import sub
 import dataclasses
 
+import numpy as np
+
 
 # Vse kar delamo z bazo se nahaja v razredu Repo.
 repo = Repo()
@@ -41,7 +43,7 @@ def dodaj_zgornje_dele(tabela_zgornji, tabela_vrsta):
     
     df_vse['stanje'] = df_vse['stanje'].astype(bool)
 
-    df_glavna_oblacila = df_vse.drop(['slika', 'pokrajina', 'ime', 'omara', 'spol', 'sirinaramen', 'obsegprsi', 'dolzinarokava'], axis=1)
+    df_glavna_oblacila = df_vse.drop(['pokrajina', 'ime', 'omara', 'spol', 'sirinaramen', 'obsegprsi', 'dolzinarokava'], axis=1)
     df_glavna_zgornji = df_vse.drop(['slika','pokrajina', 'ime', 'omara', 'spol', 'barva', 'stanje', 'opombe', 'slika'], axis=1)
     repo.df_to_sql_insert(df_glavna_oblacila,'GlavnaOblacila')
     repo.df_to_sql_insert(df_glavna_zgornji,'ZgornjiDel')
@@ -59,7 +61,7 @@ def dodaj_spodnje_dele(tabela_spodnji, tabela_vrsta):
     
     df_vse['stanje'] = df_vse['stanje'].astype(bool)
 
-    df_glavna_oblacila = df_vse.drop(['slika', 'pokrajina', 'ime', 'omara', 'spol' , 'dolzinaodpasunavzdol'], axis=1)
+    df_glavna_oblacila = df_vse.drop(['pokrajina', 'ime', 'omara', 'spol' , 'dolzinaodpasunavzdol'], axis=1)
     df_glavna_spodnji = df_vse.drop(['slika','pokrajina', 'ime', 'omara', 'spol', 'barva', 'stanje', 'opombe', 'slika'], axis=1)
     repo.df_to_sql_insert(df_glavna_oblacila,'GlavnaOblacila')
     repo.df_to_sql_insert(df_glavna_spodnji,'SpodnjiDel')
@@ -77,8 +79,8 @@ def dodaj_enodelne_dele(tabela_enodelni, tabela_vrsta):
     
     df_vse['stanje'] = df_vse['stanje'].astype(bool)
 
-    df_glavna_oblacila = df_vse.drop(['slika', 'pokrajina', 'ime', 'omara', 'spol', 'dolzinatelesa'], axis=1)
-    df_glavna_enodelni = df_vse.drop(['slika','pokrajina', 'ime', 'omara', 'spol', 'barva', 'stanje', 'opombe', 'slika'], axis=1)
+    df_glavna_oblacila = df_vse.drop(['pokrajina', 'ime', 'omara', 'spol', 'dolzinatelesa'], axis=1)
+    df_glavna_enodelni = df_vse.drop(['slika','pokrajina', 'ime', 'omara', 'spol', 'barva', 'stanje', 'opombe'], axis=1)
     repo.df_to_sql_insert(df_glavna_oblacila,'GlavnaOblacila')
     repo.df_to_sql_insert(df_glavna_enodelni,'EnodelniKos')
     
@@ -94,7 +96,7 @@ def dodaj_dodatna_oblacila(tabela_dodatni, tabela_vrsta):
     df_vse = pd.merge(df_dodatni, df_vrst, on=['pokrajina', 'ime', 'spol'])
     df_vse.rename(columns={'id': 'IdVrste'}, inplace=True)
     
-    df_dodatna_oblacila = df_vse.drop(['pokrajina', 'ime', 'omara', 'spol', 'slika'], axis=1)
+    df_dodatna_oblacila = df_vse.drop(['pokrajina', 'ime', 'omara', 'spol'], axis=1)
     repo.df_to_sql_insert(df_dodatna_oblacila,'DodatnaOblacila')
 
 #dodaj_dodatna_oblacila(slovar_podatkov['DodatnaOblacila'], slovar_podatkov['VrstaOblacila'])
@@ -138,7 +140,7 @@ def dodaj_delo(tabela_delo):
 #dodaj_delo(slovar_podatkov['Delo'])
 
 def dodaj_tip_cevljev(tabela):
-    df_tip = tabela.drop(['Id', 'Slika'], axis=1)
+    df_tip = tabela.drop(['Id'], axis=1)
     df_tip.columns = df_tip.columns.str.lower()
     repo.df_to_sql_insert(df_tip,'TipCevljev')
 
@@ -162,12 +164,8 @@ def dodaj_cevlje(tabela_cevljev, tabela_plesalcev):
     df_vse = pd.merge(df_cevlji_plesalci, df_plesalci, on=['ime', 'priimek'], how='left').drop(['ime', 'priimek'], axis=1)
     df_vse.rename(columns={'idplesalca': 'idlastnika'}, inplace=True)
 
-    cevlji_z_lastnikom = df_vse[df_vse['idlastnika'].notna()]
-    cevlji_brez_lastnika = df_vse[df_vse['idlastnika'].isna()].drop('idlastnika', axis=1)
-
-    repo.df_to_sql_insert(cevlji_z_lastnikom,'Cevlji')
-    repo.df_to_sql_insert(cevlji_brez_lastnika,'Cevlji')
-
+    repo.df_to_sql_insert(df_vse,'Cevlji')
+    
 #dodaj_cevlje(slovar_podatkov['Cevlji'], slovar_podatkov['Plesalec'])
 
 def dodaj_opravo_kostumske_podobe(tabela):
@@ -181,3 +179,4 @@ def dodaj_opravo_kostumske_podobe(tabela):
 
 
 #dodaj_opravo_kostumske_podobe(slovar_podatkov['OpravaKostumskePodobe'])
+

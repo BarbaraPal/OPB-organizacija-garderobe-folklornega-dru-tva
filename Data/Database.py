@@ -2,7 +2,8 @@
 import psycopg2, psycopg2.extensions, psycopg2.extras
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE) # se znebimo problemov s šumniki
 
-from typing import List, TypeVar, Type, Callable, Tuple
+import numpy as np
+from typing import List, TypeVar, Type, Callable, Tuple, Any
 from Data.Modeli import *
 from pandas import DataFrame
 from re import sub
@@ -27,7 +28,8 @@ T = TypeVar(
     Velikost,
     TipCevljev,
     Cevlji,
-    Delo
+    Delo,
+    PlesalecDto
     )
 
 class Repo:
@@ -269,7 +271,7 @@ class Repo:
         name: Ime tabele kamor želimo shranit podatke
         use_camel_case: ali pretovrimo stolpce v camel case zapis
         """
-
+        df = df.replace({np.nan: None})
         cols = list(df.columns)
 
         # po potrebi pretvorimo imena stolpcev
@@ -288,7 +290,17 @@ class Repo:
         self.cur.execute(sql_cmd)
         self.conn.commit()
 
-    '''
+
+
+    def plesalci(self) -> List[PlesalecDto]:
+        plesalci = self.cur.execute(
+            """
+            SELECT IdPlesalca, Ime, Priimek FROM Plesalec
+            """)
+        plesalci = self.cur.fetchall()
+        return [PlesalecDto(idplesalca, ime, priimek) for (idplesalca, ime, priimek) in plesalci]
+
+'''
     def izdelki(self) -> List[IzdelekDto]: 
         izdelki = self.cur.execute(
             """
@@ -403,13 +415,3 @@ class Repo:
         return cena_izdelka
 
    ''' 
-
-    
-
-
-
-
-
-
-
-    

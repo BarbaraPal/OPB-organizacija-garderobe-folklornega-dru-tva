@@ -77,6 +77,12 @@ class Plesalec:
     datumprikljucitve: date = field(default=date.today())
     dodatnafunkcija: str = field(default='0')
 
+@dataclass
+class PlesalecDto:
+    idplesalca: int
+    ime: str
+    priimek: str
+
 @dataclass_json
 @dataclass
 class Velikost:
