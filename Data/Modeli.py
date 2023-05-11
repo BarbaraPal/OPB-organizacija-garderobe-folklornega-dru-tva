@@ -130,3 +130,16 @@ class OpravaKostumskePodobe:
     idvrste: int
     idtipacevljev: int
     posebnosti: str = field(default="")
+
+@dataclass_json
+@dataclass
+class Uporabnik:
+    username: str = field(default="")
+    password: str = field(default="")
+    last_login: str = field(default="")
+    role: str = field(default="0")
+
+@dataclass
+class UporabnikDto:
+    username: str = field(default="")
+    role: str = field(default="0")
