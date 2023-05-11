@@ -2,6 +2,7 @@ import pandas as pd
 from pandas import DataFrame
 from Data.Database import Repo
 from Data.Modeli import *
+from Data.Services import AuthService 
 from typing import Dict
 from re import sub
 import dataclasses
@@ -11,6 +12,7 @@ import numpy as np
 
 # Vse kar delamo z bazo se nahaja v razredu Repo.
 repo = Repo()
+auth = AuthService(repo)
 
 def uvoz_podatkov(pot):
     excel_file = pd.ExcelFile(pot)
@@ -180,3 +182,9 @@ def dodaj_opravo_kostumske_podobe(tabela):
 
 #dodaj_opravo_kostumske_podobe(slovar_podatkov['OpravaKostumskePodobe'])
 
+
+# primer ročnega dodajanja uporabnikov
+
+uporabnik1 = auth.dodaj_uporabnika("maja", "user", "maja")
+
+uporabnik = auth.dodaj_uporabnika("admin", "admin", "admin")

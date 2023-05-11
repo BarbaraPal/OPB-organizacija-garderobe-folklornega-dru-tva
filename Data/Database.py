@@ -29,7 +29,8 @@ T = TypeVar(
     TipCevljev,
     Cevlji,
     Delo,
-    PlesalecDto
+    Uporabnik
+
     )
 
 class Repo:

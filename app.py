@@ -68,6 +68,43 @@ def index():
 # Glavni program
 
 
+
+@post('/prijava')
+def prijava():
+    """
+    Prijavi uporabnika v aplikacijo. Če je prijava uspešna, ustvari piškotke o uporabniku in njegovi roli.
+    Drugače sporoči, da je prijava neuspešna.
+    """
+    username = request.forms.get('username')
+    password = request.forms.get('password')
+
+    if not auth.obstaja_uporabnik(username):
+        return template("prijava.html", napaka="Uporabnik s tem imenom ne obstaja")
+
+    prijava = auth.prijavi_uporabnika(username, password)
+    if prijava:
+        response.set_cookie("uporabnik", username)
+        response.set_cookie("rola", prijava.role)
+
+        redirect(url('index'))
+
+    else:
+        return template("prijava.html", napaka="Neuspešna prijava. Napačno geslo ali uporabniško ime.")
+
+@get('/odjava')
+def odjava():
+    """
+    Odjavi uporabnika iz aplikacije. Pobriše piškotke o uporabniku in njegovi roli.
+    """
+
+    response.delete_cookie("uporabnik")
+    response.delete_cookie("rola")
+
+    return template('prijava.html', napaka=None)
+
+
+
+
 @error(404)
 def error_404(error):
     return "Ta stran ne obstaja!"
