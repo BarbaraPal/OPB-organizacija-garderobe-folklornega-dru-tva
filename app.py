@@ -41,6 +41,9 @@ repo = Repo()
 # Glavni program
 
 
+@error(404)
+def error_404(error):
+    return "Ta stran ne obstaja!"
 
 # poženemo strežnik na podanih vratih, npr. http://localhost:8080/
 if __name__ == "__main__":
