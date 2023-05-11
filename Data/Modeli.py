@@ -93,7 +93,7 @@ class Velikost:
 @dataclass_json
 @dataclass
 class TipCevljev:
-    idTipacevljev: int
+    idtipacevljev: int
     vrsta: str
     slika: bytes = field(default=None)
 
@@ -109,6 +109,7 @@ class Cevlji:
 @dataclass
 class Delo:
     iddela: int
+    idplesalca: int
     vrstadela: str
     trajanje: int
     datumizvajanja: date = field(default=date.today())
