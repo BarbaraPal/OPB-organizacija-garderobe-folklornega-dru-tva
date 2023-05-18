@@ -185,6 +185,14 @@ def dodaj_opravo_kostumske_podobe(tabela):
 
 # primer ročnega dodajanja uporabnikov
 
-uporabnik1 = auth.dodaj_uporabnika("maja", "user", "maja")
+#uporabnik1 = auth.dodaj_uporabnika("maja", "0", "maja")
 
-uporabnik = auth.dodaj_uporabnika("admin", "admin", "admin")
+#uporabnik = auth.dodaj_uporabnika("admin", "2", "admin")
+
+#uporabnik = auth.dodaj_uporabnika("garderober", "1", "garderober")
+
+#uporabniki = repo.dobi_gen_id(Uporabnik, ('maja',), id_cols=("username",))
+#print(uporabniki)
+
+#uporabnik3 = auth.dodaj_uporabnika("javnost", "1", "javnogeslo")
+

@@ -14,8 +14,11 @@ from functools import wraps
 
 import os
 
+#import tracemalloc
+#tracemalloc.start()
+
 # privzete nastavitve
-SERVER_PORT = os.environ.get('BOTTLE_PORT', 8080)
+SERVER_PORT = os.environ.get('BOTTLE_PORT', 8081)
 RELOADER = os.environ.get('BOTTLE_RELOADER', True)
 DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
 
@@ -33,15 +36,11 @@ def cookie_required(f):
     @wraps(f)
     def decorated( *args, **kwargs):
 
-
         cookie = request.get_cookie("uporabnik")
         if cookie:
             return f(*args, **kwargs)
 
         return template("prijava.html", napaka="Potrebna je prijava!")
-
-
-
 
     return decorated
 
@@ -52,6 +51,7 @@ def static(filename):
     return static_file(filename, root='static')
 
 @get('/')
+@cookie_required
 def index():
     plesalci = repo.plesalci()
     return template('izdelki.html', plesalci=plesalci)
@@ -68,8 +68,11 @@ def index():
 # Glavni program
 
 
+#@get('/prijava/') 
+#def prijava_get():
+#    return template("prijava.html")
 
-@post('/prijava')
+@post('/prijava/')
 def prijava():
     """
     Prijavi uporabnika v aplikacijo. Če je prijava uspešna, ustvari piškotke o uporabniku in njegovi roli.
@@ -84,8 +87,9 @@ def prijava():
     prijava = auth.prijavi_uporabnika(username, password)
     if prijava:
         response.set_cookie("uporabnik", username)
-        response.set_cookie("rola", prijava.role)
-
+        response.set_cookie("role", prijava.role)
+        #plesalci = repo.plesalci()
+        #return template('izdelki.html', plesalci=plesalci)
         redirect(url('index'))
 
     else:
@@ -98,7 +102,7 @@ def odjava():
     """
 
     response.delete_cookie("uporabnik")
-    response.delete_cookie("rola")
+    response.delete_cookie("role")
 
     return template('prijava.html', napaka=None)
 

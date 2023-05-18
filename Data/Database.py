@@ -65,7 +65,7 @@ class Repo:
         return [typ.from_dict(d) for d in self.cur.fetchall()]
 
 
-    def dobi_gen_id(self, typ: Type[T], id_tuple: Tuple, id_cols: Tuple[str]) -> T:
+    def dobi_gen_id(self, typ: Type[T], id_tuple: Tuple[str], id_cols: Tuple[str]) -> T:
         """
         Generična metoda, ki vrne dataclass objekt pridobljen iz baze na podlagi njegovega PRIMARY KEY-a.
         """
