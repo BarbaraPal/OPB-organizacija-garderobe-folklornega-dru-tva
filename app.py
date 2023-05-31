@@ -18,7 +18,7 @@ import os
 #tracemalloc.start()
 
 # privzete nastavitve
-SERVER_PORT = os.environ.get('BOTTLE_PORT', 8083)
+SERVER_PORT = os.environ.get('BOTTLE_PORT', 8080)
 RELOADER = os.environ.get('BOTTLE_RELOADER', True)
 DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
 
