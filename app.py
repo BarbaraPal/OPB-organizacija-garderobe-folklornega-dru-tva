@@ -18,7 +18,7 @@ import os
 #tracemalloc.start()
 
 # privzete nastavitve
-SERVER_PORT = os.environ.get('BOTTLE_PORT', 8081)
+SERVER_PORT = os.environ.get('BOTTLE_PORT', 8083)
 RELOADER = os.environ.get('BOTTLE_RELOADER', True)
 DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
 
@@ -48,15 +48,33 @@ def cookie_required(f):
 
 @get('/static/<filename:path>')
 def static(filename):
+    path = './slike'
+    return static_file(filename, root=path)
+
+@get('/static_style/<filename:path>')
+def static_style(filename):
     return static_file(filename, root='static')
 
+
 @get('/')
-@cookie_required
-def index():
+def index(): 
+    redirect('/domov/')
+
+@get('/domov/')
+#@cookie_required
+def osnovna_stran():
     plesalci = repo.plesalci()
-    return template('izdelki.html', plesalci=plesalci)
+    return template('domov.html', plesalci=plesalci)
 
+@get('/vrste/')
+def odpri_vrsto_oblacila():
+    vrste = repo.vrste()
+    return template('vrste.html', vrste = vrste)
 
+@get('/oblacila/')
+def odpri_oblacila():
+    oblacila = repo.oblacila()
+    return template('oblacila.html', oblacila = oblacila)
 
 #@get('/dodaj_izdelek')
 #def dodaj_izdelek():
@@ -85,11 +103,12 @@ def prijava():
         return template("prijava.html", napaka="Uporabnik s tem imenom ne obstaja")
 
     prijava = auth.prijavi_uporabnika(username, password)
+    print(prijava)
     if prijava:
-        response.set_cookie("uporabnik", username)
+        response.set_cookie("uporabnik", username, expires=None)
         response.set_cookie("role", prijava.role)
         #plesalci = repo.plesalci()
-        #return template('izdelki.html', plesalci=plesalci)
+        #return template('domov.html', plesalci=plesalci)
         redirect(url('index'))
 
     else:

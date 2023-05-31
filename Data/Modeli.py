@@ -19,10 +19,10 @@ from decimal import Decimal
 @dataclass_json
 @dataclass
 class VrstaOblacila:
+    id: int
     pokrajina: str
     ime: str
     spol: str 
-    id: int = field(default="")
     omara: int = field(default=None)
 
 @dataclass_json
@@ -34,7 +34,15 @@ class GlavnaOblacila:
     barva: str = field(default="")
     stanje: bool = field(default=True) # False = neuporabno, True = uporabno
     opombe: str = field(default="")
-    
+
+@dataclass
+class GlavnaOblacilaDto:
+    ime: str
+    pokrajina: str
+    spol: str
+    zaporednast: int
+    barva: str
+  
 @dataclass_json
 @dataclass
 class ZgornjiDel:
@@ -82,6 +90,7 @@ class PlesalecDto:
     idplesalca: int
     ime: str
     priimek: str
+
 
 @dataclass_json
 @dataclass

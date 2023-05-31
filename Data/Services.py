@@ -17,7 +17,7 @@ class AuthService:
 
     def obstaja_uporabnik(self, uporabnik: str) -> bool:
         try:
-            uporabnik = self.repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("username",))
+            uporabnik = self.repo.dobi_gen_id(Uporabnik, uporabnik, id_col="username")
             return True
         except:
             return False
@@ -25,7 +25,7 @@ class AuthService:
     def prijavi_uporabnika(self, uporabnik : str, geslo: str) -> UporabnikDto | bool :
 
         # Najprej dobimo uporabnika iz baze
-        user = self.repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("username",))
+        user = self.repo.dobi_gen_id(Uporabnik, uporabnik, id_col="username")
 
         geslo_bytes = geslo.encode('utf-8')
         # Ustvarimo hash iz gesla, ki ga je vnesel uporabnik

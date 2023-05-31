@@ -1,3 +1,18 @@
-.opozorilo {
-    color: #ff0000;
-}
+.carousel-inner  {
+    max-height: 97vh; 
+  }
+
+.carousel-item .carousel-caption {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
+
+
+
+  .container {
+    max-width: 960px;
+  }
+  

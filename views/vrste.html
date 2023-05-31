@@ -1,0 +1,18 @@
+%rebase('osnova.html', naslov='Vrsta')
+
+  <table class="table table-striped" id="podatki">
+      <tr>
+        <th>Pokrajina</th>
+        <th>Ime</th>
+        <th>Spol</th>
+        <th>Omara</th>
+      </tr>
+      %for vrsta in vrste:
+      <tr>
+        <td>{{vrsta.pokrajina}}</td>
+        <td>{{vrsta.ime}}</td>
+        <td>{{vrsta.spol}}</td>
+        <td>{{vrsta.omara}}</td>
+      </tr>
+      %end
+    </table>

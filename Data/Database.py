@@ -65,7 +65,7 @@ class Repo:
         return [typ.from_dict(d) for d in self.cur.fetchall()]
 
 
-    def dobi_gen_id(self, typ: Type[T], id_tuple: Tuple[str], id_cols: Tuple[str]) -> T:
+    def dobi_gen_id_tuple(self, typ: Type[T], id_tuple: Tuple[str], id_cols: Tuple[str]) -> T:
         """
         Generična metoda, ki vrne dataclass objekt pridobljen iz baze na podlagi njegovega PRIMARY KEY-a.
         """
@@ -81,7 +81,23 @@ class Repo:
 
         return typ.from_dict(d)
 
+    def dobi_gen_id(self, typ: Type[T], id: int | str, id_col = "id") -> T:
+        """
+        Generična metoda, ki vrne dataclass objekt pridobljen iz baze na podlagi njegovega idja.
+        """
+        tbl_name = typ.__name__
+        sql_cmd = f'SELECT * FROM {tbl_name} WHERE {id_col} = %s';
+        self.cur.execute(sql_cmd, (id,))
+
+        d = self.cur.fetchone()
+
+        if d is None:
+            raise Exception(f'Vrstica z id-jem {id} ne obstaja v {tbl_name}');
     
+        return typ.from_dict(d)
+    
+
+
     def dodaj_gen(self, typ: T, serial_col="id", auto_commit=True):
         """
         Generična metoda, ki v bazo doda entiteto/objekt. V kolikor imamo definiram serial
@@ -300,6 +316,26 @@ class Repo:
             """)
         plesalci = self.cur.fetchall()
         return [PlesalecDto(idplesalca, ime, priimek) for (idplesalca, ime, priimek) in plesalci]
+    
+    def vrste(self) -> List[VrstaOblacila]:
+        vrste = self.cur.execute(
+            """
+            SELECT * FROM VrstaOblacila
+            """)
+        vrste = self.cur.fetchall()
+        return [VrstaOblacila(id, pokrajina, ime, spol, omara) for (id, pokrajina, ime, spol, omara) in vrste]
+
+ 
+    def oblacila(self) -> List[GlavnaOblacilaDto]:
+        oblacila = self.cur.execute(
+            """
+            SELECT v.ime, v.pokrajina, v.spol, g.zaporednast, g.barva FROM GlavnaOblacila g
+            left join VrstaOblacila v on g.idvrste = v.id
+            """)
+        oblacila = self.cur.fetchall()
+        return [GlavnaOblacilaDto(ime, pokrajina, spol, zaporednast, barva) for (ime, pokrajina, spol, zaporednast, barva) in oblacila]
+        
+    
 
 '''
     def izdelki(self) -> List[IzdelekDto]: 
