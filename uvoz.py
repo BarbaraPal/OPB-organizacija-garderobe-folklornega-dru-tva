@@ -142,9 +142,9 @@ def dodaj_relacijo_oprava_vrsta(df):
 
 #dodaj_relacijo_oprava_vrsta(slovar_podatkov['ROpravaVrsta'])
 
-## primer ročnega dodajanja uporabnikov
-#
-##uporabnik1 = auth.dodaj_uporabnika("maja", "0", "maja")
+# primer ročnega dodajanja uporabnikov
+
+uporabnik1 = auth.dodaj_uporabnika("maja", True, "maja")
 #
 ##uporabnik = auth.dodaj_uporabnika("admin", "2", "admin")
 #

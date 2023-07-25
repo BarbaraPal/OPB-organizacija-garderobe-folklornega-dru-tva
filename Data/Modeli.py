@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
 from typing import List
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from enum import Enum
 from decimal import Decimal
@@ -20,9 +20,9 @@ from decimal import Decimal
 @dataclass
 class VrstaOblacila:
     id: int
-    pokrajina: str
     ime: str
-    spol: str 
+    spol: str
+    pokrajina: str = field(default='SLO') 
     omara: int = field(default=None)
 
 @dataclass_json
@@ -35,13 +35,13 @@ class GlavnaOblacila:
     stanje: bool = field(default=True) # False = neuporabno, True = uporabno
     opombe: str = field(default="")
 
-@dataclass
-class GlavnaOblacilaDto:
-    ime: str
-    pokrajina: str
-    spol: str
-    zaporednast: int
-    barva: str
+#@dataclass
+#class GlavnaOblacilaDto:
+#    ime: str
+#    pokrajina: str
+#    spol: str
+#    zaporednast: int
+#    barva: str
   
 @dataclass_json
 @dataclass
@@ -83,28 +83,19 @@ class Plesalec:
     priimek: str
     spolplesalca: str
     datumprikljucitve: date = field(default=date.today())
-    dodatnafunkcija: str = field(default='0')
-
-@dataclass
-class PlesalecDto:
-    idplesalca: int
-    ime: str
-    priimek: str
-
-
-@dataclass_json
-@dataclass
-class Velikost:
-    idvelikosti: int
-    idplesalca: int
     sirinaramen: Decimal = field(default=None)
     obsegprsi: Decimal = field(default=None)
     dolzinarokava: Decimal = field(default=None)
     dolzinaodpasunavzdol: Decimal = field(default=None)
     dolzinatelesa: Decimal = field(default=None)
-    stevilkanoge: int = field(default=None)
-    
+    stevilkanoge: Decimal = field(default=None)
 
+#@dataclass
+#class PlesalecDto:
+#    idplesalca: int
+#    ime: str
+#    priimek: str
+    
 @dataclass_json
 @dataclass
 class TipCevljev:
@@ -126,7 +117,7 @@ class Delo:
     iddela: int
     idplesalca: int
     vrstadela: str
-    trajanje: int
+    trajanje: timedelta
     datumizvajanja: date = field(default=date.today())
     
 
@@ -134,21 +125,29 @@ class Delo:
 @dataclass
 class OpravaKostumskePodobe:
     imekostumskepodobe: str
-    zaporednast: int
-    spoloprave: str
-    idvrste: int
+    imeoprave: str
     idtipacevljev: int
     posebnosti: str = field(default="")
 
 @dataclass_json
 @dataclass
+class ROpravaVrsta:
+    id: int
+    idvrsteoblacila: int
+    imeoprave: str
+    imekostumskepodobe: str
+    moznost: int
+
+
+@dataclass_json
+@dataclass
 class Uporabnik:
-    username: str = field(default="")
-    password_hash: str = field(default="")
-    last_login: str = field(default="")
-    role: str = field(default="0")
+    uporabniskoime: str
+    kodiranogeslo: str 
+    zadnjaprijava: date
+    rola: bool = field(default=False)
 
 @dataclass
 class UporabnikDto:
-    username: str = field(default="")
-    role: str = field(default="0")
+    uporabniskoime: str
+    rola: bool = field(default=False)

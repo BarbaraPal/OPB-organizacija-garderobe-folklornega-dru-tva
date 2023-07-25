@@ -2,8 +2,8 @@
 # -*- encoding: utf-8 -*-
 
 # uvozimo bottle.py
-from bottleext import get, post, run, request, template, redirect, static_file, url, error, response, template_user
-
+#from bottleext import get, post, run, request, template, redirect, static_file, url, error, response, template_user
+from bottleext import *
 # uvozimo ustrezne podatke za povezavo
 
 from Data.Database import Repo
@@ -18,7 +18,7 @@ import os
 #tracemalloc.start()
 
 # privzete nastavitve
-SERVER_PORT = os.environ.get('BOTTLE_PORT', 8085)
+SERVER_PORT = os.environ.get('BOTTLE_PORT', 8080)
 RELOADER = os.environ.get('BOTTLE_RELOADER', True)
 DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
 
@@ -36,11 +36,11 @@ def cookie_required(f):
     @wraps(f)
     def decorated( *args, **kwargs):
 
-        cookie = request.get_cookie("uporabnik")
+        cookie = request.get_cookie("uporabniskoime")
         if cookie:
             return f(*args, **kwargs)
-
-        return template("prijava.html", napaka="Potrebna je prijava!")
+        
+        redirect(url('prijava'))
 
     return decorated
 
@@ -61,20 +61,21 @@ def index():
     redirect('/domov/')
 
 @get('/domov/')
-#@cookie_required
+@cookie_required
 def osnovna_stran():
-    plesalci = repo.plesalci()
-    return template('domov.html', plesalci=plesalci)
+    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
+    #plesalci = repo.plesalci()
+    return template('domov.html', uporabnisko_ime = uporabnisko_ime)
 
-@get('/vrste/')
-def odpri_vrsto_oblacila():
-    vrste = repo.vrste()
-    return template('vrste.html', vrste = vrste)
-
-@get('/oblacila/')
-def odpri_oblacila():
-    oblacila = repo.oblacila()
-    return template('oblacila.html', oblacila = oblacila)
+#@get('/vrste/')
+#def odpri_vrsto_oblacila():
+#    vrste = repo.vrste()
+#    return template('vrste.html', vrste = vrste)
+#
+#@get('/oblacila/')
+#def odpri_oblacila():
+#    oblacila = repo.oblacila()
+#    return template('oblacila.html', oblacila = oblacila)
 
 #@get('/dodaj_izdelek')
 #def dodaj_izdelek():
@@ -86,9 +87,12 @@ def odpri_oblacila():
 # Glavni program
 
 
-#@get('/prijava/') 
-#def prijava_get():
-#    return template("prijava.html")
+@get('/prijava/') 
+def prijava_get():
+    """
+    Prikaže prijavno stran.
+    """
+    return template("prijava.html", napaka=None)
 
 @post('/prijava/')
 def prijava():
@@ -96,8 +100,8 @@ def prijava():
     Prijavi uporabnika v aplikacijo. Če je prijava uspešna, ustvari piškotke o uporabniku in njegovi roli.
     Drugače sporoči, da je prijava neuspešna.
     """
-    username = request.forms.get('username')
-    password = request.forms.get('password')
+    username = request.forms.get('uporabniskoime')
+    password = request.forms.get('geslo')
 
     if not auth.obstaja_uporabnik(username):
         return template("prijava.html", napaka="Uporabnik s tem imenom ne obstaja")
@@ -105,10 +109,8 @@ def prijava():
     prijava = auth.prijavi_uporabnika(username, password)
     print(prijava)
     if prijava:
-        response.set_cookie("uporabnik", username, expires=None)
-        response.set_cookie("role", prijava.role)
-        #plesalci = repo.plesalci()
-        #return template('domov.html', plesalci=plesalci)
+        response.set_cookie("uporabniskoime", username, path="/")
+        response.set_cookie("rola", f'{prijava.rola}', path="/" )
         redirect(url('index'))
 
     else:
@@ -120,10 +122,10 @@ def odjava():
     Odjavi uporabnika iz aplikacije. Pobriše piškotke o uporabniku in njegovi roli.
     """
 
-    response.delete_cookie("uporabnik")
-    response.delete_cookie("role")
+    response.delete_cookie("uporabniskoime")
+    response.delete_cookie("rola")
 
-    return template('prijava.html', napaka=None)
+    redirect(url('index'))
 
 
 

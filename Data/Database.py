@@ -25,12 +25,11 @@ T = TypeVar(
     EnodelniKos,
     DodatnaOblacila,
     Plesalec,
-    Velikost,
     TipCevljev,
     Cevlji,
     Delo,
-    Uporabnik
-
+    Uporabnik,
+    ROpravaVrsta
     )
 
 class Repo:
@@ -85,3 +84,79 @@ class Repo:
         sql_cmd = f'''SELECT * FROM {tbl_name} OFFSET {skip};'''
         self.cur.execute(sql_cmd)
         return [typ.from_dict(d) for d in self.cur.fetchall()]
+
+    def dobi_gen_id(self, typ: Type[T], id: int | str, id_col = "id") -> T:
+        """
+        Generična metoda, ki vrne dataclass objekt pridobljen iz baze na podlagi njegovega idja.
+        """
+        tbl_name = typ.__name__
+        sql_cmd = f'SELECT * FROM {tbl_name} WHERE {id_col} = %s';
+        self.cur.execute(sql_cmd, (id,))
+
+        d = self.cur.fetchone()
+
+        if d is None:
+            raise Exception(f'Vrstica z id-jem {id} ne obstaja v {tbl_name}');
+    
+        return typ.from_dict(d)
+    
+
+    def posodobi_gen(self, typ: T, id_col = "id", auto_commit=True):
+        """
+        Generična metoda, ki posodobi objekt v bazi. Predpostavljamo, da je ime pripadajoče tabele
+        enako imenu objekta, ter da so atributi objekta direktno vezani na ime stolpcev v tabeli.
+        """
+
+        tbl_name = type(typ).__name__
+        
+        id = getattr(typ, id_col)
+        # dobimo vse atribute objekta razen id stolpca
+        fields = [c.name for c in dataclasses.fields(typ) if c.name != id_col]
+
+        sql_cmd = f'UPDATE {tbl_name} SET \n ' + \
+                    ", \n".join([f'{field} = %s' for field in fields]) +\
+                    f'\nWHERE {id_col} = %s'
+        
+        # iz objekta naredimo slovar (deluje samo za dataclasses_json)
+        d = typ.to_dict()
+
+        # sestavimo seznam parametrov, ki jih potem vsatvimo v sql ukaz
+        parameters = [d[field] for field in fields]
+        parameters.append(id)
+
+        # izvedemo sql
+        self.cur.execute(sql_cmd, parameters)
+        if auto_commit: self.conn.commit()
+        
+    
+    def dodaj_gen(self, typ: T, serial_col="id", auto_commit=True):
+        """
+        Generična metoda, ki v bazo doda entiteto/objekt. V kolikor imamo definiram serial
+        stolpec, objektu to vrednost tudi nastavimo.
+        """
+
+        tbl_name = type(typ).__name__
+
+        cols =[c.name for c in dataclasses.fields(typ) if c.name != serial_col]
+        
+        sql_cmd = f'''
+        INSERT INTO {tbl_name} ({", ".join(cols)})
+        VALUES
+        ({self.cur.mogrify(",".join(['%s']*len(cols)), [getattr(typ, c) for c in cols]).decode('utf-8')})
+        '''
+
+        if serial_col != None:
+            sql_cmd += f'RETURNING {serial_col}'
+
+        self.cur.execute(sql_cmd)
+
+        if serial_col != None:
+            serial_val = self.cur.fetchone()[0]
+
+            # Nastavimo vrednost serial stolpca
+            setattr(typ, serial_col, serial_val)
+
+        if auto_commit: self.conn.commit()
+
+        # Dobro se je zavedati, da tukaj sam dataclass dejansko
+        # "mutiramo" in ne ustvarimo nove reference. Return tukaj ni niti potreben.
