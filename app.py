@@ -55,17 +55,14 @@ def static(filename):
 def static_style(filename):
     return static_file(filename, root='static')
 
+@get('/static/<filename:path>')
+def static_js(filename):
+    return static_file(filename, root='static')
+
 
 @get('/')
 def index(): 
     redirect('/domov/')
-
-@get('/domov/')
-@cookie_required
-def osnovna_stran():
-    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
-    #plesalci = repo.plesalci()
-    return template('domov.html', uporabnisko_ime = uporabnisko_ime)
 
 #@get('/vrste/')
 #def odpri_vrsto_oblacila():
@@ -92,6 +89,9 @@ def prijava_get():
     """
     Prikaže prijavno stran.
     """
+    cookie = request.get_cookie("uporabniskoime")
+    if cookie:
+        redirect(url('osnovna_stran'))
     return template("prijava.html", napaka=None)
 
 @post('/prijava/')
@@ -116,17 +116,49 @@ def prijava():
     else:
         return template("prijava.html", napaka="Neuspešna prijava. Napačno geslo ali uporabniško ime.")
 
-@get('/odjava')
+@get('/odjava/')
 def odjava():
     """
     Odjavi uporabnika iz aplikacije. Pobriše piškotke o uporabniku in njegovi roli.
     """
 
-    response.delete_cookie("uporabniskoime")
-    response.delete_cookie("rola")
+    response.delete_cookie("uporabniskoime", path='/')
+    response.delete_cookie("rola", path='/')
 
     redirect(url('index'))
 
+@get('/profil/')
+@cookie_required
+def podatki_o_profilu():
+    """
+    Prikaže podatke o uporabniku in še kaj.
+    """
+    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
+    uporabnik = repo.profil(uporabnisko_ime)
+    cevlji = repo.cevlji_posameznika(uporabnisko_ime)
+    return template('profil.html', uporabnisko_ime = uporabnisko_ime, plesalecdto = uporabnik, cevljidto = cevlji)
+    
+@post('/spremeni_geslo/')
+@cookie_required
+def spremeni_geslo():
+    """
+    Spremeni geslo trenutnega uporabnika
+    """
+    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
+    staro_geslo = request.forms.get('staro_geslo')
+    novo_geslo = request.forms.get('novo_geslo')
+    sprememba = auth.sprememba_gesla(uporabnisko_ime, staro_geslo,novo_geslo)
+    if sprememba:
+        return redirect(url('podatki_o_profilu'))
+    else:
+        return redirect(url('domov')) 
+
+@get('/domov/')
+@cookie_required
+def osnovna_stran():
+    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
+    #plesalci = repo.plesalci()
+    return template('domov.html', uporabnisko_ime = uporabnisko_ime)
 
 
 

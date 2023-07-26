@@ -9,10 +9,16 @@
     right: 0;
     text-align: center;
   }
-
-
-
   .container {
     max-width: 960px;
   }
   
+  .center-text {
+    text-align: center;
+  }
+
+  ul.no-bullets {
+    list-style-type: none; 
+    padding: 0; 
+    margin: 0; 
+  }

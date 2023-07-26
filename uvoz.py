@@ -144,7 +144,8 @@ def dodaj_relacijo_oprava_vrsta(df):
 
 # primer ročnega dodajanja uporabnikov
 
-uporabnik1 = auth.dodaj_uporabnika("maja", True, "maja")
+uporabnik1 = auth.dodaj_uporabnika("maja", True, "maja",101)
+uporabnik2 = auth.dodaj_uporabnika("navaden plesalec", False, "12345678", 100)
 #
 ##uporabnik = auth.dodaj_uporabnika("admin", "2", "admin")
 #

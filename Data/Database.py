@@ -139,6 +139,7 @@ class Repo:
 
         cols =[c.name for c in dataclasses.fields(typ) if c.name != serial_col]
         
+
         sql_cmd = f'''
         INSERT INTO {tbl_name} ({", ".join(cols)})
         VALUES
@@ -160,3 +161,31 @@ class Repo:
 
         # Dobro se je zavedati, da tukaj sam dataclass dejansko
         # "mutiramo" in ne ustvarimo nove reference. Return tukaj ni niti potreben.
+
+    def profil(self, uporabnisko_ime) -> List[PlesalecDto]:
+        self.cur.execute(
+            """
+            SELECT v.ime, v.priimek, v.spolplesalca, v.datumprikljucitve, v.sirinaramen, v.obsegprsi, v.dolzinarokava, v.dolzinaodpasunavzdol, v.dolzinatelesa, v.stevilkanoge, g.uporabniskoime, g.rola 
+            FROM Uporabnik g 
+            LEFT JOIN Plesalec v ON g.idplesalca = v.idplesalca
+            WHERE g.uporabniskoime = %s;
+            """, (uporabnisko_ime,))
+
+        podatki_uporabnika = self.cur.fetchall()
+        print(podatki_uporabnika)
+        ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, uporabniskoime, rola = podatki_uporabnika[0]
+        return PlesalecDto(uporabniskoime, ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, rola)
+   
+    def cevlji_posameznika(self, uporabnisko_ime) -> List[CevljiDto]:
+        self.cur.execute(
+            """
+            SELECT u.uporabniskoime, t.vrsta, c.velikost, c.zapst
+            FROM Uporabnik u 
+            LEFT JOIN Plesalec p ON u.idplesalca = p.idplesalca
+            LEFT JOIN Cevlji c ON p.idplesalca = c.idlastnika
+            LEFT JOIN tipcevljev t ON c.idtipacevljev = t.idtipacevljev
+            WHERE u.uporabniskoime = %s;
+            """, (uporabnisko_ime,))
+
+        cevlji_plesalca = self.cur.fetchall()
+        return [CevljiDto(uporabniskoime, vrsta, velikost, zapst) for (uporabniskoime, vrsta, velikost, zapst) in cevlji_plesalca]

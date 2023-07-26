@@ -145,9 +145,32 @@ class Uporabnik:
     uporabniskoime: str
     kodiranogeslo: str 
     zadnjaprijava: date
+    idplesalca: int
     rola: bool = field(default=False)
 
 @dataclass
 class UporabnikDto:
     uporabniskoime: str
     rola: bool = field(default=False)
+
+@dataclass
+class PlesalecDto:
+    uporabniskoime: str
+    ime: str
+    priimek: str
+    spolplesalca: str
+    datumprikljucitve: date = field(default=date.today())
+    sirinaramen: Decimal = field(default=None)
+    obsegprsi: Decimal = field(default=None)
+    dolzinarokava: Decimal = field(default=None)
+    dolzinaodpasunavzdol: Decimal = field(default=None)
+    dolzinatelesa: Decimal = field(default=None)
+    stevilkanoge: Decimal = field(default=None)
+    rola: bool = field(default=False)
+
+@dataclass
+class CevljiDto:
+    uporabniskoime: str
+    vrsta: str
+    zapst: int
+    velikost: int

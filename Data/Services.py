@@ -37,7 +37,7 @@ class AuthService:
         
         return False
 
-    def dodaj_uporabnika(self, uporabnik: str, role: bool, geslo: str) -> UporabnikDto:
+    def dodaj_uporabnika(self, uporabnik: str, role: bool, geslo: str, idplesalca: int) -> UporabnikDto:
 
         # zgradimo hash za geslo od uporabnika
 
@@ -55,6 +55,7 @@ class AuthService:
         uporabnik = Uporabnik(
             uporabniskoime=uporabnik,
             rola=role,
+            idplesalca=idplesalca,
             kodiranogeslo=kodiranogeslo.decode(),
             zadnjaprijava= date.today().isoformat()
         )
@@ -62,3 +63,19 @@ class AuthService:
         self.repo.dodaj_gen(uporabnik, serial_col=None)
 
         return UporabnikDto(uporabniskoime=uporabnik, rola=role)
+
+    def sprememba_gesla(self, uporabnisko_ime: str, staro_geslo: str, novo_geslo: str):
+        uporabnik = self.repo.dobi_gen_id(Uporabnik, uporabnisko_ime, id_col="uporabniskoime")
+        
+        staro_geslo_bytes = staro_geslo.encode('utf-8')
+        succ = bcrypt.checkpw(staro_geslo_bytes, uporabnik.kodiranogeslo.encode('utf-8'))
+        if succ:
+            bytes = novo_geslo.encode('utf-8')
+            salt = bcrypt.gensalt()
+            novo_kodirano_geslo = bcrypt.hashpw(bytes, salt)
+            uporabnik.kodiranogeslo = novo_kodirano_geslo.decode('utf-8')
+            print(uporabnik)
+            self.repo.posodobi_gen(uporabnik, id_col="uporabniskoime")
+            return True
+        return False        
+
