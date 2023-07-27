@@ -136,7 +136,10 @@ def podatki_o_profilu():
     uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
     uporabnik = repo.profil(uporabnisko_ime)
     cevlji = repo.cevlji_posameznika(uporabnisko_ime)
-    return template('profil.html', uporabnisko_ime = uporabnisko_ime, plesalecdto = uporabnik, cevljidto = cevlji)
+    delo = repo.delo_posameznika(uporabnisko_ime)
+    for d in delo:
+        d.skupno_trajanje = f'{d.skupno_trajanje.total_seconds() // 60} minut'
+    return template('profil.html', uporabnisko_ime = uporabnisko_ime, plesalecdto = uporabnik, cevljidto = cevlji, delodto = delo)
     
 @post('/spremeni_geslo/')
 @cookie_required

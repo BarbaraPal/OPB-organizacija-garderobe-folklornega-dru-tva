@@ -172,7 +172,6 @@ class Repo:
             """, (uporabnisko_ime,))
 
         podatki_uporabnika = self.cur.fetchall()
-        print(podatki_uporabnika)
         ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, uporabniskoime, rola = podatki_uporabnika[0]
         return PlesalecDto(uporabniskoime, ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, rola)
    
@@ -189,3 +188,21 @@ class Repo:
 
         cevlji_plesalca = self.cur.fetchall()
         return [CevljiDto(uporabniskoime, vrsta, velikost, zapst) for (uporabniskoime, vrsta, velikost, zapst) in cevlji_plesalca]
+    
+    def delo_posameznika(self, uporabnisko_ime) -> List[DeloDto]:
+        trenutni_mesec = datetime.now().month
+        self.cur.execute(
+            """
+            SELECT d.vrstadela, SUM(d.trajanje) AS skupno_trajanje, u.uporabniskoime
+            FROM Delo d
+            LEFT JOIN Uporabnik u ON u.idplesalca = d.idplesalca
+            WHERE EXTRACT('month' FROM datumizvajanja) = %s
+            AND u.uporabniskoime = %s
+            GROUP BY d.vrstadela, u.uporabniskoime;
+            """, (trenutni_mesec, uporabnisko_ime,))
+        
+        podatki_o_delu_uporabnika = self.cur.fetchall()
+        return [DeloDto(uporabniskoime, vrstadela, skupno_trajanje) for (vrstadela, skupno_trajanje, uporabniskoime ) in podatki_o_delu_uporabnika]
+
+
+

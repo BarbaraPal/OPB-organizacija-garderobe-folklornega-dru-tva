@@ -89,12 +89,6 @@ class Plesalec:
     dolzinaodpasunavzdol: Decimal = field(default=None)
     dolzinatelesa: Decimal = field(default=None)
     stevilkanoge: Decimal = field(default=None)
-
-#@dataclass
-#class PlesalecDto:
-#    idplesalca: int
-#    ime: str
-#    priimek: str
     
 @dataclass_json
 @dataclass
@@ -172,5 +166,11 @@ class PlesalecDto:
 class CevljiDto:
     uporabniskoime: str
     vrsta: str
-    zapst: int
     velikost: int
+    zapst: int
+
+@dataclass
+class DeloDto:
+    uporabniskoime: str
+    vrstadela: str
+    skupno_trajanje: timedelta
