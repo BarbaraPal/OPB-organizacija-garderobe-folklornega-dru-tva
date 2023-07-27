@@ -132,6 +132,14 @@ class ROpravaVrsta:
     imekostumskepodobe: str
     moznost: int
 
+@dataclass
+class OpravaDto:
+    ime: str
+    spol: str
+    moznost: int
+    pokrajina: str = field(default='SLO') 
+    omara: int = field(default=None)
+
 
 @dataclass_json
 @dataclass
@@ -174,3 +182,8 @@ class DeloDto:
     uporabniskoime: str
     vrstadela: str
     skupno_trajanje: timedelta
+
+@dataclass
+class OpravaKostumskePodobeDto:
+    imekostumskepodobe: str
+    imeoprave: str

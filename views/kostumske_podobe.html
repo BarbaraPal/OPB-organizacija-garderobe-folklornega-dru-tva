@@ -1,28 +1,24 @@
-%rebase('osnova.html', naslov='Vrsta')
-<!--
-% include('orodna_vrstica.html', fun_dodaj='kraji_dodaj', napis='Dodaj kraj')
--->
-  <table class="table table-striped" id="podatki">
-      <tr>
-        <th>Pokrajina</th>
-        <th>Ime</th>
-        <th>Spol</th>
-        <th>Omara</th>
-      </tr>
-      %for id, pokrajina, ime, spol, omara in vrstaoblacila:
-      <tr>
-        <td>{{pokrajina}}</td>
-        <td>{{ime}}</td>
-        <td>{{spol}</td>
-        <td>{{omara}}</td>
-        <!--<td class="akcije">
-          <form action="{{url('kraji_uredi', posta=posta)}}" method="GET">
-            <a href="#" onclick="this.parentElement.submit()">Uredi</a>
-          </form>
-          <form action="{{url('kraji_brisi', posta=posta)}}" method="POST">
-            <a href="#" onclick="this.parentElement.submit()">Izbriši</a>
-          </form>
-        </td>-->
-      </tr>
-      %end
-    </table>
+%rebase('osnova.html', naslov='Kostumske podobe', uporabnik=uporabnisko_ime)
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6">
+        <table id="table1" class="table table-striped" data-toggle="table" data-sticky-header="true" data-search="true" data-sortable="true">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col" class="text-center">Kostumske podobe</th>
+              <th scope="col" class="text-center">Vrsta</th>
+            </tr>
+          </thead>
+          <tbody>
+            % for i in podatek:
+            <tr>
+              <td><a href="{{ url('osnovna_stran', id=i.imekostumskepodobe[0]) }}"></a>{{ i.imekostumskepodobe }}</a></td>
+              <td>{{ i.imeoprave }}</td>
+            </tr>
+            % end
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>

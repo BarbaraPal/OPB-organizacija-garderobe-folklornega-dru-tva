@@ -55,7 +55,7 @@ def static(filename):
 def static_style(filename):
     return static_file(filename, root='static')
 
-@get('/static/<filename:path>')
+@get('/static_js/<filename:path>')
 def static_js(filename):
     return static_file(filename, root='static')
 
@@ -104,7 +104,7 @@ def prijava():
     password = request.forms.get('geslo')
 
     if not auth.obstaja_uporabnik(username):
-        return template("prijava.html", napaka="Uporabnik s tem imenom ne obstaja")
+        return template("prijava.html", napaka="Uporabnik s tem imenom ne obstaja.")
 
     prijava = auth.prijavi_uporabnika(username, password)
     print(prijava)
@@ -127,6 +127,7 @@ def odjava():
 
     redirect(url('index'))
 
+# ?sprememba=True
 @get('/profil/')
 @cookie_required
 def podatki_o_profilu():
@@ -139,7 +140,8 @@ def podatki_o_profilu():
     delo = repo.delo_posameznika(uporabnisko_ime)
     for d in delo:
         d.skupno_trajanje = f'{d.skupno_trajanje.total_seconds() // 60} minut'
-    return template('profil.html', uporabnisko_ime = uporabnisko_ime, plesalecdto = uporabnik, cevljidto = cevlji, delodto = delo)
+    sprememba = bottle.request.query.get('sprememba')
+    return template('profil.html', uporabnisko_ime = uporabnisko_ime, plesalecdto = uporabnik, cevljidto = cevlji, delodto = delo, sprememba = sprememba)
     
 @post('/spremeni_geslo/')
 @cookie_required
@@ -151,19 +153,25 @@ def spremeni_geslo():
     staro_geslo = request.forms.get('staro_geslo')
     novo_geslo = request.forms.get('novo_geslo')
     sprememba = auth.sprememba_gesla(uporabnisko_ime, staro_geslo,novo_geslo)
-    if sprememba:
-        return redirect(url('podatki_o_profilu'))
-    else:
-        return redirect(url('domov')) 
+    redirect(url('podatki_o_profilu', sprememba = sprememba))
 
 @get('/domov/')
 @cookie_required
 def osnovna_stran():
     uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
-    #plesalci = repo.plesalci()
     return template('domov.html', uporabnisko_ime = uporabnisko_ime)
 
+@get('/kostumske_podobe/')
+@cookie_required
+def kostumske_podobe():
+    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
+    uporabnik = repo.profil(uporabnisko_ime)
+    podatek = repo.kostumske_podobe(uporabnik)
+    return template('kostumske_podobe.html', uporabnisko_ime = uporabnisko_ime,podatek = podatek)   
 
+@get('/oblacila/')
+def oblacila():
+    return template('oblacila.html')
 
 @error(404)
 def error_404(error):

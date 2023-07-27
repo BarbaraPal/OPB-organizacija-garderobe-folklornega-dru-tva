@@ -20,7 +20,7 @@
           <div class="card-body p-0">
             <ul class="list-group list-group-flush rounded-3">
               
-              <p class="mb-4 text-center" style="padding-top: 5%;">Mere telesa</p>
+              <p class="mb-4 text-center" style="padding-top: 5%;"><b>Mere telesa</b></p>
               
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                 <p class="mb-0">Širina ramen (cm): {{plesalecdto.sirinaramen}}</p>
@@ -106,7 +106,7 @@
           <div class="col-md-12">
             <div class="card mb-4 mb-md-4">
               <div class="card-body">
-                <p class="mb-4">Moje delo v tem mesecu</p>
+                <p class="mb-4"><b>Moje delo v tem mesecu</b></p>
                   % if len(delodto) == 0:
                     <p class="mb-1">Ni podatkov o delu.</p>
                   % else:
@@ -128,26 +128,35 @@
           <div class="col-md-12">
             <div class="card mb-4 mb-md-0">
               <div class="card-body">
-                <p class="mb-4">Sprememba gesla</p>
+                <p class="mb-4"><b>Sprememba gesla</b></p>
                 <form action="{{url('spremeni_geslo')}}" method="POST" id="myForm1" class="needs-validation" novalidate>
                   <div class="form-group">
-                    <label for="staro_geslo">Staro geslo</label>
+                    <label for="staro_geslo">Geslo</label>
                     <input type="password" class="form-control" id="staro_geslo" placeholder="Vnesi svoje geslo" name = "staro_geslo">
                   </div> 
                   <div class="form-group">
-                      Geslo<input type="password" id="pwdId" class="form-control" name = "novo_geslo" pattern="^\w{8,25}$" required>
+                      Novo geslo<input type="password" id="pwdId" class="form-control" placeholder="Vnesi novo geslo" name = "novo_geslo" pattern="^\w{8,25}$" required>
                       <div class="valid-feedback">Veljavno</div>
                       <div class="invalid-feedback">Geslo mora biti dolgo od 8 do 25 znakov, ki so lahko črke številke ali "_".</div>
                   </div>
                   <div class="form-group">
-                      Potrdi geslo<input type="password" id="cPwdId" class="form-control myCpwdClass" pattern="^\w{8,25}$" required>
+                      Potrdi novo geslo<input type="password" id="cPwdId" class="form-control myCpwdClass" placeholder="Ponovno vnesi novo geslo" pattern="^\w{8,25}$" required>
                       <div id="cPwdValid" class="valid-feedback">Gesli se ujemata.</div>
                       <div id="cPwdInvalid" class="invalid-feedback">Geslo mora biti dolgo od 8 do 25 znakov, ki so lahko črke številke ali "_".</div>
                   </div>
-                  <div class="form-group">
+                  <div style="margin-top: 5px;" class="form-group">
                       <button id="submitBtn" type="submit" class="btn btn-secondary" disabled>Shrani</button>
                   </div>
-                  
+                  % if sprememba == "True":
+                  <div  style="margin-top: 5px;" class="alert alert-success">
+                    Geslo uspešno posodobljeno!
+                  </div>
+                  % end
+                  % if sprememba == "False":
+                  <div  style="margin-top: 5px;" class="alert alert-danger">
+                    Napačno vneseno staro geslo!  
+                  </div>
+                  % end
                 </form>
               </div>
             </div>

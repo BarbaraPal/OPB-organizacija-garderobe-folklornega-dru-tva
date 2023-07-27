@@ -1,11 +1,11 @@
 function preveriGesla(){
     // ----------- Set all elements as INVALID --------------
-    var myInputElements = document.querySelectorAll(".form-control");
-    var i;
-    for (i = 1; i < myInputElements.length; i++) {
-      myInputElements[i].classList.add('is-invalid');
-      myInputElements[i].classList.remove('is-valid');
-    }
+    //var myInputElements = document.querySelectorAll(".form-control");
+    //var i;
+    //for (i = 0; i < myInputElements.length; i++) {
+    //  myInputElements[i].classList.add('is-invalid');
+    //  myInputElements[i].classList.remove('is-valid');
+    //}
     // ------------ Check passwords similarity --------------
     $('#pwdId, #cPwdId').on('keyup', function () {
       if ($('#pwdId').val() != '' && $('#cPwdId').val() != '' && $('#pwdId').val() == $('#cPwdId').val() ) {
@@ -45,6 +45,7 @@ function preveriGesla(){
         $("#submitBtn").attr("disabled",false);
         $('#submitBtn').addClass('btn-primary').removeClass('btn-secondary');
         currForm1.classList.add('was-validated');
+
       }
     }, false);
     // ----------------- Validate on input -----------------

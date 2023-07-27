@@ -204,5 +204,30 @@ class Repo:
         podatki_o_delu_uporabnika = self.cur.fetchall()
         return [DeloDto(uporabniskoime, vrstadela, skupno_trajanje) for (vrstadela, skupno_trajanje, uporabniskoime ) in podatki_o_delu_uporabnika]
 
+    def kostumske_podobe(self, uporabnik):
+        if uporabnik.spolplesalca == 'Ž':
+            oprava = 'moška'
+        else:
+            oprava = 'ženska'
+        self.cur.execute(
+            """
+            SELECT imekostumskepodobe, imeoprave  FROM opravakostumskepodobe
+            WHERE imeoprave != %s
+            """, (oprava,))
+        
+        podatki = self.cur.fetchall()
+        return [OpravaKostumskePodobeDto(imekostumskepodobe, imeoprave) for (imekostumskepodobe, imeoprave) in podatki]
+    
+    def oprava_kostumske_podobe(self, kostumska_podoba, oprava)-> List[OpravaDto]:
+        self.cur.execute(
+            """
+            SELECT v.ime, v.spol, r.moznost, v.pokrajina, v.omara
+            FROM ROpravaVrsta r 
+            LEFT JOIN VrstaOblacil v ON r.dvrsteoblacila = v.id
+            WHERE r.imekostumskepodobe = %s
+            WHERE r.imeoprave = %s;
+            """, (kostumska_podoba, oprava,))
 
+        oprava = self.cur.fetchall()
+        return [OpravaDto(ime, spol, moznost, pokrajina, omara) for (ime, spol, moznost, pokrajina, omara) in oprava]        
 
