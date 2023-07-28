@@ -85,23 +85,25 @@ class Repo:
         self.cur.execute(sql_cmd)
         return [typ.from_dict(d) for d in self.cur.fetchall()]
 
-    def dobi_gen_id(self, typ: Type[T], id: int | str, id_col = "id") -> T:
+    
+    def dobi_gen_id(self, typ: Type[T], id_tuple: Tuple[str], id_cols: Tuple[str]) -> T:
         """
-        Generična metoda, ki vrne dataclass objekt pridobljen iz baze na podlagi njegovega idja.
+        Generična metoda, ki vrne dataclass objekt pridobljen iz baze na podlagi njegovega PRIMARY KEY-a.
         """
         tbl_name = typ.__name__
-        sql_cmd = f'SELECT * FROM {tbl_name} WHERE {id_col} = %s';
-        self.cur.execute(sql_cmd, (id,))
+        id_conditions = " AND ".join([f"{col} = %s" for col in id_cols])
+        sql_cmd = f"SELECT * FROM {tbl_name} WHERE {id_conditions};"
+        self.cur.execute(sql_cmd, id_tuple)
 
         d = self.cur.fetchone()
 
         if d is None:
-            raise Exception(f'Vrstica z id-jem {id} ne obstaja v {tbl_name}');
-    
-        return typ.from_dict(d)
-    
+            raise Exception(f"Vrstica s ključem {id_tuple} ne obstaja v {tbl_name}.")
 
-    def posodobi_gen(self, typ: T, id_col = "id", auto_commit=True):
+        return typ.from_dict(d)
+
+
+    def posodobi_gen(self, typ: T, id_cols = ("id",), auto_commit=True):
         """
         Generična metoda, ki posodobi objekt v bazi. Predpostavljamo, da je ime pripadajoče tabele
         enako imenu objekta, ter da so atributi objekta direktno vezani na ime stolpcev v tabeli.
@@ -109,25 +111,37 @@ class Repo:
 
         tbl_name = type(typ).__name__
         
-        id = getattr(typ, id_col)
+        ids = tuple(getattr(typ, id_col, None) for id_col in id_cols)        
         # dobimo vse atribute objekta razen id stolpca
-        fields = [c.name for c in dataclasses.fields(typ) if c.name != id_col]
+        fields = [c.name for c in dataclasses.fields(typ) if c.name != id_cols]
 
-        sql_cmd = f'UPDATE {tbl_name} SET \n ' + \
-                    ", \n".join([f'{field} = %s' for field in fields]) +\
-                    f'\nWHERE {id_col} = %s'
-        
-        # iz objekta naredimo slovar (deluje samo za dataclasses_json)
-        d = typ.to_dict()
+        # Iz objekta naredimo slovar (deluje za dataclasses_json)
+        d = {field: getattr(typ, field) for field in fields}
+    
+        # Spremenimo "slika" atribut v bytea
+        if isinstance(typ, tuple):
+            d['slika'] = bytes(getattr(typ, 'slika'))
+        else:
+            id_conditions = ' AND '.join([f'{id_col} = %s' for id_col in id_cols])
+            sql_cmd = f'UPDATE {tbl_name} SET\n' + ',\n'.join([f'{field} = %s' for field in fields]) + f'\nWHERE {id_conditions}'
 
-        # sestavimo seznam parametrov, ki jih potem vsatvimo v sql ukaz
+        id_conditions = ' AND '.join([f'{id_col} = %s' for id_col in id_cols])
+        sql_cmd = f'UPDATE {tbl_name} SET\n' + ',\n'.join([f'{field} = %s' for field in fields]) + f'\nWHERE {id_conditions}'
+
+        # sestavimo seznam parametrov, ki jih potem vstavimo v sql ukaz
         parameters = [d[field] for field in fields]
-        parameters.append(id)
+        parameters.extend(ids)
 
         # izvedemo sql
         self.cur.execute(sql_cmd, parameters)
-        if auto_commit: self.conn.commit()
-        
+        if auto_commit:
+            self.conn.commit()
+
+
+
+
+
+
     
     def dodaj_gen(self, typ: T, serial_col="id", auto_commit=True):
         """
@@ -230,4 +244,3 @@ class Repo:
 
         oprava = self.cur.fetchall()
         return [OpravaDto(ime, spol, moznost, pokrajina, omara) for (ime, spol, moznost, pokrajina, omara) in oprava]        
-

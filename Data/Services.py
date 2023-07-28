@@ -16,7 +16,7 @@ class AuthService:
 
     def obstaja_uporabnik(self, uporabnik: str) -> bool:
         try:
-            uporabnik = self.repo.dobi_gen_id(Uporabnik, uporabnik, id_col="uporabniskoime")
+            uporabnik = self.repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("uporabniskoime",))
             return True
         except:
             return False
@@ -24,7 +24,7 @@ class AuthService:
     def prijavi_uporabnika(self, uporabnik : str, geslo: str) -> UporabnikDto | bool :
 
         # Najprej dobimo uporabnika iz baze
-        user = self.repo.dobi_gen_id(Uporabnik, uporabnik, id_col="uporabniskoime")
+        user = self.repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("uporabniskoime",))
         geslo_bytes = geslo.encode('utf-8')
         # Ustvarimo hash iz gesla, ki ga je vnesel uporabnik
         succ = bcrypt.checkpw(geslo_bytes, user.kodiranogeslo.encode('utf-8'))
@@ -32,7 +32,7 @@ class AuthService:
         if succ:
             # popravimo last login time
             user.zadnjaprijava = date.today().isoformat()
-            self.repo.posodobi_gen(user, id_col="uporabniskoime")
+            self.repo.posodobi_gen(user, id_cols=("uporabniskoime",))
             return UporabnikDto(uporabniskoime=user.uporabniskoime, rola=user.rola)
         
         return False
@@ -65,7 +65,7 @@ class AuthService:
         return UporabnikDto(uporabniskoime=uporabnik, rola=role)
 
     def sprememba_gesla(self, uporabnisko_ime: str, staro_geslo: str, novo_geslo: str):
-        uporabnik = self.repo.dobi_gen_id(Uporabnik, uporabnisko_ime, id_col="uporabniskoime")
+        uporabnik = self.repo.dobi_gen_id(Uporabnik, (uporabnisko_ime,), id_cols=("uporabniskoime",))
         
         staro_geslo_bytes = staro_geslo.encode('utf-8')
         succ = bcrypt.checkpw(staro_geslo_bytes, uporabnik.kodiranogeslo.encode('utf-8'))
@@ -75,7 +75,7 @@ class AuthService:
             novo_kodirano_geslo = bcrypt.hashpw(bytes, salt)
             uporabnik.kodiranogeslo = novo_kodirano_geslo.decode('utf-8')
             print(uporabnik)
-            self.repo.posodobi_gen(uporabnik, id_col="uporabniskoime")
+            self.repo.posodobi_gen(uporabnik, id_cols=("uporabniskoime",))
             return True
         return False        
 

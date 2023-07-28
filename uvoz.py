@@ -6,6 +6,7 @@ from typing import Dict
 from re import sub
 import dataclasses
 import numpy as np
+import os
 
 # Vse kar delamo z bazo se nahaja v razredu Repo.
 repo = Repo()
@@ -144,8 +145,8 @@ def dodaj_relacijo_oprava_vrsta(df):
 
 # primer ročnega dodajanja uporabnikov
 
-uporabnik1 = auth.dodaj_uporabnika("maja", True, "maja",101)
-uporabnik2 = auth.dodaj_uporabnika("navaden plesalec", False, "12345678", 100)
+#uporabnik1 = auth.dodaj_uporabnika("maja", True, "maja",101)
+#uporabnik2 = auth.dodaj_uporabnika("navaden plesalec", False, "11111111", 100)
 #
 ##uporabnik = auth.dodaj_uporabnika("admin", "2", "admin")
 #
@@ -157,3 +158,18 @@ uporabnik2 = auth.dodaj_uporabnika("navaden plesalec", False, "12345678", 100)
 ##uporabnik3 = auth.dodaj_uporabnika("javnost", "1", "javnogeslo")
 #
 #
+def uvoz_slik(kos_oblacila, pot):
+    slika = open(pot, 'rb').read()
+
+    oblacilo = repo.dobi_gen_id(GlavnaOblacila, kos_oblacila, id_cols=("idvrste", "zaporednast"))
+    oblacilo.slika = bytes(slika)
+    repo.posodobi_gen(oblacilo, id_cols=("idvrste", "zaporednast"))
+
+uvoz_slik((5, 9), "Data/podatki/slike_stajerska_bluza/modra_rjava_mala_kockasta.jpg")
+uvoz_slik((5, 8), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
+
+#def dodajanje_slik_v_bazo():
+#    oblacila = repo.dobi_gen_vse(GlavnaOblacila)
+#    print(oblacila)
+
+#dodajanje_slik_v_bazo()

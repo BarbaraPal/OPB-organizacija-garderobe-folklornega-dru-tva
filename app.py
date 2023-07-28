@@ -59,7 +59,6 @@ def static_style(filename):
 def static_js(filename):
     return static_file(filename, root='static')
 
-
 @get('/')
 def index(): 
     redirect('/domov/')
