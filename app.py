@@ -106,7 +106,6 @@ def prijava():
         return template("prijava.html", napaka="Uporabnik s tem imenom ne obstaja.")
 
     prijava = auth.prijavi_uporabnika(username, password)
-    print(prijava)
     if prijava:
         response.set_cookie("uporabniskoime", username, path="/")
         response.set_cookie("rola", f'{prijava.rola}', path="/" )
@@ -160,17 +159,51 @@ def osnovna_stran():
     uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
     return template('domov.html', uporabnisko_ime = uporabnisko_ime)
 
-@get('/kostumske_podobe/')
+@get('/kostumske_podobe2/')
 @cookie_required
 def kostumske_podobe():
     uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
     uporabnik = repo.profil(uporabnisko_ime)
     podatek = repo.kostumske_podobe(uporabnik)
-    return template('kostumske_podobe.html', uporabnisko_ime = uporabnisko_ime,podatek = podatek)   
+    slovar_oprave = {}
+    slovar_kostumskih_podob = {}
+    slovar = {}
+    for oprava in podatek:
+        podatki_oprave = repo.oprava_kostumske_podobe(oprava.imekostumskepodobe, oprava.imeoprave)
+        slovar[(oprava.imekostumskepodobe, oprava.imeoprave)] = podatki_oprave
+        slovar_oprave[(oprava.imekostumskepodobe,oprava.imeoprave)] = (oprava.vrsta_cevljev, oprava.posebnosti)
+        if oprava.imekostumskepodobe not in slovar_kostumskih_podob.keys():
+            slovar_kostumskih_podob[oprava.imekostumskepodobe] = [oprava.imeoprave]
+        else:
+            slovar_kostumskih_podob[oprava.imekostumskepodobe].append(oprava.imeoprave)
+    print(slovar_oprave)
+    return template('kostumske_podobe2.html', uporabnisko_ime = uporabnisko_ime, podatek = podatek, seznam = slovar, slovar_kostumskih_podob = slovar_kostumskih_podob, slovar_oprave = slovar_oprave)
 
-@get('/oblacila/')
-def oblacila():
-    return template('oblacila.html')
+#@get('/oblacila/')
+#def oblacila():
+#    return template('oblacila.html')
+
+
+@get('/kostumske_podobe/<kostumska_podoba>/<imeoprave>/')
+@cookie_required
+def kostumske_podobe(kostumska_podoba, imeoprave):
+    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
+    uporabnik = repo.profil(uporabnisko_ime)
+    podatek = repo.kostumske_podobe(uporabnik)
+    slovar_oprave = {}
+    slovar_kostumskih_podob = {}
+    slovar = {}
+    for oprava in podatek:
+        podatki_oprave = repo.oprava_kostumske_podobe(oprava.imekostumskepodobe, oprava.imeoprave)
+        slovar[(oprava.imekostumskepodobe, oprava.imeoprave)] = podatki_oprave
+        posebnosti = oprava.posebnosti.replace(';', ', ;').split(';')
+        slovar_oprave[(oprava.imekostumskepodobe,oprava.imeoprave)] = (oprava.vrsta_cevljev, posebnosti)
+        if oprava.imekostumskepodobe not in slovar_kostumskih_podob.keys():
+            slovar_kostumskih_podob[oprava.imekostumskepodobe] = [oprava.imeoprave]
+        else:
+            slovar_kostumskih_podob[oprava.imekostumskepodobe].append(oprava.imeoprave)
+    return template('kostumske_podobe.html', uporabnisko_ime = uporabnisko_ime, podatek = podatek, seznam = slovar, slovar_kostumskih_podob = slovar_kostumskih_podob, kostumska_podoba = kostumska_podoba, imeoprave = imeoprave, slovar_oprave = slovar_oprave)
+
 
 @error(404)
 def error_404(error):

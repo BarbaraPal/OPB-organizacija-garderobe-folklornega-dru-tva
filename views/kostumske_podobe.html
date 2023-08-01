@@ -1,31 +1,133 @@
-%rebase('osnova.html', naslov='Kostumske podobe', uporabnik=uporabnisko_ime)
+%rebase('osnova.html', naslov='Oblacila', uporabnik=uporabnisko_ime)
 
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-6">
-        <table id="table1" class="table table-striped" data-toggle="table" data-sticky-header="true" data-search="true" data-sortable="true">
-          <thead class="thead-dark">
-            <tr>
-              <th scope="col" class="text-center">Kostumske podobe</th>
-              <th scope="col" class="text-center">Vrsta</th>
-            </tr>
-          </thead>
-          <tbody>
-            % for i in podatek:
-            <tr>
-              <td><a href="{{ url('osnovna_stran', id=i.imekostumskepodobe[0]) }}"></a>{{ i.imekostumskepodobe }}</a></td>
-              <td>{{ i.imeoprave }}</td>
-            </tr>
-            % end
-          </tbody>
-        </table>
+<div class="container-fluid">
+  <div class="row" >
+    <div class="col-md col-md-3 col-xl-2 px-sm-2 px-0" style="background-color: #f8f9fa">
+      <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-black min-vh-100">
+        <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                
+            <li class="nav-item">
+              <a href="/kostumske_podobe/osnovna/stran/" class="nav-link align-middle px-0">
+                <span class="ms-1 d-inline d-sm-none">Kostumske podobe</span>
+                <span class="ms-1 d-none d-sm-inline">Kostumske podobe</span>
+              </a>
+            </li>
+            
+          %a = 0
+          % for i in slovar_kostumskih_podob.keys():
+          %   a += 1
+            <li>
+              <a href="#{{a}}" data-bs-toggle="collapse" class="nav-link px-0 align-middle">
+                <i class="bi bi-plus-lg"></i> <span class="ms-1 d-inline d-sm-none">{{i}}</span> <span class="ms-1 d-none d-sm-inline">{{i}}</span> </a>
+                <ul class="collapse nav flex-column ms-1" id="{{a}}" data-bs-parent="#menu">
+                % for j in slovar_kostumskih_podob[i]:  
+                    <li class="w-100">
+                      <a href="/kostumske_podobe/{{i}}/{{j}}/" class="nav-link px-0">
+                        <span class="d-inline d-sm-none">{{j}}</span>
+                        <span class="d-none d-sm-inline">{{j}}</span>
+                      </a>
+                    </li>
+                % end
+                </ul>
+            </li>
+          % end
+        </ul>
+        <hr>
       </div>
+    </div>  
+    
+      % if kostumska_podoba == 'osnovna' and imeoprave == 'stran':
+        <div class="col py-3">
+          <h3>Kostumske podobe</h3>
+          <p class="lead">
+            Za navadnega uporabnika bodo tu napisana navodila premikanja med kostumskimi podobami, za garderoberja pa bo tu obrazec za dodajanje oblačil v opravo.</p>    
+        </div>
+      % else:
+      
+      
+      <div class="container py-5" >
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="card mb-4">
+              <div class="card-body">
+                <table id="table" class="table table-striped borderless" data-toggle="table" data-sticky-header="true" data-sortable="true ">
+                  
+                  <thead class="thead-dark">
+                    <tr>
+                      <th scope="col" class="text-center">Ime</th>
+                      <th scope="col" class="text-center">Pokrajina</th>
+                      <th scope="col" class="text-center">Spol</th>
+                      <th scope="col" class="text-center">Omara</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="4"><b>Obvezni deli</b></td></tr>
+                    % sez = []
+                    % max_moznost = max([vrsta.moznost for vrsta in seznam[(kostumska_podoba, imeoprave)]])
+                    % for i in seznam[(kostumska_podoba, imeoprave)]:
+                      % if i.moznost == 0:
+                      <tr>
+                        <td>{{i.ime}}</td>
+                        <td>{{i.pokrajina}}</td>
+                        <td>{{i.spol}}</td>
+                        <td>{{i.omara}}</td>
+                      </tr>
+                      % else:
+                      %   sez.append(i)
+                      % end
+                    % end
+                    % if max_moznost != 0:
+                      <tr><td colspan="4"><b>Ena izmed možnosti</b></td></tr>
+                    % end
+                    % for j in range(1,max_moznost + 1):
+                        <tr><td colspan="4">{{j}}. možnost</td></tr>
+                        % for k in sez:
+                          % if k.moznost == j:
+                          
+                          <tr>
+                            <td>{{k.ime}}</td>
+                            <td>{{k.pokrajina}}</td>
+                            <td>{{k.spol}}</td>
+                            <td>{{k.omara}}</td>
+                          </tr>              
+                          % end
+                        % end
+                      % end
+                  </tbody>
+                </table>                      
+                </div>
+              </div> 
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card mb-4">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Tip čevljev</p>
+                  </div>
+                  <div class="col-sm-9">
+                    <p class="text-muted mb-0">{{slovar_oprave[(kostumska_podoba, imeoprave)][0]}}</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Posebnosti</p>
+                  </div>
+                  <div class="col-sm-9">
+                      % for posebnost in slovar_oprave[(kostumska_podoba, imeoprave)][1]:                  
+                      <p class="text-muted mb-0">{{posebnost}}</p>
+                      % end
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      % end
+           
     </div>
   </div>
-
-  <script>
-    $(document).ready(function () {
-      prevod();
-    });
-  </script>
-  
+</div>     

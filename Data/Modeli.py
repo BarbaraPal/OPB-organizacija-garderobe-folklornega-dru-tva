@@ -187,3 +187,5 @@ class DeloDto:
 class OpravaKostumskePodobeDto:
     imekostumskepodobe: str
     imeoprave: str
+    vrsta_cevljev: str
+    posebnosti: str = field(default="")

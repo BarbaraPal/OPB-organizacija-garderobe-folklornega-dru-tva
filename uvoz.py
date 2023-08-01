@@ -167,6 +167,13 @@ def uvoz_slik(kos_oblacila, pot):
 
 uvoz_slik((5, 9), "Data/podatki/slike_stajerska_bluza/modra_rjava_mala_kockasta.jpg")
 uvoz_slik((5, 8), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
+uvoz_slik((5, 7), "Data/podatki/slike_stajerska_bluza/bez_rozice.jpg")
+uvoz_slik((5, 5), "Data/podatki/slike_stajerska_bluza/oranzna_s_krizci.jpg")
+uvoz_slik((5, 4), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
+uvoz_slik((5, 3), "Data/podatki/slike_stajerska_bluza/modra_bez_kockasta.jpg")
+uvoz_slik((5, 2), "Data/podatki/slike_stajerska_bluza/modra_s_pikicami.jpg")
+uvoz_slik((5, 1), "Data/podatki/slike_stajerska_bluza/modra_rjava_velika_kockasta.jpg")
+
 
 #def dodajanje_slik_v_bazo():
 #    oblacila = repo.dobi_gen_vse(GlavnaOblacila)

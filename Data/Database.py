@@ -11,6 +11,8 @@ import Data.auth_public as auth
 from datetime import date
 from dataclasses_json import dataclass_json
 
+
+
 import dataclasses
 # Ustvarimo generično TypeVar spremenljivko. Dovolimo le naše entitene, ki jih imamo tudi v bazi
 # kot njene vrednosti. Ko dodamo novo entiteno, jo moramo dodati tudi v to spremenljivko.
@@ -225,22 +227,36 @@ class Repo:
             oprava = 'ženska'
         self.cur.execute(
             """
-            SELECT imekostumskepodobe, imeoprave  FROM opravakostumskepodobe
+            SELECT o.imekostumskepodobe, o.imeoprave, t.vrsta, o.posebnosti  
+            FROM opravakostumskepodobe o
+            JOIN tipcevljev t ON o.idtipacevljev = t.idtipacevljev 
             WHERE imeoprave != %s
             """, (oprava,))
         
         podatki = self.cur.fetchall()
-        return [OpravaKostumskePodobeDto(imekostumskepodobe, imeoprave) for (imekostumskepodobe, imeoprave) in podatki]
+        return [OpravaKostumskePodobeDto(imekostumskepodobe, imeoprave, vrsta_cevljev, posebnosti) for (imekostumskepodobe, imeoprave, vrsta_cevljev, posebnosti) in podatki]
+    
+    #def izberi_moznosti(self, ime_tabele):
+    #    query = """
+    #        SELECT MAX(moznost) AS max_value
+    #        FROM {};
+    #    """.format(ime_tabele)
+    #    self.cur.execute(query)
+    #    max_value = self.cur.fetchone()[0]
+    #    print(max_value)
+
     
     def oprava_kostumske_podobe(self, kostumska_podoba, oprava)-> List[OpravaDto]:
         self.cur.execute(
             """
             SELECT v.ime, v.spol, r.moznost, v.pokrajina, v.omara
             FROM ROpravaVrsta r 
-            LEFT JOIN VrstaOblacil v ON r.dvrsteoblacila = v.id
+            LEFT JOIN VrstaOblacila v ON r.idvrsteoblacila = v.id
             WHERE r.imekostumskepodobe = %s
-            WHERE r.imeoprave = %s;
+            AND r.imeoprave = %s;
             """, (kostumska_podoba, oprava,))
-
+        
         oprava = self.cur.fetchall()
-        return [OpravaDto(ime, spol, moznost, pokrajina, omara) for (ime, spol, moznost, pokrajina, omara) in oprava]        
+        return [OpravaDto(ime, spol, moznost, pokrajina, omara) for (ime, spol, moznost, pokrajina, omara) in oprava]   
+
+    

@@ -74,7 +74,6 @@ class AuthService:
             salt = bcrypt.gensalt()
             novo_kodirano_geslo = bcrypt.hashpw(bytes, salt)
             uporabnik.kodiranogeslo = novo_kodirano_geslo.decode('utf-8')
-            print(uporabnik)
             self.repo.posodobi_gen(uporabnik, id_cols=("uporabniskoime",))
             return True
         return False        
