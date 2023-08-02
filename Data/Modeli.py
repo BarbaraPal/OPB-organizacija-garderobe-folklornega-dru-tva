@@ -157,11 +157,12 @@ class UporabnikDto:
 
 @dataclass
 class PlesalecDto:
+    idplesalca: int
     uporabniskoime: str
     ime: str
     priimek: str
     spolplesalca: str
-    datumprikljucitve: date = field(default=date.today())
+    datumprikljucitve: str = field(default="")
     sirinaramen: Decimal = field(default=None)
     obsegprsi: Decimal = field(default=None)
     dolzinarokava: Decimal = field(default=None)

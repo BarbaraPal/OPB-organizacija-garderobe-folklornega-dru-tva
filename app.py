@@ -13,6 +13,7 @@ from Data.Services import AuthService
 from functools import wraps
 
 import os
+import json
 
 #import tracemalloc
 #tracemalloc.start()
@@ -44,6 +45,20 @@ def cookie_required(f):
 
     return decorated
 
+def rola_required(f):
+    """
+    Dekorator, ki zahteva veljaven piškotek. Če piškotka ni, uporabnika preusmeri na stran za prijavo.
+    """
+    @wraps(f)
+    def decorated( *args, **kwargs):
+
+        cookie_rola = request.get_cookie("rola")
+        if cookie_rola == 'True':
+            return f(*args, **kwargs)
+        
+        redirect(url('osnovna_stran'))
+
+    return decorated
 
 
 @get('/static/<filename:path>')
@@ -159,29 +174,49 @@ def osnovna_stran():
     uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
     return template('domov.html', uporabnisko_ime = uporabnisko_ime)
 
-@get('/kostumske_podobe2/')
+@get('/plesalci/<id>/')
 @cookie_required
-def kostumske_podobe():
+@rola_required
+def plesalci(id):
     uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
-    uporabnik = repo.profil(uporabnisko_ime)
-    podatek = repo.kostumske_podobe(uporabnik)
-    slovar_oprave = {}
-    slovar_kostumskih_podob = {}
-    slovar = {}
-    for oprava in podatek:
-        podatki_oprave = repo.oprava_kostumske_podobe(oprava.imekostumskepodobe, oprava.imeoprave)
-        slovar[(oprava.imekostumskepodobe, oprava.imeoprave)] = podatki_oprave
-        slovar_oprave[(oprava.imekostumskepodobe,oprava.imeoprave)] = (oprava.vrsta_cevljev, oprava.posebnosti)
-        if oprava.imekostumskepodobe not in slovar_kostumskih_podob.keys():
-            slovar_kostumskih_podob[oprava.imekostumskepodobe] = [oprava.imeoprave]
-        else:
-            slovar_kostumskih_podob[oprava.imekostumskepodobe].append(oprava.imeoprave)
-    print(slovar_oprave)
-    return template('kostumske_podobe2.html', uporabnisko_ime = uporabnisko_ime, podatek = podatek, seznam = slovar, slovar_kostumskih_podob = slovar_kostumskih_podob, slovar_oprave = slovar_oprave)
+    plesalci = repo.plesalci()
+    seznam_imen = [plesalci[id_plesalca].uporabniskoime for id_plesalca in plesalci.keys() if plesalci[id_plesalca].uporabniskoime is not None]
+    if id == 'vsi_plesalci':
+        return template('plesalci.html', uporabnisko_ime = uporabnisko_ime, plesalci = plesalci)
+    else:
+        napaka = bottle.request.query.getunicode('napaka')
+        plesalec = plesalci[int(id)]
+        return template('podatki_plesalca.html', uporabnisko_ime = uporabnisko_ime, plesalecdto = plesalec, seznam_imen = seznam_imen, napaka = napaka)
 
-#@get('/oblacila/')
-#def oblacila():
-#    return template('oblacila.html')
+@post('/dodaj_uporabnika/')
+@cookie_required
+@rola_required
+def dodaj_uporabnika():
+    uporabnisko_ime = request.forms.get('uporabnisko_ime')
+    geslo = request.forms.get('geslo')
+    funkcija = True if request.forms.get('funkcija') == 'True' else False
+    id_plesalca = int(request.forms.get('id_plesalca'))
+    obstojeca_imena = eval(request.forms.get('obstojeca_imena'))
+    if uporabnisko_ime in obstojeca_imena:
+        redirect(url('plesalci', id = id_plesalca, napaka = 'Uporabniško ime že obstaja!'))
+    else:
+        auth.dodaj_uporabnika(uporabnisko_ime, funkcija, geslo, id_plesalca)
+        redirect(url('plesalci', id = id_plesalca))
+
+@post('/spremeni_podatke_uporabnika/<podatek>/')
+@rola_required
+def spremeni_podatke_uporabnika(podatek):
+    pass
+#    uporabnik = request.forms.get('uporabnik')
+#    uporabnik_tabela = repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("uporabniskoime",))
+#    if podatek == 'izbrisi_uporabnika':
+#        pass
+#    else:
+#        sprememba = request.forms.get(podatek)
+#        setattr(uporabnik_tabela, podatek, sprememba)
+#        #uporabnik_tabela.podatek = sprememba
+#        repo.posodobi_gen(uporabnik_tabela, id_cols=("uporabniskoime",))
+
 
 
 @get('/kostumske_podobe/<kostumska_podoba>/<imeoprave>/')

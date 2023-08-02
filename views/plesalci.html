@@ -1,0 +1,52 @@
+%rebase('osnova.html', naslov='Plesalci', uporabnik=uporabnisko_ime)
+
+  
+<div class="table-responsive">
+<table class="table borderless" data-toggle="table" data-sticky-header="true" data-search="true" data-show-columns="true" >
+    <thead class="table-light">
+      <tr >
+        <th scope="col" data-sortable="true">Ime</th>
+        <th scope="col" data-sortable="true">Priimek</th>
+        <th scope="col" data-sortable="true">Spol</th>
+        <th scope="col" data-sortable="true">Uporabniško ime</th>
+        <th scope="col" data-sortable="true">Vloga</th>
+        <th scope="col" data-sortable="true">Datum priključitve</th>
+      </tr>
+    </thead>
+    <tbody>
+        % for id in plesalci.keys():
+        % plesalec = plesalci[id]
+        
+        <tr class='clickable-row' data-href='/plesalci/{{plesalec.idplesalca}}/'>
+        
+          <td>{{plesalec.ime}}</td>
+          <td>{{plesalec.priimek}}</td>
+          <td>{{plesalec.spolplesalca}}</td>
+          % if plesalec.uporabniskoime == None:
+            <td>/</td>
+          % else:
+            <td>{{plesalec.uporabniskoime}}</td>
+          % end  
+          % if plesalec.rola == True:
+            <td>garderober</td>
+          % elif plesalec.rola == False:  
+            <td>navaden plesalec</td>
+          % else:
+            <td>/</td>
+          % end 
+          <td>{{plesalec.datumprikljucitve}}</td>
+        </tr>
+        
+        % end
+    </tbody>
+  </table>
+</div>
+
+
+<script>
+  jQuery(document).ready(function($) {
+    $(document).on("click", ".clickable-row", function() {
+      window.location = $(this).data("href");
+    });
+  });
+</script>

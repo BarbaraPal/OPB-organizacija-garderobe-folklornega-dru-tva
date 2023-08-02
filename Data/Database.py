@@ -8,7 +8,7 @@ from Data.Modeli import *
 from pandas import DataFrame
 from re import sub
 import Data.auth_public as auth
-from datetime import date
+from datetime import date, datetime
 from dataclasses_json import dataclass_json
 
 
@@ -181,16 +181,28 @@ class Repo:
     def profil(self, uporabnisko_ime) -> List[PlesalecDto]:
         self.cur.execute(
             """
-            SELECT v.ime, v.priimek, v.spolplesalca, v.datumprikljucitve, v.sirinaramen, v.obsegprsi, v.dolzinarokava, v.dolzinaodpasunavzdol, v.dolzinatelesa, v.stevilkanoge, g.uporabniskoime, g.rola 
+            SELECT v.idplesalca, v.ime, v.priimek, v.spolplesalca, v.datumprikljucitve, v.sirinaramen, v.obsegprsi, v.dolzinarokava, v.dolzinaodpasunavzdol, v.dolzinatelesa, v.stevilkanoge, g.uporabniskoime, g.rola 
             FROM Uporabnik g 
             LEFT JOIN Plesalec v ON g.idplesalca = v.idplesalca
             WHERE g.uporabniskoime = %s;
             """, (uporabnisko_ime,))
 
         podatki_uporabnika = self.cur.fetchall()
-        ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, uporabniskoime, rola = podatki_uporabnika[0]
-        return PlesalecDto(uporabniskoime, ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, rola)
-   
+        idplesalca, ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, uporabniskoime, rola = podatki_uporabnika[0]
+        return PlesalecDto(idplesalca, uporabniskoime, ime, priimek, spolplesalca, datumprikljucitve.strftime("%d.%m.%Y"), sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, rola)
+    
+    def plesalci(self) -> List[PlesalecDto]:
+        self.cur.execute(
+            """
+            SELECT v.idplesalca, v.ime, v.priimek, v.spolplesalca, v.datumprikljucitve, v.sirinaramen, v.obsegprsi, v.dolzinarokava, v.dolzinaodpasunavzdol, v.dolzinatelesa, v.stevilkanoge, g.uporabniskoime, g.rola 
+            FROM Uporabnik g 
+            RIGHT JOIN Plesalec v ON g.idplesalca = v.idplesalca;
+            """)
+
+        plesalci = self.cur.fetchall()
+        return { idplesalca: PlesalecDto(idplesalca, uporabniskoime, ime, priimek, spolplesalca, datumprikljucitve.strftime("%d.%m.%Y"), sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, rola) for idplesalca, ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, uporabniskoime, rola in plesalci}
+    
+
     def cevlji_posameznika(self, uporabnisko_ime) -> List[CevljiDto]:
         self.cur.execute(
             """

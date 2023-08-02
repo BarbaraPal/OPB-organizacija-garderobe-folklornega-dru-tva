@@ -1,0 +1,218 @@
+%rebase('osnova.html', naslov='Kostumske podobe', uporabnik=uporabnisko_ime)
+
+
+function toggleClock() {
+  // get the clock
+  var myClock = document.getElementById('clock');
+
+  // get the current value of the clock's display property
+  var displaySetting = myClock.style.display;
+
+  // also get the clock button, so we can change what it says
+  var clockButton = document.getElementById('clockButton');
+
+  // now toggle the clock and the button text, depending on current state
+  if (displaySetting == 'block') {
+    // clock is visible. hide it
+    myClock.style.display = 'none';
+    // change button text
+    clockButton.innerHTML = 'Show clock';
+  }
+  else {
+    // clock is hidden. show it
+    myClock.style.display = 'block';
+    // change button text
+    clockButton.innerHTML = 'Hide clock';
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6">
+        <table id="table1" class="table table-striped" data-toggle="table" data-sticky-header="true" data-search="true" data-sortable="true">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col" class="text-center">Kostumske podobe</th>
+              <th scope="col" class="text-center">Vrsta</th>
+            </tr>
+          </thead>
+          <tbody>
+            % for i in podatek:
+            <tr>
+              <td><a href="{{ url('osnovna_stran', id=i.imekostumskepodobe[0]) }}">{{ i.imekostumskepodobe }}</a></td>
+              <td>{{ i.imeoprave }}</td>
+            </tr>
+            % end
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6">
+        <table id="table" class="table table-striped" data-toggle="table" data-sticky-header="true" data-sortable="true">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col" class="text-center">Ime</th>
+              <th scope="col" class="text-center">Pokrajina</th>
+              <th scope="col" class="text-center">Spol</th>
+              <th scope="col" class="text-center">Omara</th>
+            </tr>
+          </thead>
+          <tbody>
+            % sez = []
+            % max_moznost = max([vrsta.moznost for vrsta in seznam[('Štajerski plesi', 'ženska')]])
+            % for i in seznam[('Štajerski plesi', 'ženska')]:
+              % if i.moznost == 0:
+              <tr>
+                <td>{{i.ime}}</td>
+                <td>{{i.pokrajina}}</td>
+                <td>{{i.spol}}</td>
+                <td>{{i.omara}}</td>
+              </tr>
+              % else:
+              %   sez.append(i)
+              % end
+            % end
+            
+          </tbody>
+        </table>
+        % for j in range(1,max_moznost + 1):
+            {{j}}. možnost:
+            <table id="table" class="table table-striped" data-toggle="table" data-sticky-header="true" data-sortable="true">
+              <thead class="thead-dark">
+                <tr>
+                  <th scope="col" class="text-center">Ime</th>
+                  <th scope="col" class="text-center">Pokrajina</th>
+                  <th scope="col" class="text-center">Spol</th>
+                  <th scope="col" class="text-center">Omara</th>
+                </tr>
+              </thead>
+              <tbody>
+              % for k in sez:
+                % if k.moznost == j:
+                <tr>
+                  <td>{{k.ime}}</td>
+                  <td>{{k.pokrajina}}</td>
+                  <td>{{k.spol}}</td>
+                  <td>{{k.omara}}</td>
+                </tr>              
+                % end
+              % end
+              </tbody>
+            </table>
+          % end
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      prevod();
+    });
+  </script>
+  
+
+
+  
+
+
+
+
+
+
+
+  <!--
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6">
+            <table id="table" class="table table-striped" data-toggle="table" data-sticky-header="true" data-sortable="true">
+              <thead class="thead-dark">
+                <tr>
+                  <th scope="col" class="text-center">Ime</th>
+                  <th scope="col" class="text-center">Pokrajina</th>
+                  <th scope="col" class="text-center">Spol</th>
+                  <th scope="col" class="text-center">Omara</th>
+                </tr>
+              </thead>
+              <tbody>
+                % sez = []
+                % max_moznost = max([vrsta.moznost for vrsta in seznam[('Štajersk', 'ženska')]])
+                % for i in seznam[('Štajerski plesi', 'ženska')]:
+                  % if i.moznost == 0:
+                  <tr>
+                    <td>{{i.ime}}</td>
+                    <td>{{i.pokrajina}}</td>
+                    <td>{{i.spol}}</td>
+                    <td>{{i.omara}}</td>
+                  </tr>
+                  % else:
+                  %   sez.append(i)
+                  % end
+                % end
+                
+              </tbody>
+            </table>
+            % for j in range(1,max_moznost + 1):
+                {{j}}. možnost:
+                <table id="table" class="table table-striped" data-toggle="table" data-sticky-header="true" data-sortable="true">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th scope="col" class="text-center">Ime</th>
+                      <th scope="col" class="text-center">Pokrajina</th>
+                      <th scope="col" class="text-center">Spol</th>
+                      <th scope="col" class="text-center">Omara</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  % for k in sez:
+                    % if k.moznost == j:
+                    <tr>
+                      <td>{{k.ime}}</td>
+                      <td>{{k.pokrajina}}</td>
+                      <td>{{k.spol}}</td>
+                      <td>{{k.omara}}</td>
+                    </tr>              
+                    % end
+                  % end
+                  </tbody>
+                </table>
+              % end
+          </div>
+        </div>
+      </div>
+      -->
+  
+  
