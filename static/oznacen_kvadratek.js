@@ -1,21 +1,26 @@
 function OznacenKvadratek(){
 
     $(document).ready(function () {
-        // Attach a change event listener to the dropdown menu
         $("#inlineFormCustomSelect").change(function () {
-          // Check if a valid option is selected (not the default "Izberi...")
-          if ($(this).val() !== "") {
-            // If a valid option is selected, enable the submit button
+          // Preveri ali je izbrano karkoli ustreznega 
+          if ($(this).val() !== "Izberi...") {
+            // Če je izbrana ustrezna možnost, omogoči klik na gumb
             $("#submitBtn4").attr("disabled", false);
             $('#submitBtn4').addClass('btn-secondary').removeClass('btn-primary');
             $(this).removeClass("is-invalid").addClass("is-valid");
           } else {
-            // If no valid option is selected, disable the submit button
+            // Če ni izbrana nobena od ustreznih možnosti, onemogoči klik na gumb
+            $(this).removeClass("is-valid").addClass("is-invalid");
             $("#submitBtn4").attr("disabled", true);
             $('#submitBtn4').addClass('btn-secondary').removeClass('btn-primary');
-            $(this).removeClass("is-valid").addClass("is-invalid");
+            
           }
         });
+        if ($("#inlineFormCustomSelect").val() === "Izberi...") {
+          $("#submitBtn4").attr("disabled", true);
+        } else {
+          $("#submitBtn4").attr("disabled", false);
+        }        
       });
       
       

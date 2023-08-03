@@ -43,7 +43,7 @@
               </form>
               
             % else:
-              <p class="text-muted mb-4 text-center">uporabniško ime: {{plesalecdto.uporabniskoime}}</p>
+              <p class="text-muted mb-4 text-center"><b>Uporabniško ime:</b> {{plesalecdto.uporabniskoime}}</p>
                 
             
               <p class="text-muted mb-1 text-center">plesalec</p>
@@ -55,34 +55,158 @@
             % end
           </div>
         </div>
-        <div class="card mb-4 mb-lg-0">
+        <div class="card mb-4 mb-lg-0", id = "card1">
           <div class="card-body p-0">
             <ul class="list-group list-group-flush rounded-3">
-              
               <p class="mb-4 text-center" style="padding-top: 5%;"><b>Mere telesa</b></p>
-              
+              % if potrdilo_mere:
+                <div class="alert alert-success" role="alert" style="margin-left: 3%; margin-right: 3%;"> 
+                {{potrdilo_mere}}
+                </div>
+              % end
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                % if plesalecdto.sirinaramen is not None:
                 <p class="mb-0">Širina ramen (cm): {{plesalecdto.sirinaramen}}</p>
+                % else:
+                <p class="mb-0">Širina ramen (cm): /</p>
+                % end
+
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                % if plesalecdto.obsegprsi is not None:
                 <p class="mb-0">Obseg prsi (cm): {{plesalecdto.obsegprsi}}</p>
+                % else:
+                <p class="mb-0">Obseg prsi (cm): /</p>
+                % end
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                % if plesalecdto.dolzinarokava is not None:
                 <p class="mb-0">Dolžina rokava (cm): {{plesalecdto.dolzinarokava}}</p>
+                % else:
+                <p class="mb-0">Dolžina rokava (cm): /</p>
+                % end
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                % if plesalecdto.dolzinaodpasunavzdol is not None:
                 <p class="mb-0">Dolžina od pasu navzdol (cm): {{plesalecdto.dolzinaodpasunavzdol}}</p>
+                % else:
+                <p class="mb-0">Dolžina od pasu navzdol (cm): /</p>
+                % end
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                % if plesalecdto.dolzinatelesa is not None:
                 <p class="mb-0">Dolžina telesa (cm): {{plesalecdto.dolzinatelesa}}</p>
+                % else: 
+                <p class="mb-0">Dolžina telesa (cm): /</p>
+                % end
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                
+                % if plesalecdto.stevilkanoge is not None:
                 <p class="mb-0">Številka noge: {{plesalecdto.stevilkanoge}}</p>
+                % else: 
+                <p class="mb-0">Številka noge: /</p>
+                % end
+                
               </li>
+            </ul>
+            <div class="form-group row">
+              <div class="col-sm-12 text-center">
+                <button type="submit" class="btn btn-secondary" id="showFormBtn">Želim spremeniti mere</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4 mb-lg-0" id = "card2" style="display: none;">
+          <div class="card-body p-0">
+            <p class="mb-4 text-center" style="padding-top: 5%;"><b>Mere telesa - spremeni</b></p>
+              <ul class="list-group list-group-flush rounded-3">
+              <form action="{{url('posodobi_mere')}}" method="POST" id="vnosi_mer">
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  
+                    <label for="sirinaramen" class="col-sm-8 col-form-label">Širina ramen (cm):</label>
+                    <div class="col-sm-4">
+                      % if plesalecdto.sirinaramen is not None:
+                      <input type="text" class="form-control" id="sirinaramen" placeholder="Vnesi podatek" value="{{plesalecdto.sirinaramen}}" name="sirinaramen"  >
+                      % else: 
+                      <input type="text" class="form-control" id="sirinaramen2" placeholder="Vnesi podatek" value="/" required name="sirinaramen">
+                      % end
+                    </div>
+                  
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  
+                    <label for="obsegprsi" class="col-sm-8 col-form-label">Obseg prsi (cm):</label>
+                    <div class="col-sm-4">
+                      % if plesalecdto.obsegprsi is not None:
+                      <input type="text" class="form-control" id="obsegprsi" placeholder="Vnesi podatek" value="{{plesalecdto.obsegprsi}}" pattern="^[0-9/]+$" name="obsegprsi">
+                      % else:
+                      <input type="text" class="form-control" id="obsegprsi2" placeholder="Vnesi podatek" value="/" pattern="^[0-9/]+$" name="obsegprsi">
+                      % end
+                    </div>
+                  
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  
+                    <label for="dolzinarokava" class="col-sm-8 col-form-label">Dolžina rokava (cm):</label>
+                    <div class="col-sm-4">
+                      % if plesalecdto.dolzinarokava is not None:
+                      <input type="text" class="form-control" id="dolzinarokava" placeholder="Vnesi podatek" value="{{plesalecdto.dolzinarokava}}" name="dolzinarokava">
+                      % else: 
+                      <input type="text" class="form-control" id="dolzinarokava" placeholder="Vnesi podatek" value="/" name="dolzinarokava">
+                      % end
+
+                    </div>
+                  
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  
+                    <label for="dolzinaodpasunavzdol" class="col-sm-8 col-form-label">Dolžina od pasu navzdol (cm):</label>
+                    <div class="col-sm-4">
+                      % if plesalecdto.dolzinaodpasunavzdol is not None:
+                      <input type="text" class="form-control" id="dolzinaodpasunavzdol" placeholder="Vnesi podatek" value="{{plesalecdto.dolzinaodpasunavzdol}}" pattern="^[0-9/]+$" name="dolzinaodpasunavzdol">
+                      % else:
+                      <input type="text" class="form-control" id="dolzinaodpasunavzdol2" placeholder="Vnesi podatek" value="/" pattern="^[0-9/]+$" name="dolzinaodpasunavzdol">
+                      % end
+                    </div>
+                  
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                  
+                    <label for="dolzinatelesa" class="col-sm-8 col-form-label">Dolžina telesa (cm):</label>
+                    <div class="col-sm-4">
+                      % if plesalecdto.dolzinatelesa is not None:
+                      <input type="text" class="form-control" id="dolzinatelesa" placeholder="Vnesi podatek" value="{{plesalecdto.dolzinatelesa}}" pattern="^[0-9/]+$" name="dolzinatelesa">
+                      % else:
+                      <input type="text" class="form-control" id="dolzinatelesa2" placeholder="Vnesi podatek" value="/" pattern="^[0-9/]+$" name="dolzinatelesa">
+                      % end
+                    </div>
+                  
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+
+                  
+                    <label for="stevilkanoge" class="col-sm-8 col-form-label">Številka noge:</label>
+                    <div class="col-sm-4">
+                      % if plesalecdto.stevilkanoge is not None:
+                      <input type="text" class="form-control" id="stevilkanoge" placeholder="Vnesi podatek" value="{{plesalecdto.stevilkanoge}}" pattern="^[0-9/]+$" name="stevilkanoge">
+                      % else:
+                      <input type="text" class="form-control" id="stevilkanoge2" placeholder="Vnesi podatek" value="/" pattern="^[0-9/]+$" name="stevilkanoge">
+                      % end
+                    </div>
+                  
+                </li>
+                <input type="hidden" name="id_plesalca" value="{{plesalecdto.idplesalca}}">
+                  <div class="form-group row">
+                    <div class="col-sm-12 text-center">
+                      <button type="submit" class="btn btn-secondary">Spremeni</button>
+                    </div>
+                  </div>
+                
+            </form>
             </ul>
           </div>
         </div>
+        
       </div>
 
       
@@ -133,7 +257,11 @@
               <div class="col-sm-9">
                 <p class="text-muted mb-0">
                   <ul style="list-style-type: none; padding: 0; margin: 0; ">
-                    
+                    % for cevelj in cevljidto:
+                      % if cevelj.vrsta:
+                      <li >{{cevelj.vrsta}}: {{cevelj.velikost}}/{{cevelj.zapst}}</li>
+                      % end
+                    % end
                   </ul>
                 </p>
               </div>
@@ -144,8 +272,20 @@
           <div class="col-md-12">
             <div class="card mb-4 mb-md-4">
               <div class="card-body">
-                <p class="mb-4"><b>Delo</b></p>
-                    
+                <p class="mb-4"><b>Delo v tem mesecu</b></p>
+                  % if len(delodto) == 0:
+                    <p class="mb-1">Ni podatkov o delu.</p>
+                  % else:
+                    % for delo in delodto:
+                      % if delo.vrstadela == 'likanje':
+                          <p class="mb-1">Likanje: {{ delo.skupno_trajanje }}</p>
+                      % elif delo.vrstadela == 'šivanje':
+                          <p class="mb-1">Šivanje: {{ delo.skupno_trajanje }}</p>
+                      % elif delo.vrstadela == 'pranje':
+                          <p class="mb-1">Pranje: {{ delo.skupno_trajanje }}</p>                      
+                      % end
+                    % end
+                  % end  
               </div>
             </div>
           </div>
@@ -155,41 +295,40 @@
           <div class="col-md-12">
             <div class="card mb-4 mb-md-0">
               <div class="card-body">
-                
-                <form action="{{url('spremeni_podatke_uporabnika', podatek = 'geslo')}}" method="POST" id="myForm3" class="needs-validation" novalidate>
+                % if potrdilo:
+                <div class="alert alert-success" role="alert" style="margin-top: 3%;"> 
+                {{potrdilo}}
+              </div>
+                % end
+                <form action="{{url('spremeni_geslo_uporabnika')}}" method="POST" id="myForm3" class="needs-validation form-inline" novalidate>
 
-                  <div class="form-group">
-                    <label for="novo_spremenjeno_geslo">Nastavi novo geslo</label>
-                    <input type="password" class="form-control" id="novo_spremenjeno_geslo" placeholder="Vnesi geslo" name = "geslo" pattern="^\w{8,25}$" required>
+                  <div class="form-group" style="margin-top: 5px; margin-bottom: 5px;">
+                    <label class="my-1 mr-2" for="novo_spremenjeno_geslo">Nastavi novo geslo</label>
+                    <input type="password" class="form-control mr-sm-2" id="novo_spremenjeno_geslo" placeholder="Vnesi geslo" name = "geslo" pattern="^\w{8,25}$" required>
                     <div class="valid-feedback" id = "gesloValidFeedback3">Veljavno</div>
-                  <div class="invalid-feedback" id = "gesloInvalidFeedback3">Geslo mora biti dolgo od 8 do 25 znakov, ki so lahko črke številke ali "_".</div>
+                    <div class="invalid-feedback" id = "gesloInvalidFeedback3">Geslo mora biti dolgo od 8 do 25 znakov, ki so lahko črke številke ali "_".</div>
                   </div>
                   <input type="hidden" name="uporabnik" value="{{plesalecdto.uporabniskoime}}">
-                  <div style="margin-top: 5px;" class="form-group">
+                  <div class ="form-group"  >
                     <button id="submitBtn3" type="submit" class="btn btn-secondary" disabled>Posodobi geslo</button>
                 </div>
               
                 </form>
-
-                <form action="{{url('spremeni_podatke_uporabnika', podatek = 'funkcija')}}" method="POST" id="myForm4" class="needs-validation" novalidate>
-                  <div class="form-row align-items-center">
-                    <div class="col-auto my-1">
-                      <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Dodatna funkcija</label>
-                      <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="funkcija">
-                        <option selected>Izberi...</option>
-                        <option value="1">DA</option>
-                        <option value="2">NE</option>
-                      </select>
-                    </div>
-                    <input type="hidden" name="uporabnik" value="{{plesalecdto.uporabniskoime}}">
-                    <div class="col-auto my-1">
-                      <button id="submitBtn4" type="submit" class="btn btn-secondary" disabled>Spremeni</button>
-                    </div>
-                  </div>
+                <form action="{{url('spremeni_funkcijo_uporabnika')}}" method="POST" id="myForm4" class="needs-validation form-inline" novalidate>
+                  <label class="my-1 mr-2" for="inlineFormCustomSelect">Dodatna funkcija</label>
+                  <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="funkcija">
+                    <option selected>Izberi...</option>
+                    <option value="1">DA</option>
+                    <option value="0">NE</option>
+                  </select>
+                  <input type="hidden" name="uporabnik" value="{{plesalecdto.uporabniskoime}}">
+                  <button id="submitBtn4" type="submit" class="btn btn-secondary my-1">Spremeni</button>
                 </form>
                 
-                <form action="{{url('spremeni_podatke_uporabnika', podatek = 'brisanje')}}" method="POST" id="myForm5" class="needs-validation" novalidate>
+                
+                <form action="{{url('odstrani_uporabnika')}}" method="POST" id="myForm5" class="needs-validation" novalidate>
                   <div class="form-row align-items-center">
+                    <input type="hidden" name="uporabnik" value="{{plesalecdto.uporabniskoime}}">
                     <div class="col-auto my-1">
                       <button id="submitBtn5" type="submit" class="btn btn-secondary">Odstrani uporabniški račun</button>
                     </div>
@@ -201,13 +340,22 @@
           </div>
         </div>
         % end
+        
+        
       </div>
     </div>
   </div>
+  
+
 </section>
+
+  
+
+
 
 
 <script>
+  
   var seznam_imen = {{!seznam_imen}};
 
   $(document).ready(function () {
@@ -225,9 +373,6 @@
     preveriCeUpImeObstaja(seznam_imen);
   });
 
-  $(document).ready(function () {
-    preveriVeljavnostGesla();
-  });
 
 
   $(document).ready(function () {
@@ -237,4 +382,14 @@
    $(document).ready(function () {
     IzbrisiUpRacun();
   });
+
+  $(document).ready(function() {
+    preveriVeljavnostGesla()
+  });
+
+  $(document).ready(function() {
+    preveriVnos()
+  });
+
 </script>
+

@@ -76,5 +76,10 @@ class AuthService:
             uporabnik.kodiranogeslo = novo_kodirano_geslo.decode('utf-8')
             self.repo.posodobi_gen(uporabnik, id_cols=("uporabniskoime",))
             return True
-        return False        
+        return False  
 
+    def kodiraj_geslo(self, novo_geslo: str):
+        novo_geslo_bytes = novo_geslo.encode('utf-8')
+        salt = bcrypt.gensalt()
+        kodirano_geslo = bcrypt.hashpw(novo_geslo_bytes, salt)
+        return kodirano_geslo.decode('utf-8')

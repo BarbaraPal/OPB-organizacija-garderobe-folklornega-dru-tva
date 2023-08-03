@@ -60,6 +60,13 @@ def rola_required(f):
 
     return decorated
 
+def pretvori_v_decimal(vrednost):
+    try:
+        return Decimal(vrednost)
+    except:
+        return None
+
+
 
 @get('/static/<filename:path>')
 def static(filename):
@@ -175,7 +182,6 @@ def osnovna_stran():
     return template('domov.html', uporabnisko_ime = uporabnisko_ime)
 
 @get('/plesalci/<id>/')
-@cookie_required
 @rola_required
 def plesalci(id):
     uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
@@ -185,11 +191,14 @@ def plesalci(id):
         return template('plesalci.html', uporabnisko_ime = uporabnisko_ime, plesalci = plesalci)
     else:
         napaka = bottle.request.query.getunicode('napaka')
+        potrdilo = bottle.request.query.getunicode('potrdilo')
+        potrdilo_mere = bottle.request.query.getunicode('potrdilo_mere')
         plesalec = plesalci[int(id)]
-        return template('podatki_plesalca.html', uporabnisko_ime = uporabnisko_ime, plesalecdto = plesalec, seznam_imen = seznam_imen, napaka = napaka)
+        cevlji = repo.cevlji_posameznika(plesalec.uporabniskoime)
+        delo = repo.delo_posameznika(plesalec.uporabniskoime)
+        return template('podatki_plesalca.html', uporabnisko_ime = uporabnisko_ime, plesalecdto = plesalec, seznam_imen = seznam_imen, napaka = napaka, potrdilo = potrdilo, cevljidto = cevlji, delodto = delo, potrdilo_mere = potrdilo_mere)
 
 @post('/dodaj_uporabnika/')
-@cookie_required
 @rola_required
 def dodaj_uporabnika():
     uporabnisko_ime = request.forms.get('uporabnisko_ime')
@@ -203,21 +212,57 @@ def dodaj_uporabnika():
         auth.dodaj_uporabnika(uporabnisko_ime, funkcija, geslo, id_plesalca)
         redirect(url('plesalci', id = id_plesalca))
 
-@post('/spremeni_podatke_uporabnika/<podatek>/')
+@post('/spremeni_geslo_uporabnika/')
 @rola_required
-def spremeni_podatke_uporabnika(podatek):
-    pass
-#    uporabnik = request.forms.get('uporabnik')
-#    uporabnik_tabela = repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("uporabniskoime",))
-#    if podatek == 'izbrisi_uporabnika':
-#        pass
-#    else:
-#        sprememba = request.forms.get(podatek)
-#        setattr(uporabnik_tabela, podatek, sprememba)
-#        #uporabnik_tabela.podatek = sprememba
-#        repo.posodobi_gen(uporabnik_tabela, id_cols=("uporabniskoime",))
+def spremeni_geslo_uporabnika():
+    uporabnik = request.forms.get('uporabnik')
+    uporabnik_tabela = repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("uporabniskoime",))
+    novo_geslo = request.forms.get('geslo')
+    kodirano_geslo = auth.kodiraj_geslo(novo_geslo)
+    uporabnik_tabela.kodiranogeslo = kodirano_geslo
+    repo.posodobi_gen(uporabnik_tabela, id_cols=("uporabniskoime",))
+    redirect(url('plesalci', id = uporabnik_tabela.idplesalca, potrdilo = 'Uspešno posodobljeno geslo!'))
 
+@post('/spremeni_funkcijo_uporabnika/')
+@rola_required
+def spremeni_funkcijo_uporabnika():
+    uporabnik = request.forms.get('uporabnik')
+    uporabnik_tabela = repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("uporabniskoime",))
+    nova_funkcija = request.forms.get('funkcija')
+    uporabnik_tabela.rola = bool(int(nova_funkcija))
+    repo.posodobi_gen(uporabnik_tabela, id_cols=("uporabniskoime",))
+    redirect(url('plesalci', id = uporabnik_tabela.idplesalca, potrdilo = 'Uspešno posodobljena funkcija!'))
 
+@post('/odstrani_uporabnika/')
+@rola_required
+def odstrani_uporabnika():
+    uporabnik = request.forms.get('uporabnik')
+    uporabnik_tabela = repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("uporabniskoime",))
+    repo.izbrisi_gen(Uporabnik, uporabnik, id_col='uporabniskoime')
+    redirect(url('plesalci', id = uporabnik_tabela.idplesalca))
+
+@post('/posodobi_mere/')
+@rola_required
+def posodobi_mere():
+    id_plesalca = int(request.forms.get('id_plesalca'))
+    plesalec = repo.dobi_gen_id(Plesalec, (id_plesalca,), id_cols=("idplesalca",))
+
+    sirina_ramen = pretvori_v_decimal(request.forms.get('sirinaramen'))
+    obseg_prsi = pretvori_v_decimal(request.forms.get('obsegprsi'))
+    dolzina_rokava = pretvori_v_decimal(request.forms.get('dolzinarokava'))
+    dolzina_od_pasu_navzdol = pretvori_v_decimal(request.forms.get('dolzinaodpasunavzdol'))
+    dolzina_telesa = pretvori_v_decimal(request.forms.get('dolzinatelesa'))
+    stevilka_noge = pretvori_v_decimal(request.forms.get('stevilkanoge'))
+
+    plesalec.sirinaramen = sirina_ramen
+    plesalec.obsegprsi =obseg_prsi
+    plesalec.dolzinarokava = dolzina_rokava
+    plesalec.dolzinaodpasunavzdol = dolzina_od_pasu_navzdol
+    plesalec.dolzinatelesa = dolzina_telesa
+    plesalec.stevilkanoge = stevilka_noge
+
+    repo.posodobi_gen(plesalec, id_cols=("idplesalca",))
+    redirect(url('plesalci', id = id_plesalca, potrdilo_mere = 'Uspešno posodobljene mere!'))
 
 @get('/kostumske_podobe/<kostumska_podoba>/<imeoprave>/')
 @cookie_required

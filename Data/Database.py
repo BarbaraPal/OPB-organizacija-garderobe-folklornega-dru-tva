@@ -138,12 +138,6 @@ class Repo:
         self.cur.execute(sql_cmd, parameters)
         if auto_commit:
             self.conn.commit()
-
-
-
-
-
-
     
     def dodaj_gen(self, typ: T, serial_col="id", auto_commit=True):
         """
@@ -178,6 +172,15 @@ class Repo:
         # Dobro se je zavedati, da tukaj sam dataclass dejansko
         # "mutiramo" in ne ustvarimo nove reference. Return tukaj ni niti potreben.
 
+    def izbrisi_gen(self,  typ: Type[T], id: int | str, id_col = "id"):
+        """
+        Generična metoda, ki izbriše vrstico it določene tabele v bazi na podlagi njegovega idja.
+        """
+        tbl_name = typ.__name__
+        sql_cmd = f'Delete  FROM {tbl_name} WHERE {id_col} = %s';
+        self.cur.execute(sql_cmd, (id,))
+        self.conn.commit()
+    
     def profil(self, uporabnisko_ime) -> List[PlesalecDto]:
         self.cur.execute(
             """
