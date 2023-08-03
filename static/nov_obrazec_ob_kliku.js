@@ -1,4 +1,4 @@
-function preveriVeljavnostGesla(){
+function KlikSpremembaObrazca(){
     // Ob kliku na gumb "Želim spremeniti mere"
     $("#showFormBtn").click(function() {
       // Skrijemo prvi obrazec
@@ -7,7 +7,6 @@ function preveriVeljavnostGesla(){
       $("#card2").show();
     });
 }
-
 
 function preveriVnos() {
   $("#vnosi_mer").on("keydown", function (event) {
@@ -28,4 +27,5 @@ function preveriVnos() {
   });
 
 }
+
 

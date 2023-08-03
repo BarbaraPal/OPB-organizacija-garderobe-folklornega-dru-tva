@@ -355,38 +355,32 @@
 
 
 <script>
-  
   var seznam_imen = {{!seznam_imen}};
-
   $(document).ready(function () {
       preveriUpImeInGeslo(seznam_imen);
-  
-  
   });
 
-</script>
-
-
-<script>
   var seznam_imen = {{!seznam_imen}};
   $(document).ready(function () {
     preveriCeUpImeObstaja(seznam_imen);
   });
 
 
-
   $(document).ready(function () {
     OznacenKvadratek();
   });
 
-   $(document).ready(function () {
+  $(document).ready(function () {
     IzbrisiUpRacun();
   });
 
   $(document).ready(function() {
     preveriVeljavnostGesla()
   });
-
+  
+  $(document).ready(function() {
+    KlikSpremembaObrazca()
+  });
   $(document).ready(function() {
     preveriVnos()
   });
