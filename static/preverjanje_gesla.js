@@ -23,10 +23,10 @@ function preveriVeljavnostGesla(){
         // Nastavite gumb za pošiljanje glede na veljavnost obrazca
         if (isFormValid) {
           $("#submitBtn3").attr("disabled", false);
-          $('#submitBtn3').addClass('btn-secondary').removeClass('btn-primary');
+          $('#submitBtn3').addClass('btn-primary').removeClass('btn-primary');
         } else {
           $("#submitBtn3").attr("disabled", true);
-          $('#submitBtn3').addClass('btn-secondary').removeClass('btn-primary');
+          $('#submitBtn3').addClass('btn-primary').removeClass('btn-primary');
         }
       });
 }

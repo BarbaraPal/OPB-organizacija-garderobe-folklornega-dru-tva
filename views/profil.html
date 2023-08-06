@@ -1,12 +1,15 @@
-%rebase('osnova.html', naslov='Moj profil', uporabnik=uporabnisko_ime)
+%rebase('osnova.html', naslov='Moj profil', uporabnik=uporabnisko_ime, rola = rola)
 <section style="background-color: #eee;">
   <div class="container py-5">
     <div class="row">
       <div class="col-lg-4">
         <div class="card mb-4">
           <div class="card-body text-center">
-            <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar"
-              class="rounded-circle img-fluid" style="width: 150px;">
+            % if plesalecdto.spolplesalca == 'M':
+            <img src="/static/moska_slika.jpg" alt="simbolicna_slika" class="rounded-circle img-fluid" style="width: 170px;">
+            % else: 
+            <img src="/static/zenska_slika.png" alt="simbolicna_slika" class="rounded-circle img-fluid" style="width: 170px;">
+            % end
             <h5 class="my-3">{{plesalecdto.uporabniskoime}}</h5>
             <p class="text-muted mb-1">plesalec</p>
             % if plesalecdto.rola == True:
@@ -94,7 +97,9 @@
                 <p class="text-muted mb-0">
                   <ul style="list-style-type: none; padding: 0; margin: 0; ">
                     % for cevelj in cevljidto:
-                    <li >{{cevelj.vrsta}}: {{cevelj.velikost}}/{{cevelj.zapst}}</li>
+                      % if cevelj.vrsta:
+                      <li >{{cevelj.vrsta}}: {{cevelj.velikost}}/{{cevelj.zapst}}</li>
+                      % end
                     % end
                   </ul>
                 </p>
@@ -116,7 +121,9 @@
                       % elif delo.vrstadela == 'šivanje':
                           <p class="mb-1">Šivanje: {{ delo.skupno_trajanje }}</p>
                       % elif delo.vrstadela == 'pranje':
-                          <p class="mb-1">Pranje: {{ delo.skupno_trajanje }}</p>                      
+                          <p class="mb-1">Pranje: {{ delo.skupno_trajanje }}</p>
+                      % elif delo.vrstadela == 'drugo':
+                          <p class="mb-1">Drugo: {{ delo.skupno_trajanje }}</p>                      
                       % end
                     % end
                   % end  

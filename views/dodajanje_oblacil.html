@@ -1,0 +1,288 @@
+%rebase('osnova.html', naslov='Dodajanje kosov', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4"><b>Dodajanje oblačil in čevljev</b></p>
+                    <form action="{{url('dodaj_oblacilo')}}" method="POST">
+                        <div class="form-group">
+                            <select class="custom-select required custom-select-sm" name="tip" id="vrsta" onchange="showFormSection()">
+                                <option value="" selected>Kaj vnašam?</option>
+                                <option value="zgornji_del">Glavna oblačila: zgornji del</option>
+                                <option value="spodnji_del">Glavna oblačila: spodnji del</option>
+                                <option value="enodelni_kos">Glavna oblačila: enodelni kos</option>
+                                <option value="dodatna_oblacila">Dodatna oblačila</option>
+                                <option value="cevlji">Čevlji</option>
+                            </select>
+                        </div>
+                    </form>
+                    <!--Glavna oblačila: zgornji del-->
+                    <form action="" method="POST" id="formzgornji_del">
+                        
+                    <div class="form-group">
+                        <label for="imevrste">Ime</label>
+                        <input type="input" class="form-control form-control-sm" name="imevrste" list="existingNames1" id = "ime1">
+                        <datalist id="existingNames1">
+                          % for v in slovar_imen_tipov["ZgornjiDel"]:
+                            <option value="{{v}}">{{v}}</option>
+                          % end
+                          </datalist>
+                    </div>
+                    <div class="form-group">
+                      <label for="imevrste">Pokrajina <small>(če kos oblačila ni značilen za točno določeno pokrajino vnesite SLO)</small></label>
+                      <input type="input" class="form-control form-control-sm" name="imevrste" list="existingNames11" id = "pokrajina1">
+                      <datalist id="existingNames11">  
+                          % for v in pokrajina:
+                            <option value="{{v}}">{{v}}</option>
+                          % end
+                      </datalist>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="zaporednast">Spol</label>
+                          <select class="custom-select required custom-select-sm" name="vrsta_dela" id="vrstaDela">
+                            <option value="" selected>Ž</option>
+                            <option value="">M</option>
+                          </select>
+                        </div>
+                      </div>
+                    
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="zaporednast">Zaporedna številka</label>
+                          <input type="number" class="form-control form-control-sm" id="zaporednast1" name="zaporednast" min="1" step="1" required>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="imevrste">Barva</label>
+                        <input type="input" class="form-control" name="imevrste" >
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" checked>
+                        <label class="form-check-label" for="inlineRadio1">uporabno</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                        <label class="form-check-label" for="inlineRadio2">ni uporabno</label>
+                      </div>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="validatedCustomFile">
+                        <label class="custom-file-label" for="validatedCustomFile">Izberi sliko tega oblačila med datotekami...</label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sirinaramen">Širina ramen (cm)</label>
+                        <input type="number" class="form-control" id="sirinaramen" name="sirinaramen" min="1" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="obsegprsi">Obseg prsi (cm)</label>
+                        <input type="number" class="form-control" id="obsegprsi" name="obsegprsi" min="1" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="dolzinarokava">Dolžina rokava (cm)</label>
+                        <input type="number" class="form-control" id="dolzinarokava" name="dolzinarokava" min="1" step="1">
+                    </div>
+                    <div class="form-group">
+                      <label for="imevrste">Opombe</label>
+                      <textarea class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-secondary" id="gumboddaj1" disabled>Dodaj</button>
+                    </form>
+  
+  
+                    <!--Glavna oblačila: spodnji del-->
+                    <form action="" method="POST" id="formspodnji_del">
+                        
+                      <div class="form-group">
+                          <label for="imevrste">Ime</label>
+                          <input type="input" class="form-control form-control-sm" name="imevrste" list="existingNames2" id = "ime2">
+                          <datalist id="existingNames2">  
+                            % for v in slovar_imen_tipov["SpodnjiDel"]:
+                              <option value="{{v}}">{{v}}</option>
+                            % end
+                          </datalist>
+                      </div>
+                      <div class="form-group">
+                        <label for="imevrste">Pokrajina <small>(če kos oblačila ni značilen za točno določeno pokrajino vnesite SLO)</small></label>
+                        <input type="input" class="form-control form-control-sm" name="imevrste" list="existingNames22" id = "pokrajina2">
+                        <datalist id="existingNames22">  
+                          % for v in pokrajina:
+                            <option value="{{v}}">{{v}}</option>
+                          % end
+                      </datalist>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="zaporednast">Spol</label>
+                            <select class="custom-select required custom-select-sm" name="vrsta_dela" id="vrstaDela2">
+                              <option value="" selected>Ž</option>
+                              <option value="">M</option>
+                            </select>
+                          </div>
+                        </div>
+                      
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="zaporednast">Zaporedna številka</label>
+                            <input type="number" class="form-control form-control-sm" id="zaporednast2" name="zaporednast" min="1" step="1" required>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                          <label for="imevrste">Barva</label>
+                          <input type="input" class="form-control" name="imevrste" >
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option1" checked>
+                          <label class="form-check-label" for="inlineRadio1">uporabno</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio4" value="option2">
+                          <label class="form-check-label" for="inlineRadio2">ni uporabno</label>
+                        </div>
+                      <div class="custom-file">
+                          <input type="file" class="custom-file-input" id="validatedCustomFile2">
+                          <label class="custom-file-label" for="validatedCustomFile">Izberi sliko tega oblačila med datotekami...</label>
+                      </div>
+                      <div class="form-group">
+                        <label for="dolzinaodpasunavzdol">Dolžina od pasu navzdol (cm)</label>
+                        <input type="number" class="form-control" id="dolzinaodpasunavzdol" name="dolzinaodpasunavzdol" min="1" step="1">
+                    </div>
+                      
+                      <div class="form-group">
+                        <label for="imevrste">Opombe</label>
+                        <textarea class="form-control" id="exampleFormControlTextarea2" rows="2"></textarea>
+                      </div>
+                      <button type="submit" class="btn btn-secondary" id="gumboddaj2">Dodaj</button>
+                    </form>
+  
+  
+                    
+  
+                    <!--Glavna oblačila: enodelni kos-->
+                    <form action="" method="POST" id="formenodelni_kos">
+                        
+                      <div class="form-group">
+                          <label for="imevrste">Ime</label>
+                          <input type="input" class="form-control form-control-sm" name="imevrste" list="existingNames3" id = "ime3">
+                          <datalist id="existingNames3">  
+                            % for v in slovar_imen_tipov["EnodelniKos"]:
+                              <option value="{{v}}">{{v}}</option>
+                            % end
+                          </datalist>
+                      </div>
+                      <div class="form-group">
+                        <label for="imevrste">Pokrajina <small>(če kos oblačila ni značilen za točno določeno pokrajino vnesite SLO)</small></label>
+                        <input type="input" class="form-control form-control-sm" name="imevrste" list="existingNames33" id = "pokrajina3">
+                        <datalist id="existingNames33">  
+                          % for v in pokrajina:
+                            <option value="{{v}}">{{v}}</option>
+                          % end
+                        </datalist>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="zaporednast">Spol</label>
+                            <select class="custom-select required custom-select-sm" name="vrsta_dela" id="vrstaDela3">
+                              <option value="" selected>Ž</option>
+                              <option value="">M</option>
+                            </select>
+                          </div>
+                        </div>
+                      
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label for="zaporednast">Zaporedna številka</label>
+                            <input type="number" class="form-control form-control-sm" id="zaporednast3" name="zaporednast" min="1" step="1" required>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                          <label for="imevrste">Barva</label>
+                          <input type="input" class="form-control" name="imevrste" >
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio5" value="option1" checked>
+                          <label class="form-check-label" for="inlineRadio1">uporabno</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio6" value="option2">
+                          <label class="form-check-label" for="inlineRadio2">ni uporabno</label>
+                        </div>
+                      <div class="custom-file">
+                          <input type="file" class="custom-file-input" id="validatedCustomFile3">
+                          <label class="custom-file-label" for="validatedCustomFile">Izberi sliko tega oblačila med datotekami...</label>
+                      </div>
+                      <div class="form-group">
+                        <label for="dolzinatelesa">Dolžina telesa (cm)</label>
+                        <input type="number" class="form-control" id="dolzinatelesa" name="dolzinatelesa" min="1" step="1">
+                      </div>
+                      
+                      <div class="form-group">
+                        <label for="imevrste">Opombe</label>
+                        <textarea class="form-control" id="exampleFormControlTextarea3" rows="2"></textarea>
+                      </div>
+                      <button type="submit" class="btn btn-secondary" id="gumboddaj3">Dodaj</button>
+                      </form>
+  
+  
+                    <!--Obrazec za dodatna oblačila-->
+                    <form action="" method="POST" id="formdodatna_oblacila" style="display: none;">
+                      <div class="form-group">
+                        <label for="imevrste">Ime</label>
+                        <input type="input" class="form-control form-control-sm" name="imevrste" list="existingNames4" id = "ime4">
+                        <datalist id="existingNames4">  
+                          % for v in slovar_imen_tipov["DodatnaOblacila"]:
+                            <option value="{{v}}">{{v}}</option>
+                          % end
+                        </datalist>
+                    </div>
+                        <div class="form-group">
+                            <label for="kolicina">Količina</label>
+                            <input type="number" class="form-control" id="kolicina" name="kolicina" min="1" step="1">
+                        </div>
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="validatedCustomFile4">
+                            <label class="custom-file-label" for="validatedCustomFile2">Izberi sliko med datotekami...</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlTextarea2">Opombe</label>
+                            <textarea class="form-control" id="exampleFormControlTextarea4" rows="2"></textarea>
+                        </div>
+                            <button type="submit" class="btn btn-secondary" id="gumboddaj" disabled>Dodaj</button>
+                    </form>
+  
+                    <!--Obrazec za čevlje-->
+  
+  
+  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <script>
+    $(document).ready(function() {
+        showFormSection()
+    });
+    var slovar_nezazeljenih = {{!slovar_nezazeljenih}};
+    $(document).ready(function() {
+      DodajanjeKosaOblacila(slovar_nezazeljenih["ZgornjiDel"], "ime1", "pokrajina1","formzgornji_del", "gumboddaj1");
+      DodajanjeKosaOblacila(slovar_nezazeljenih["SpodnjiDel"], "ime2", "pokrajina2","formspodnji_del", "gumboddaj2");
+      DodajanjeKosaOblacila(slovar_nezazeljenih["EnodelniKos"], "ime3", "pokrajina3","form_enodelnikos", "gumboddaj3");
+      DodajanjeKosaOblacila(slovar_nezazeljenih["DodatnaOblacila"], "ime4", "pokrajina4","formdodatna_oblacila", "gumboddaj4");    
+    });
+  </script>
+  

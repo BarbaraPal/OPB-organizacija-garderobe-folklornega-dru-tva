@@ -1,0 +1,50 @@
+%rebase('osnova.html', naslov='Vrste oblačil', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="card mb-4 mb-lg-4">
+        <div class="card-body p-0">
+        % if napaka:
+        <div class="alert alert-danger" role="alert" style="margin-top: 3%;">
+          {{napaka}}
+        </div>
+        % end
+          <div class="table-container">
+          <table class="table borderless" data-toggle="table" data-sticky-header="true" data-search="true" data-show-columns="true" >
+              <thead class="table-light">
+                <tr >
+                  <th scope="col" data-sortable="true">Ime</th>
+                  <th scope="col" data-sortable="true">Spol</th>
+                  <th scope="col" data-sortable="true">Pokrajina</th>
+                  <th scope="col" data-sortable="true">Podatki o vseh kosih te vrste</th>
+
+                </tr>
+              </thead>
+              <tbody>
+                % for vrstica in vrste_oblacil:
+                
+                <tr>
+                
+                  <td>{{vrstica.ime}}</td>
+                  <td>{{vrstica.spol}}</td>
+                  <td>{{vrstica.pokrajina}}</td>
+                  <td>
+                    <form action="{{url('oblacila', stran = 'oblacilo')}}" method="GET" id = "obrazec1234">
+                      <input type="hidden" name="ime_vrste" value="{{vrstica.ime}}">
+                      <input type="hidden" name="spol_vrste" value="{{vrstica.spol}}">
+                      <input type="hidden" name="pokrajina_vrste" value="{{vrstica.pokrajina}}">  
+                      <button type="submit" id = "gumb1234" class="btn btn-secondary">Podatki</button>
+                    </form>
+                  </td> 
+                </tr>
+                
+                % end
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,59 @@
+%rebase('osnova.html', naslov='Glavna oblačila', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
+  <div class="container-fluid">    
+    <div class="container" style="padding: 30px;">
+      <div class="row">
+        <div class="col-md-4">
+          <strong>Vrsta:</strong> {{vrsta.ime}}
+        </div>
+        <div class="col-md-4">
+          <strong>Pokrajina:</strong> {{vrsta.pokrajina}}
+        </div>
+        <div class="col-md-4">
+          <strong>Spol:</strong> {{vrsta.spol}}
+        </div>
+      </div>
+    </div>
+
+    % if str(oblacila[0])[:15] != "DodatnaOblacila":
+        <div class="row">
+          % for index, oblacilo in enumerate(oblacila):
+          <div class="col-md-3 mb-4">
+            <div class="card" style="width: 18rem;">
+              <img src="/static/logom.jpg" alt="Logo">
+              <div class="card-body"> 
+                <h5 class="card-title">{{vrsta.ime}} : {{oblacilo.zaporednast}}</h5>
+                <p class="card-text">Barva: {{oblacilo.barva}}</p>
+                % if oblacilo.stanje == True:
+                <p class="card-text">Stanje: uporabno</p>
+                % else:
+                <p class="card-text" style="color: red;">Stanje: ni uporabno</p>
+                % end
+              
+              </div>
+              
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item"><b>Mere (cm)</b></li>
+                % if str(oblacila[0])[:10] == "ZgornjiDel":
+                <li class="list-group-item">Širina ramen: {{oblacilo.sirinaramen if oblacilo.sirinaramen is not None else '/'}}</li>
+                <li class="list-group-item">Obseg prsi: {{oblacilo.obsegprsi if oblacilo.obsegprsi is not None else '/'}}</li>
+                <li class="list-group-item">Dolžina rokava: {{oblacilo.dolzinarokava if oblacilo.dolzinarokava is not None else '/'}}</li>
+                % elif str(oblacila[0])[:10] == "Spodnjidel":
+                <li class="list-group-item">Dolžina od pasu navzdol: {{oblacilo.dolzinaodpasunavzdol if oblacilo.dolzinaodpasunavzdol is not None else '/'}}</li>
+                % elif str(oblacila[0])[:11] == "EnodelniKos":
+                <li class="list-group-item">Dolžina telesa: {{oblacilo.dolzinatelesa if oblacilo.dolzinatelesa is not None else '/'}}</li>
+                % end
+              </ul>
+
+            </div>
+          </div>
+          % if (index + 1) % 4 == 0: 
+            </div>
+            <div class="row">
+            % end
+          % end
+        </div>
+      % end
+    % end
+  </div>
+</section>

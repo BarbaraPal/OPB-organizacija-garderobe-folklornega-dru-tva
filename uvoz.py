@@ -33,28 +33,25 @@ def poskusaj_dodati_v_bazo(df,tabela_v_bazi):
     except:
         print(f"Vrednosti tabele {tabela_v_bazi} so že dodane!")
              
-def dodaj_vrsto_oblacil(df):
+def dodaj_vrsto_oblacil_in_tipe(df):
+    df2 = df.drop(['Omara','Pokrajina','Spol'], axis = 1)
+    df2 = df2.drop_duplicates(subset='Ime', keep='first')
+
     df['Omara'] = df['Omara'].astype(int)
     df['Pokrajina'] = df['Pokrajina'].fillna('SLO')
+    df = df.drop(['Tip'], axis = 1)
+    poskusaj_dodati_v_bazo(df2,'TipImena')
     poskusaj_dodati_v_bazo(df,'VrstaOblacila')
+    
+#dodaj_vrsto_oblacil_in_tipe(slovar_podatkov['VrstaOblacila'])
 
-#dodaj_vrsto_oblacil(slovar_podatkov['VrstaOblacila'])
 
-def dobi_vrste():
-    vrste = repo.dobi_gen_vse(VrstaOblacila)
-    seznam_vrst = [vars(item) for item in vrste]
-    df_vrst = pd.DataFrame(seznam_vrst).drop('omara', axis=1)
-    return df_vrst
-
-def pripravi_dele(df, vrste):
+def pripravi_dele(df):
     df['Pokrajina'] = df['Pokrajina'].fillna('SLO')
     df.columns = df.columns.str.lower()
-    df_vse = pd.merge(df, vrste, on=['pokrajina', 'ime', 'spol'])
-    df_vse.rename(columns={'id': 'idvrste'}, inplace=True)
-    if 'stanje' in df_vse.columns:
-        df_vse['stanje'] = df_vse['stanje'].astype(bool)
-    df_vse = df_vse.drop(['pokrajina', 'ime', 'spol'], axis=1)
-    return df_vse
+    if 'stanje' in df.columns:
+        df['stanje'] = df['stanje'].astype(bool)
+    return df
 
 def dodajanje_oblacil_v_bazo(df_vse, prvi_seznam, tabela_baza):
     df_glavna_oblacila = df_vse.drop(prvi_seznam, axis=1)
@@ -63,12 +60,11 @@ def dodajanje_oblacil_v_bazo(df_vse, prvi_seznam, tabela_baza):
     poskusaj_dodati_v_bazo(df2,tabela_baza)
 
 def dodaj_glavna_oblacila(zgornji, spodnji, enodelni, dodatni):
-    vrste = dobi_vrste()
     
-    df_zgornji = pripravi_dele(zgornji, vrste)
-    df_spodnji = pripravi_dele(spodnji, vrste)
-    df_enodelni = pripravi_dele(enodelni, vrste)
-    df_dodatni = pripravi_dele(dodatni, vrste)
+    df_zgornji = pripravi_dele(zgornji)
+    df_spodnji = pripravi_dele(spodnji)
+    df_enodelni = pripravi_dele(enodelni)
+    df_dodatni = pripravi_dele(dodatni)
 
     dodajanje_oblacil_v_bazo(df_zgornji, ['sirinaramen', 'obsegprsi', 'dolzinarokava'], 'ZgornjiDel')
     dodajanje_oblacil_v_bazo(df_spodnji, ['dolzinaodpasunavzdol'], 'SpodnjiDel')
@@ -77,19 +73,16 @@ def dodaj_glavna_oblacila(zgornji, spodnji, enodelni, dodatni):
 
 #dodaj_glavna_oblacila(slovar_podatkov['ZgornjiDel'],slovar_podatkov['SpodnjiDel'],slovar_podatkov['EnodelniKos'],slovar_podatkov['DodatnaOblacila'])
 
-
 def dodaj_plesalce(df):
     df.columns = df.columns.str.lower()
     df.rename(columns ={'spol':'spolplesalca'}, inplace=True)
-    df = df.drop(['dodatnafunkcija'], axis = 1)
     poskusaj_dodati_v_bazo(df,'Plesalec')
-
 #dodaj_plesalce(slovar_podatkov['Plesalec'])
 
 def dobi_plesalce():
     plesalci = repo.dobi_gen_vse(Plesalec)
     list_plesalcev = [vars(item) for item in plesalci]
-    df_plesalci = pd.DataFrame(list_plesalcev).filter(['ime', 'priimek', 'idplesalca'], axis = 1)
+    df_plesalci = pd.DataFrame(list_plesalcev).filter(['ime', 'priimek', 'emso'], axis = 1)
     return df_plesalci
 
 def dodaj_delo(df):
@@ -107,72 +100,54 @@ def dodaj_tip_cevljev(df):
 #dodaj_tip_cevljev(slovar_podatkov['TipCevljev'])
 
 def dodaj_cevlje(df):
-    tip = repo.dobi_gen_vse(TipCevljev)
-    list_tipov = [vars(item) for item in tip]
-    df_tip = pd.DataFrame(list_tipov).drop('slika',axis=1)
-
-    df_cevlji = pd.merge(df_tip,df, left_on='vrsta', right_on='TipCevljev').drop(['vrsta', 'TipCevljev'], axis=1)
-    df_cevlji.columns = df_cevlji.columns.str.lower()
+    df.rename(columns ={'TipCevljev':'vrsta'}, inplace=True)
+    df.columns = df.columns.str.lower()
+    
     df_plesalci = dobi_plesalce()
-   
-   
-    df_cevlji_plesalci = pd.merge(df_cevlji, df_plesalci, on=['ime', 'priimek'], how='left').drop(['ime', 'priimek', 'spol', 'datumprikljucitve'], axis=1)
-    df_cevlji_plesalci.rename(columns={'idplesalca': 'idlastnika'}, inplace=True)
+    df_cevlji_plesalci = pd.merge(df, df_plesalci, on=['ime', 'priimek'], how='left').drop(['ime', 'priimek', 'spol', 'datumprikljucitve'], axis=1)
+    df_cevlji_plesalci.rename(columns={'emso': 'emsolastnika'}, inplace=True)
 
     poskusaj_dodati_v_bazo(df_cevlji_plesalci,'Cevlji')
     
 #dodaj_cevlje(slovar_podatkov['Cevlji'])
 
 def dodaj_opravo_kostumske_podobe(df):
+    df.rename(columns ={'TipCevljev':'vrsta'}, inplace=True)
     df.columns = df.columns.str.lower()
-    tip = repo.dobi_gen_vse(TipCevljev)
-    list_tipov = [vars(item) for item in tip]
-    df_tip = pd.DataFrame(list_tipov).drop('slika',axis=1)
-    df_oprava = pd.merge(df, df_tip, left_on= 'tipcevljev', right_on='vrsta', how='left').drop(['tipcevljev', 'vrsta'], axis=1)
-    poskusaj_dodati_v_bazo(df_oprava,'OpravaKostumskePodobe')
+    
+    poskusaj_dodati_v_bazo(df,'OpravaKostumskePodobe')
 
-#dodaj_opravo_kostumske_podobe(slovar_podatkov['OpravaKostumskePodobe'])
+# dodaj_opravo_kostumske_podobe(slovar_podatkov['OpravaKostumskePodobe'])
 
 def dodaj_relacijo_oprava_vrsta(df):
-    vrste = dobi_vrste()
-    df['Pokrajina'] = df['Pokrajina'].fillna('SLO')
+    df['PokrajinaVrste'] = df['PokrajinaVrste'].fillna('SLO')
     df.columns = df.columns.str.lower()
-    df_vse = pd.merge(df, vrste, on=['pokrajina', 'ime', 'spol']).drop(['pokrajina', 'ime', 'spol'], axis=1)
-    df_vse.rename(columns={'id': 'idvrsteoblacila'}, inplace=True)
-    poskusaj_dodati_v_bazo(df_vse,'ROpravaVrsta')
+    poskusaj_dodati_v_bazo(df,'ROpravaVrsta')
 
 #dodaj_relacijo_oprava_vrsta(slovar_podatkov['ROpravaVrsta'])
 
 # primer ročnega dodajanja uporabnikov
 
-#uporabnik1 = auth.dodaj_uporabnika("maja", True, "maja",101)
-#uporabnik2 = auth.dodaj_uporabnika("navaden plesalec", False, "11111111", 100)
-#
-##uporabnik = auth.dodaj_uporabnika("admin", "2", "admin")
-#
-##uporabnik = auth.dodaj_uporabnika("garderober", "1", "garderober")
-#
-##uporabniki = repo.dobi_gen_id(Uporabnik, ('maja',), id_cols=("username",))
-##print(uporabniki)
-#
-##uporabnik3 = auth.dodaj_uporabnika("javnost", "1", "javnogeslo")
-#
-#
+#uporabnik1 = auth.dodaj_uporabnika("maja", True, "novogeslo","1111111111111")
+#uporabnik2 = auth.dodaj_uporabnika("navaden plesalec", False, "11111111", "1111111111112")
+#uporabnik3 = auth.dodaj_uporabnika("garderober2", True, "12345678", "1111111111113")
+#uporabnik4 = auth.dodaj_uporabnika("navaden", False, "12345678", "1111111111124")
+
 def uvoz_slik(kos_oblacila, pot):
     slika = open(pot, 'rb').read()
 
-    oblacilo = repo.dobi_gen_id(GlavnaOblacila, kos_oblacila, id_cols=("idvrste", "zaporednast"))
+    oblacilo = repo.dobi_gen_id(GlavnaOblacila, kos_oblacila, id_cols=("ime","pokrajina","spol","zaporednast"))
     oblacilo.slika = bytes(slika)
-    repo.posodobi_gen(oblacilo, id_cols=("idvrste", "zaporednast"))
+    repo.posodobi_gen(oblacilo, id_cols=("ime","pokrajina","spol","zaporednast"))
 
-uvoz_slik((5, 9), "Data/podatki/slike_stajerska_bluza/modra_rjava_mala_kockasta.jpg")
-uvoz_slik((5, 8), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
-uvoz_slik((5, 7), "Data/podatki/slike_stajerska_bluza/bez_rozice.jpg")
-uvoz_slik((5, 5), "Data/podatki/slike_stajerska_bluza/oranzna_s_krizci.jpg")
-uvoz_slik((5, 4), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
-uvoz_slik((5, 3), "Data/podatki/slike_stajerska_bluza/modra_bez_kockasta.jpg")
-uvoz_slik((5, 2), "Data/podatki/slike_stajerska_bluza/modra_s_pikicami.jpg")
-uvoz_slik((5, 1), "Data/podatki/slike_stajerska_bluza/modra_rjava_velika_kockasta.jpg")
+#uvoz_slik(('bluza', 'Štajerska', 'Ž', 9), "Data/podatki/slike_stajerska_bluza/modra_rjava_mala_kockasta.jpg")
+#uvoz_slik(('bluza', 'Štajerska', 'Ž', 8), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
+#uvoz_slik(('bluza', 'Štajerska', 'Ž', 7), "Data/podatki/slike_stajerska_bluza/bez_rozice.jpg")
+#uvoz_slik(('bluza', 'Štajerska', 'Ž', 5), "Data/podatki/slike_stajerska_bluza/oranzna_s_krizci.jpg")
+#uvoz_slik(('bluza', 'Štajerska', 'Ž', 4), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
+#uvoz_slik(('bluza', 'Štajerska', 'Ž', 3), "Data/podatki/slike_stajerska_bluza/modra_bez_kockasta.jpg")
+#uvoz_slik(('bluza', 'Štajerska', 'Ž', 2), "Data/podatki/slike_stajerska_bluza/modra_s_pikicami.jpg")
+#uvoz_slik(('bluza', 'Štajerska', 'Ž', 1), "Data/podatki/slike_stajerska_bluza/modra_rjava_velika_kockasta.jpg")
 
 
 #def dodajanje_slik_v_bazo():

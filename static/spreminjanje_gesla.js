@@ -15,12 +15,12 @@ function preveriGesla(){
         $('.myCpwdClass').addClass('is-valid');
         $('.myCpwdClass').removeClass('is-invalid');
         $("#submitBtn").attr("disabled",false);
-        $('#submitBtn').addClass('btn-primary').removeClass('btn-secondary');
+        $('#submitBtn').addClass('btn-primary').removeClass('btn-primary');
         for (i = 0; i < myInputElements.length; i++) {
           var myElement = document.getElementById(myInputElements[i].id);
           if (myElement.classList.contains('is-invalid')) {
             $("#submitBtn").attr("disabled",true);
-            $('#submitBtn').addClass('btn-secondary').removeClass('btn-primary');
+            $('#submitBtn').addClass('btn-primary').removeClass('btn-primary');
             break;
           }
         }
@@ -31,7 +31,7 @@ function preveriGesla(){
         $('.myCpwdClass').removeClass('is-valid');
         $('.myCpwdClass').addClass('is-invalid');
         $("#submitBtn").attr("disabled",true);
-        $('#submitBtn').addClass('btn-secondary').removeClass('btn-primary');
+        $('#submitBtn').addClass('btn-primary').removeClass('btn-primary');
       }
     });
     // ----------------- Validate on submit -----------------
@@ -43,7 +43,7 @@ function preveriGesla(){
       }
       else {
         $("#submitBtn").attr("disabled",false);
-        $('#submitBtn').addClass('btn-primary').removeClass('btn-secondary');
+        $('#submitBtn').addClass('btn-primary').removeClass('btn-primary');
         currForm1.classList.add('was-validated');
 
       }
@@ -62,10 +62,10 @@ function preveriGesla(){
         // $("#submitBtn").attr("disabled", !is_valid);
         if (is_valid) {
           $("#submitBtn").attr("disabled",false);
-          $('#submitBtn').addClass('btn-primary').removeClass('btn-secondary');
+          $('#submitBtn').addClass('btn-primary').removeClass('btn-primary');
         } else {
           $("#submitBtn").attr("disabled",true);
-          $('#submitBtn').addClass('btn-secondary').removeClass('btn-primary');
+          $('#submitBtn').addClass('btn-primary').removeClass('btn-primary');
         }
       });
     });

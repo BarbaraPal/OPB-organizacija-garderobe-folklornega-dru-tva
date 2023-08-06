@@ -1,52 +1,139 @@
-%rebase('osnova.html', naslov='Plesalci', uporabnik=uporabnisko_ime)
+%rebase('osnova.html', naslov='Plesalci', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
 
+  <div class="container-fluid">
+    <div class="row">
+      <div class="card mb-4 mb-lg-4">
+      % if odziv:
+      <div  style="margin-top: 5px;" class="alert alert-success">
+        {{odziv}}
+      </div>
+      % end
+        <div class="card-body p-0">
+        
+          <div class="table-container">
+          <table class="table borderless" data-toggle="table" data-sticky-header="true" data-search="true" data-show-columns="true" >
+              <thead class="table-light">
+                <tr >
+                  <th scope="col" data-sortable="true">Ime</th>
+                  <th scope="col" data-sortable="true">Priimek</th>
+                  <th scope="col" data-sortable="true">Spol</th>
+                  <th scope="col" data-sortable="true">Uporabniško ime</th>
+                  <th scope="col" data-sortable="true">Vloga</th>
+                  <th scope="col" data-sortable="true">Datum priključitve</th>
+                  <th scope="col" class="text-center">Več</th>
+                  <th scope="col" class="text-center">Izbriši</th>
+                
+                </tr>
+              </thead>
+              <tbody>
+                  % for id in plesalci.keys():
+                  % plesalec = plesalci[id]
+              
+                  <tr class="clickable-row">
+                  
+                    <td>{{plesalec.ime}}</td>
+                    <td>{{plesalec.priimek}}</td>
+                    <td>{{plesalec.spolplesalca}}</td>
+                    % if plesalec.uporabniskoime == None:
+                      <td>/</td>
+                    % else:
+                      <td>{{plesalec.uporabniskoime}}</td>
+                    % end  
+                    % if plesalec.rola == True:
+                      <td>garderober</td>
+                    % elif plesalec.rola == False:  
+                      <td>navaden plesalec</td>
+                    % else:
+                      <td>/</td>
+                    % end 
+                    <td>{{plesalec.datumprikljucitve}}</td>
+                    <td class="text-center">
+                      <form action="{{url('plesalci', id = plesalec.emso) }}" method="GET" id = "poglejpodatkeplesalca" class="needs-validation" novalidate>
+                        <button type="submit" id = "poglejpodatkeplesalca" class="btn btn-outline-secondary btn-sm"><i class="bi bi-person-lines-fill"></i></button>
+                      </form>
+                    </td> 
+                    <td class="text-center">
+                      <form action="{{url('izbrisi_plesalca')}}" method="POST" id = "myForm5" class="needs-validation" formvalidate>
+                        <input type="hidden" name="emso" value="{{id}}">
+                        <button type="submit" id = "submitBtn5" onclick="showConfirmation()" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3-fill"></i></button>
+                      </form>
+                    </td> 
+                  </tr>
+                
+                  % end
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card mb-4 mb-lg-4">
+    
+      <div class="card-body p-0">
+        <h4>Dodajanje novega plesalca/plesalke</h4>
+        <form action="{{url('dodaj_plesalca')}}" method="POST" id = "obrazecdodajplesalca">
+        
+          <div class="form-row">
+          
+            <div class="form-group col-md-4">
+              <label for="Ime">Ime</label>
+              <input type="text" class="form-control" id="Ime" name="ime">
+            </div>
+            <div class="form-group col-md-4">
+              <label for="Priimek">Priimek</label>
+              <input type="text" class="form-control" id="Priimek" name="priimek">
+            </div>
+            <div class="form-group col-md-2">
+              <label for="Spol">Spol</label>
+              <select id="Spol" class="form-control" name="spol">
+                <option selected value="">Izberi...</option>
+                <option value="M">M</option>
+                <option value="Ž">Ž</option>
+              </select>
+            </div>
+            <div class="form-group col-md-2">
+              <label for="inputZip">Datum priključitve</label>
+              <input type="text" class="form-control" id="datetimepicker1" data-date-end-date="0d" placeholder="Izberi datum" name="datum_prikljucitve" required>
+              <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+          </div>
+          <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="emsonovega">Emšo</label>
+            <input type="text" class="form-control" id="emsonovega" name="emsonovega" required>
+          </div>
+          <div class="form-group col-md-1">
+            <button type="submit" class="btn btn-secondary" id = "gumb2" disabled>Dodaj</button>
+          </div>
+          </div>
+        </form>
+      
+      
+      
+      
+      </div>
+    </div>
   
-<div class="table-responsive">
-<table class="table borderless" data-toggle="table" data-sticky-header="true" data-search="true" data-show-columns="true" >
-    <thead class="table-light">
-      <tr >
-        <th scope="col" data-sortable="true">Ime</th>
-        <th scope="col" data-sortable="true">Priimek</th>
-        <th scope="col" data-sortable="true">Spol</th>
-        <th scope="col" data-sortable="true">Uporabniško ime</th>
-        <th scope="col" data-sortable="true">Vloga</th>
-        <th scope="col" data-sortable="true">Datum priključitve</th>
-      </tr>
-    </thead>
-    <tbody>
-        % for id in plesalci.keys():
-        % plesalec = plesalci[id]
-        
-        <tr class='clickable-row' data-href='/plesalci/{{plesalec.idplesalca}}/'>
-        
-          <td>{{plesalec.ime}}</td>
-          <td>{{plesalec.priimek}}</td>
-          <td>{{plesalec.spolplesalca}}</td>
-          % if plesalec.uporabniskoime == None:
-            <td>/</td>
-          % else:
-            <td>{{plesalec.uporabniskoime}}</td>
-          % end  
-          % if plesalec.rola == True:
-            <td>garderober</td>
-          % elif plesalec.rola == False:  
-            <td>navaden plesalec</td>
-          % else:
-            <td>/</td>
-          % end 
-          <td>{{plesalec.datumprikljucitve}}</td>
-        </tr>
-        
-        % end
-    </tbody>
-  </table>
-</div>
+  </div>
+</section>
+<script>
+  $(document).ready(function() {
+      IzbiranjeDatuma()
+    });
+  $(document).ready(function() {
+      DodajanjePlesalca()
+    });
 
+    
+</script>
 
 <script>
-  jQuery(document).ready(function($) {
-    $(document).on("click", ".clickable-row", function() {
-      window.location = $(this).data("href");
-    });
-  });
-</script>
+  function showConfirmation() {
+      // Display a confirmation dialog
+      if (confirm("Ali ste prepričani, da želite izbrisati plesalca?")) {
+          document.getElementById("myForm5").submit();
+      } else {
+      }
+  }
+  </script>

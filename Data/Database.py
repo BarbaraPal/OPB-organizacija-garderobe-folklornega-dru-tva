@@ -19,6 +19,7 @@ import dataclasses
 
 T = TypeVar(
     "T",
+    TipImena,
     OpravaKostumskePodobe,
     VrstaOblacila,
     GlavnaOblacila,
@@ -181,75 +182,81 @@ class Repo:
         self.cur.execute(sql_cmd, (id,))
         self.conn.commit()
     
-    def profil(self, uporabnisko_ime) -> List[PlesalecDto]:
+    def profil(self, uporabnisko_ime) -> PlesalecDto:
         self.cur.execute(
             """
-            SELECT v.idplesalca, v.ime, v.priimek, v.spolplesalca, v.datumprikljucitve, v.sirinaramen, v.obsegprsi, v.dolzinarokava, v.dolzinaodpasunavzdol, v.dolzinatelesa, v.stevilkanoge, g.uporabniskoime, g.rola 
+            SELECT v.emso, v.ime, v.priimek, v.spolplesalca, v.datumprikljucitve, v.sirinaramen, v.obsegprsi, v.dolzinarokava, v.dolzinaodpasunavzdol, v.dolzinatelesa, v.stevilkanoge, g.uporabniskoime, g.rola 
             FROM Uporabnik g 
-            LEFT JOIN Plesalec v ON g.idplesalca = v.idplesalca
+            LEFT JOIN Plesalec v ON g.emso = v.emso
             WHERE g.uporabniskoime = %s;
             """, (uporabnisko_ime,))
 
         podatki_uporabnika = self.cur.fetchall()
-        idplesalca, ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, uporabniskoime, rola = podatki_uporabnika[0]
-        return PlesalecDto(idplesalca, uporabniskoime, ime, priimek, spolplesalca, datumprikljucitve.strftime("%d.%m.%Y"), sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, rola)
+        emso, ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, uporabniskoime, rola = podatki_uporabnika[0]
+        return PlesalecDto(emso, uporabniskoime, ime, priimek, spolplesalca, datumprikljucitve.strftime("%d.%m.%Y"), sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, rola)
     
     def plesalci(self) -> List[PlesalecDto]:
         self.cur.execute(
             """
-            SELECT v.idplesalca, v.ime, v.priimek, v.spolplesalca, v.datumprikljucitve, v.sirinaramen, v.obsegprsi, v.dolzinarokava, v.dolzinaodpasunavzdol, v.dolzinatelesa, v.stevilkanoge, g.uporabniskoime, g.rola 
+            SELECT v.emso, v.ime, v.priimek, v.spolplesalca, v.datumprikljucitve, v.sirinaramen, v.obsegprsi, v.dolzinarokava, v.dolzinaodpasunavzdol, v.dolzinatelesa, v.stevilkanoge, g.uporabniskoime, g.rola 
             FROM Uporabnik g 
-            RIGHT JOIN Plesalec v ON g.idplesalca = v.idplesalca;
+            RIGHT JOIN Plesalec v ON g.emso = v.emso;
             """)
 
         plesalci = self.cur.fetchall()
-        return { idplesalca: PlesalecDto(idplesalca, uporabniskoime, ime, priimek, spolplesalca, datumprikljucitve.strftime("%d.%m.%Y"), sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, rola) for idplesalca, ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, uporabniskoime, rola in plesalci}
+        return { emso: PlesalecDto(emso, uporabniskoime, ime, priimek, spolplesalca, datumprikljucitve.strftime("%d.%m.%Y"), sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, rola) for emso, ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, uporabniskoime, rola in plesalci}
     
 
-    def cevlji_posameznika(self, uporabnisko_ime) -> List[CevljiDto]:
+    def cevlji_posameznika(self, emso) -> List[CevljiDto]:
         self.cur.execute(
             """
-            SELECT u.uporabniskoime, t.vrsta, c.velikost, c.zapst
-            FROM Uporabnik u 
-            LEFT JOIN Plesalec p ON u.idplesalca = p.idplesalca
-            LEFT JOIN Cevlji c ON p.idplesalca = c.idlastnika
-            LEFT JOIN tipcevljev t ON c.idtipacevljev = t.idtipacevljev
-            WHERE u.uporabniskoime = %s;
-            """, (uporabnisko_ime,))
+            SELECT p.emso, c.vrsta, c.velikost, c.zapst
+            FROM Plesalec p 
+            LEFT JOIN Cevlji c ON p.emso = c.emsolastnika
+            WHERE p.emso = %s;
+            """, (emso,))
 
         cevlji_plesalca = self.cur.fetchall()
-        return [CevljiDto(uporabniskoime, vrsta, velikost, zapst) for (uporabniskoime, vrsta, velikost, zapst) in cevlji_plesalca]
+        return [CevljiDto(emso, vrsta, velikost, zapst) for (emso, vrsta, velikost, zapst) in cevlji_plesalca]
     
-    def delo_posameznika(self, uporabnisko_ime) -> List[DeloDto]:
+    def delo_posameznika(self, emso) -> List[DeloDto]:
         trenutni_mesec = datetime.now().month
         self.cur.execute(
             """
-            SELECT d.vrstadela, SUM(d.trajanje) AS skupno_trajanje, u.uporabniskoime
+            SELECT d.vrstadela, SUM(d.trajanje) AS skupno_trajanje, p.emso
             FROM Delo d
-            LEFT JOIN Uporabnik u ON u.idplesalca = d.idplesalca
+            LEFT JOIN Plesalec p ON p.emso = d.emso
             WHERE EXTRACT('month' FROM datumizvajanja) = %s
-            AND u.uporabniskoime = %s
-            GROUP BY d.vrstadela, u.uporabniskoime;
-            """, (trenutni_mesec, uporabnisko_ime,))
+            AND p.emso = %s
+            GROUP BY d.vrstadela, p.emso;
+            """, (trenutni_mesec, emso,))
         
         podatki_o_delu_uporabnika = self.cur.fetchall()
-        return [DeloDto(uporabniskoime, vrstadela, skupno_trajanje) for (vrstadela, skupno_trajanje, uporabniskoime ) in podatki_o_delu_uporabnika]
+        return [DeloDto(emso, vrstadela, skupno_trajanje) for (vrstadela, skupno_trajanje, emso ) in podatki_o_delu_uporabnika]
 
     def kostumske_podobe(self, uporabnik):
-        if uporabnik.spolplesalca == 'Ž':
-            oprava = 'moška'
-        else:
-            oprava = 'ženska'
-        self.cur.execute(
+        if uporabnik.rola == True:
+            self.cur.execute(
             """
-            SELECT o.imekostumskepodobe, o.imeoprave, t.vrsta, o.posebnosti  
+            SELECT o.imekostumskepodobe, o.imeoprave,  o.spoloprave, t.vrsta, o.posebnosti  
             FROM opravakostumskepodobe o
-            JOIN tipcevljev t ON o.idtipacevljev = t.idtipacevljev 
-            WHERE imeoprave != %s
-            """, (oprava,))
+            LEFT JOIN tipcevljev t ON o.vrstacevljev = t.vrsta 
+            """)
+        else:
+            if uporabnik.spolplesalca == 'Ž':
+                oprava = 'M'
+            else:
+                oprava = 'Ž'
+            self.cur.execute(
+                """
+                SELECT o.imekostumskepodobe, o.imeoprave, o.spoloprave,t.vrsta, o.posebnosti  
+                FROM opravakostumskepodobe o
+                LEFT JOIN tipcevljev t ON o.vrstacevljev = t.vrsta 
+                WHERE spoloprave != %s
+                """, (oprava,))
         
         podatki = self.cur.fetchall()
-        return [OpravaKostumskePodobeDto(imekostumskepodobe, imeoprave, vrsta_cevljev, posebnosti) for (imekostumskepodobe, imeoprave, vrsta_cevljev, posebnosti) in podatki]
+        return [OpravaKostumskePodobeDto(imekostumske_podobe, ime_oprave, spol_oprave, vrsta_cevljev, posebnosti) for (imekostumske_podobe, ime_oprave, spol_oprave, vrsta_cevljev, posebnosti) in podatki]
     
     #def izberi_moznosti(self, ime_tabele):
     #    query = """
@@ -266,12 +273,83 @@ class Repo:
             """
             SELECT v.ime, v.spol, r.moznost, v.pokrajina, v.omara
             FROM ROpravaVrsta r 
-            LEFT JOIN VrstaOblacila v ON r.idvrsteoblacila = v.id
+            LEFT JOIN VrstaOblacila v ON r.imevrste = v.ime AND r.spolvrste = v.spol AND r.pokrajinavrste = v.pokrajina
             WHERE r.imekostumskepodobe = %s
             AND r.imeoprave = %s;
             """, (kostumska_podoba, oprava,))
         
         oprava = self.cur.fetchall()
         return [OpravaDto(ime, spol, moznost, pokrajina, omara) for (ime, spol, moznost, pokrajina, omara) in oprava]   
-
     
+    def vrste_oblacil(self) -> List[VrstaOblacilaDto]:
+        self.cur.execute(
+            """
+            SELECT ime, spol, pokrajina FROM VrstaOblacila;
+            """)
+
+        oblacila = self.cur.fetchall()
+        return  [VrstaOblacilaDto(ime, spol, pokrajina) for (ime, spol, pokrajina) in oblacila]
+    
+    def poisci_oblacila(self, vrsta_tupple):
+        pokrajna, ime, spol = vrsta_tupple
+        self.cur.execute(
+            """
+            SELECT tip FROM TipImena
+            WHERE ime = %s
+            """,(ime,))
+
+        tabela = self.cur.fetchall()[0][0]
+
+        if tabela == 'ZgornjiDel':
+            self.cur.execute(
+                """
+                SELECT g.zaporednast, g.barva, g.stanje, g.opombe, g.slika, z.sirinaramen, z.obsegprsi, z.dolzinarokava
+                FROM GlavnaOblacila g
+                LEFT JOIN ZgornjiDel z ON g.ime = z.ime AND g.spol = z.spol AND g.pokrajina = z.pokrajina AND g.zaporednast = z.zaporednast
+                WHERE g.ime = %s AND g.pokrajina = %s AND g.spol = %s;
+                """, (ime, pokrajna, spol))
+            oblacila = self.cur.fetchall()
+            return [ZgornjiDelDto(zaporedna_st, barva, stanje, opombe, slika, sirina_ramen, obseg_prsi, dolzina_rokava) for (zaporedna_st, barva, stanje, opombe, slika, sirina_ramen, obseg_prsi, dolzina_rokava) in oblacila]
+        
+        elif tabela == 'SpodnjiDel':
+            self.cur.execute(
+                """
+                SELECT g.zaporednast, g.barva, g.stanje, g.opombe, g.slika, s.dolzinaodpasunavzdol
+                FROM GlavnaOblacila g
+                LEFT JOIN spodnjidel s ON g.ime = s.ime AND g.spol = s.spol AND g.pokrajina = s.pokrajina AND g.zaporednast = s.zaporednast
+                WHERE g.ime = %s AND g.pokrajina = %s AND g.spol = %s;
+                """, (ime, pokrajna, spol))
+            oblacila = self.cur.fetchall()
+            return [SpodnjiDelDto(zaporedna_st, barva, stanje, opombe, slika, dolzina_od_pasu_navzdol) for (zaporedna_st, barva, stanje, opombe, slika, dolzina_od_pasu_navzdol) in oblacila]
+        
+        elif tabela == 'EnodelniKos':
+            self.cur.execute(
+                """
+                SELECT g.zaporednast, g.barva, g.stanje, g.opombe, g.slika, e.dolzinatelesa
+                FROM GlavnaOblacila g
+                LEFT JOIN enodelnikos e ON g.ime = e.ime AND g.spol = e.spol AND g.pokrajina = e.pokrajina AND g.zaporednast = e.zaporednast
+                WHERE g.ime = %s AND g.pokrajina = %s AND g.spol = %s;
+                """, (ime, pokrajna, spol))
+            oblacila = self.cur.fetchall()
+            return [EnodelniKosDto(zaporedna_st, barva, stanje, opombe, slika, dolzina_telesa) for (zaporedna_st, barva, stanje, opombe, slika, dolzina_telesa) in oblacila]
+        
+        elif tabela == 'DodatnaOblacila':
+            self.cur.execute(
+                """
+                SELECT kolicina, opombe, slika FROM dodatnaoblacila
+                WHERE ime = %s AND pokrajina = %s AND spol = %s;
+                """, (ime, pokrajna, spol))
+            oblacila = self.cur.fetchall()
+            return [DodatnaOblacilaDto(kolicina, opombe, slika) for (kolicina, opombe, slika) in oblacila]
+        
+        else: 
+            raise Exception('Napačna tabela!') # se načeloma ne bi smelo zgoditi!
+        
+    def imena_po_tipih(self):
+        self.cur.execute("""
+            SELECT tip, array_agg(ime) AS ImeSeznam
+            FROM TipImena 
+            GROUP BY Tip;
+        """)
+        imena_po_tipih = self.cur.fetchall()
+        return {tip : imena for tip,imena in imena_po_tipih}

@@ -29,3 +29,14 @@ function preveriVnos() {
 }
 
 
+function showFormSection() {
+  const formSelector = document.getElementById("vrsta");
+  const selectedOption = formSelector.value;
+  // Hide all form sections
+  const formSections = document.querySelectorAll("[id^='form']");
+  formSections.forEach(section => section.style.display = "none");
+  // Show the selected form section if it's one of the clothes options
+  if (selectedOption === "zgornji_del" || selectedOption === "spodnji_del" || selectedOption === "enodelni_kos" || selectedOption === "dodatna_oblacila") {
+    document.getElementById(`form${selectedOption}`).style.display = "block";
+  }
+}

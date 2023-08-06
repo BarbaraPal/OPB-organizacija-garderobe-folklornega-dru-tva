@@ -1,0 +1,97 @@
+
+<!-- Dodajanje dela-->
+%rebase('osnova.html', naslov='Dodajanje dela', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4"><b>Dodajanje dela</b></p>
+                  % if potrdilo:
+                <div class="alert alert-success" role="alert" style="margin-top: 3%;"> 
+                {{potrdilo}}
+                </div>
+                % end
+                    
+                    <form action="{{url('dodaj_delo')}}" method="POST" id="myForm">
+                        % if rola == 'True':
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="imeInput" placeholder="Vnesi ime" name="plesalec">
+                            <div id="predlogi"></div>
+                        </div>
+                        % else:
+                        <input type="hidden" name="plesalec" value="{{emso}}">
+                        % end
+                    
+                        <div class="form-group">
+                            <select class="custom-select required custom-select-sm" name="vrsta_dela" id="vrstaDela">
+                                <option value="" selected>Izberi vrsto dela</option>
+                                <option value="likanje">Likanje</option>
+                                <option value="pranje">Pranje</option>
+                                <option value="šivanje">Šivanje</option>
+                                <option value="drugo">Drugo</option>
+                            </select>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="trajanjeMinut">Trajanje dela (min):</label>
+                            <input type="number" class="form-control" id="trajanjeMinut" name="trajanje" min="1" step="1">
+                        </div>
+                    
+                        <div class="input-group date form-group" id="datetimepicker1">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="datum_izvajanja">Datum izvajanja dela:</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="datum_izvajanja" data-date-end-date="0d"
+                                        placeholder="Izberi datum" name="datum_izvajanja" required>
+                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <button type="submit" class="btn btn-secondary" id="gumb" disabled>Dodaj</button>
+                    
+                    </form>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+  
+
+  <script>
+    seznam_imen_priimkov_in_up_imen = {{!seznam_plesalcev}};
+    var rola = "{{!rola}}";
+    $(document).ready(function () {
+      IskanjeImenDelo(seznam_imen_priimkov_in_up_imen);
+    });
+    $(document).ready(function() {
+      IzbiranjeDatuma()
+    });
+    $(document).ready(function() {
+      DodajanjeDela(seznam_imen_priimkov_in_up_imen, rola)
+    });
+</script>
+
+
+  
+
+
+
+
+
+
+
+
+
+

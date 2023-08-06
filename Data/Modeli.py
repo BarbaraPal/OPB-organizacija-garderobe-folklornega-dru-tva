@@ -15,21 +15,49 @@ from decimal import Decimal
 # preprosto serializacijo in deseralizacijo objektov. Poleg tega vsebuje tudi uporabno funkcijo
 # to_dict() in from_dict(), ki dataclas pretvori v/iz slovarja.
 
+@dataclass_json
+@dataclass
+class TipImena:
+    ime: str
+    tip: str
 
 @dataclass_json
 @dataclass
 class VrstaOblacila:
-    id: int
     ime: str
     spol: str
     pokrajina: str = field(default='SLO') 
     omara: int = field(default=None)
 
+@dataclass
+class VrstaOblacilaDto:
+    ime: str
+    spol: str
+    pokrajina: str
+
+@dataclass_json
+@dataclass
+class DodatnaOblacila:
+    pokrajina: str
+    spol: str
+    ime: str
+    slika: bytes = field(default=None)
+    kolicina: int = field(default=0)
+    opombe: str = field(default="")
+
+@dataclass
+class DodatnaOblacilaDto:
+    kolicina: int
+    opombe: str
+    slika: bytes
+
 @dataclass_json
 @dataclass
 class GlavnaOblacila:
+    pokrajina: str
+    spol: str
+    ime: str
     zaporednast: int
-    idvrste: int
     slika: bytes = field(default=None)
     barva: str = field(default="")
     stanje: bool = field(default=True) # False = neuporabno, True = uporabno
@@ -37,48 +65,78 @@ class GlavnaOblacila:
 
 #@dataclass
 #class GlavnaOblacilaDto:
+#    idvrste: int
 #    ime: str
 #    pokrajina: str
 #    spol: str
 #    zaporednast: int
-#    barva: str
+#    barva: str = field(default="")
+#    stanje: bool = field(default=True) # False = neuporabno, True = uporabno
   
 @dataclass_json
 @dataclass
 class ZgornjiDel:
-    idvrste: int 
+    pokrajina: str
+    spol: str
+    ime: str
     zaporednast: int
     sirinaramen: Decimal = field(default=None)
     obsegprsi: Decimal = field(default=None)
     dolzinarokava: Decimal = field(default=None)
 
+@dataclass
+class ZgornjiDelDto: 
+    zaporednast: int
+    barva: str
+    stanje: bool
+    opombe: str
+    slika: bytes
+    sirinaramen: Decimal
+    obsegprsi: Decimal
+    dolzinarokava: Decimal
+
 @dataclass_json
 @dataclass
 class SpodnjiDel:
-    idvrste: int
+    pokrajina: str
+    spol: str
+    ime: str
     zaporednast: int
     dolzinaodpasunavzdol: Decimal = field(default=None)
+
+@dataclass
+class SpodnjiDelDto: 
+    zaporednast: int
+    barva: str
+    stanje: bool
+    opombe: str
+    slika: bytes
+    dolzinaodpasunavzdol: Decimal
 
 @dataclass_json
 @dataclass
 class EnodelniKos:
-    idvrste: int
+    pokrajina: str
+    spol: str
+    ime: str
     zaporednast: int
     dolzinatelesa: Decimal = field(default=None)
-    
 
-@dataclass_json
 @dataclass
-class DodatnaOblacila:
-    idvrste: int
-    slika: bytes = field(default=None)
-    kolicina: int = field(default=0)
-    opombe: str = field(default="")
+class EnodelniKosDto: 
+    zaporednast: int
+    barva: str
+    stanje: bool
+    opombe: str
+    slika: bytes
+    dolzinatelesa: Decimal
+
+
 
 @dataclass_json
 @dataclass
 class Plesalec:
-    idplesalca: int
+    emso: str
     ime: str
     priimek: str
     spolplesalca: str
@@ -93,41 +151,42 @@ class Plesalec:
 @dataclass_json
 @dataclass
 class TipCevljev:
-    idtipacevljev: int
     vrsta: str
     slika: bytes = field(default=None)
 
 @dataclass_json
 @dataclass
 class Cevlji:
-    idtipacevljev: int
+    vrsta: str
     zapst: int
     velikost: int
-    idlastnika: int = field(default=None)
+    emsolastnika: str = field(default=None)
 
 @dataclass_json
 @dataclass
 class Delo:
-    iddela: int
-    idplesalca: int
+    emso: str
     vrstadela: str
     trajanje: timedelta
     datumizvajanja: date = field(default=date.today())
-    
+    iddela: int = field(default=None)
+
 
 @dataclass_json
 @dataclass
 class OpravaKostumskePodobe:
     imekostumskepodobe: str
     imeoprave: str
-    idtipacevljev: int
+    spoloprave: str
+    vrstacevljev: str
     posebnosti: str = field(default="")
 
 @dataclass_json
 @dataclass
 class ROpravaVrsta:
-    id: int
-    idvrsteoblacila: int
+    pokrajinavrste: str
+    spolvrste: str 
+    imevrste: str
     imeoprave: str
     imekostumskepodobe: str
     moznost: int
@@ -147,7 +206,7 @@ class Uporabnik:
     uporabniskoime: str
     kodiranogeslo: str 
     zadnjaprijava: date
-    idplesalca: int
+    emso: str
     rola: bool = field(default=False)
 
 @dataclass
@@ -157,7 +216,7 @@ class UporabnikDto:
 
 @dataclass
 class PlesalecDto:
-    idplesalca: int
+    emso: str
     uporabniskoime: str
     ime: str
     priimek: str
@@ -173,14 +232,14 @@ class PlesalecDto:
 
 @dataclass
 class CevljiDto:
-    uporabniskoime: str
+    emso: str
     vrsta: str
     velikost: int
     zapst: int
 
 @dataclass
 class DeloDto:
-    uporabniskoime: str
+    emso: str
     vrstadela: str
     skupno_trajanje: timedelta
 
@@ -188,5 +247,6 @@ class DeloDto:
 class OpravaKostumskePodobeDto:
     imekostumskepodobe: str
     imeoprave: str
-    vrsta_cevljev: str
+    spoloprave: str
+    vrstacevljev: str
     posebnosti: str = field(default="")

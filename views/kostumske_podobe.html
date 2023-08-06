@@ -1,4 +1,4 @@
-%rebase('osnova.html', naslov='Oblacila', uporabnik=uporabnisko_ime)
+%rebase('osnova.html', naslov='Oblacila', uporabnik=uporabnisko_ime, rola = rola)
 
 <div class="container-fluid">
   <div class="row" >
@@ -61,59 +61,67 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr><td colspan="4"><b>Obvezni deli</b></td></tr>
+                    
                     % sez = []
-                    % max_moznost = max([vrsta.moznost for vrsta in seznam[(kostumska_podoba, imeoprave)]])
-                    % for i in seznam[(kostumska_podoba, imeoprave)]:
-                      % if i.moznost == 0:
-                      <tr>
-                        <td>{{i.ime}}</td>
-                        <td>{{i.pokrajina}}</td>
-                        <td>{{i.spol}}</td>
-                        <td>{{i.omara}}</td>
-                      </tr>
-                      % else:
-                      %   sez.append(i)
-                      % end
-                    % end
-                    % if max_moznost != 0:
-                      <tr><td colspan="4"><b>Ena izmed možnosti</b></td></tr>
-                    % end
-                    % for j in range(1,max_moznost + 1):
-                        <tr><td colspan="4">{{j}}. možnost</td></tr>
-                        % for k in sez:
-                          % if k.moznost == j:
-                          
-                          <tr>
-                            <td>{{k.ime}}</td>
-                            <td>{{k.pokrajina}}</td>
-                            <td>{{k.spol}}</td>
-                            <td>{{k.omara}}</td>
-                          </tr>              
-                          % end
+                    % if seznam[(kostumska_podoba, imeoprave)]:
+                    <tr><td colspan="4"><b>Obvezni deli</b></td></tr>
+                      % max_moznost = max([vrsta.moznost for vrsta in seznam[(kostumska_podoba, imeoprave)]])
+                      % for i in seznam[(kostumska_podoba, imeoprave)]:
+                        % if i.moznost == 0:
+                        <tr>
+                          <td>{{i.ime}}</td>
+                          <td>{{i.pokrajina}}</td>
+                          <td>{{i.spol}}</td>
+                          <td>{{i.omara}}</td>
+                        </tr>
+                        % else:
+                        %   sez.append(i)
                         % end
                       % end
+                      % if max_moznost != 0:
+                        <tr><td colspan="4"><b>Ena izmed možnosti</b></td></tr>
+                      % end
+                      % for j in range(1,max_moznost + 1):
+                          <tr><td colspan="4">{{j}}. možnost</td></tr>
+                          % for k in sez:
+                            % if k.moznost == j:
+
+                            <tr>
+                              <td>{{k.ime}}</td>
+                              <td>{{k.pokrajina}}</td>
+                              <td>{{k.spol}}</td>
+                              <td>{{k.omara}}</td>
+                            </tr>              
+                            % end
+                          % end
+                        % end
+                    % else:
+                      <tr><td colspan="4"><b>Ni podatkov.</b></td></tr>
+                    % end
                   </tbody>
                 </table>                      
                 </div>
               </div> 
           </div>
-
           <div class="col-lg-6">
             <div class="card mb-4">
               <div class="card-body">
                 <div class="row">
                   <div class="col-sm-3">
-                    <p class="mb-0">Tip čevljev</p>
+                    <p class="mb-0">Tip čevljev:</p>
                   </div>
                   <div class="col-sm-9">
-                    <p class="text-muted mb-0">{{slovar_oprave[(kostumska_podoba, imeoprave)][0]}}</p>
+                    % if slovar_oprave[(kostumska_podoba, imeoprave)][0]:
+                      <p class="text-muted mb-0">{{slovar_oprave[(kostumska_podoba, imeoprave)][0]}}</p>
+                    % else:
+                      <p class="text-muted mb-0">Ni podatka.</p>
+                    % end
                   </div>
                 </div>
                 <hr>
                 <div class="row">
                   <div class="col-sm-3">
-                    <p class="mb-0">Posebnosti</p>
+                    <p class="mb-0">Posebnosti:</p>
                   </div>
                   <div class="col-sm-9">
                       % for posebnost in slovar_oprave[(kostumska_podoba, imeoprave)][1]:                  

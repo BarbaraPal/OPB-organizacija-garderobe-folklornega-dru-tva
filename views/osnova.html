@@ -31,6 +31,7 @@
    <script src="{{url('static_js', filename='preverjanje_gesla.js')}}"></script>
    <script src="{{url('static_js', filename='oznacen_kvadratek.js')}}"></script>
    <script src="{{url('static_js', filename='nov_obrazec_ob_kliku.js')}}"></script>
+   <script src="{{url('static_js', filename='nova.js')}}"></script>
 
   <!--
     
@@ -89,8 +90,12 @@
               Oblačila
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/oblacila/">Glavna Oblačila</a></li>
-              <li><a class="dropdown-item" href="#">Dodatna Oblačila</a></li>
+              <li><a class="dropdown-item" href="/oblacila/vrste_oblacil/">Oblačila po vrstah</a></li>
+              % if rola == 'True':
+              <li><a class="dropdown-item" href="/dodaj_oblacilo/">Dodaj oblačila</a></li>
+              % else:
+              <li><a class="dropdown-item disabled" href="/dodaj_oblacilo/">Dodaj oblačila</a></li>
+              % end
             </ul>
           </li>
           <li class="nav-item dropdown">
@@ -98,7 +103,7 @@
               Delo
             </a>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Statistika</a></li>
+              <li><a class="dropdown-item" href="/delo/">Statistika</a></li>
               <li><a class="dropdown-item" href="#">Razpored</a></li>
             </ul>
           </li>
