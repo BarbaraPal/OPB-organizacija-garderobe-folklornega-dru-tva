@@ -200,18 +200,17 @@ function DodajanjeKosaOblacila(seznam, imeId, pokrajinaId, obrazecId, gumbId) {
       var ime = $("#" + imeId).val().trim();
       var pokrajina = $("#" + pokrajinaId).val().trim();
       var vsaPoljaIzpolnjena = true;
-      // Preveri vrsto dela
       if (ime === "" || pokrajina === "") {
         vsaPoljaIzpolnjena = false;
       }
       for (let element in seznam_nezazelenih) {
-        if (ime == element){
+        if (ime == seznam_nezazelenih[element]){
           vsaPoljaIzpolnjena = false;
         }
       }
-      
       // Enable/Disable the button based on whether all fields are filled
       var $gumb = $("#" + gumbId);
+      
       if (vsaPoljaIzpolnjena) {
         $gumb.attr("disabled", false);
         $gumb.addClass("btn-primary").removeClass("btn-primary");
@@ -222,16 +221,18 @@ function DodajanjeKosaOblacila(seznam, imeId, pokrajinaId, obrazecId, gumbId) {
     }
 
     // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna
-    $("#" + imeId, "#" + pokrajinaId).on("input change", function () {
+    $("#" + imeId + ", #" + pokrajinaId).on("input change", function () {
       preveriVeljavnostPolj(seznam_nezazelenih, imeId, pokrajinaId, gumbId);
     });
+    
 
     // Ob oddaji obrazca preveri, če so vsa polja izpolnjena
     $("#" + obrazecId).on("submit", function (event) {
       preveriVeljavnostPolj(seznam_nezazelenih, imeId, pokrajinaId, gumbId);
       var $gumb = $("#" + gumbId);
       if (!$gumb.prop("disabled")) {
-        return true;
+        return true
+        
       } else {
         event.preventDefault();
         alert("Prosim izpolnite vsa obvezna polja.");
