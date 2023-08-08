@@ -207,10 +207,14 @@ def dodaj_plesalca():
 @post('/izbrisi_plesalca/')
 @rola_required
 def izbrisi_plesalca():
-    emso_plesalca = request.forms.getunicode('emso_plesalca')
+    emso_plesalca = request.forms.getunicode('emso')
     repo.izbrisi_gen(Plesalec, emso_plesalca, id_col='emso')
     redirect(url('plesalci', id = 'vsi_plesalci', odziv = 'Uspešno izbrisan plesalec!'))
-    
+
+@post('/izbrisi_kos_oblacila/')
+@rola_required
+def izbrisi_kos_oblacila():
+    pass
 @post('/dodaj_uporabnika/')
 @rola_required
 def dodaj_uporabnika():
@@ -350,12 +354,16 @@ def oblacila(stran):
 def dodaj_oblacilo():
     uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
     rola = bottle.request.get_cookie("rola")
+    potrdilo = request.query.getunicode('potrdilo')
+    napaka = request.query.getunicode('napaka')
+    nova_vrsta_json = request.query.getunicode('nova_vrsta')
+    nova_vrsta = json.loads(nova_vrsta_json) if nova_vrsta_json is not None else None
     vrste_oblacil = repo.vrste_oblacil()
     slovar_imen_tipov = repo.imena_po_tipih()
     seznam_pokrajin = list(set([vrsta.pokrajina for vrsta in vrste_oblacil]))
     seznam_imen = list(set([vrsta.ime for vrsta in vrste_oblacil]))
     slovar_nezazeljenih ={tip: [ime for ime in seznam_imen if ime not in seznam] for tip, seznam in slovar_imen_tipov.items()}
-    return template('dodajanje_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, slovar_imen_tipov = slovar_imen_tipov, pokrajina = seznam_pokrajin, slovar_nezazeljenih = slovar_nezazeljenih)
+    return template('dodajanje_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, slovar_imen_tipov = slovar_imen_tipov, pokrajina = seznam_pokrajin, slovar_nezazeljenih = slovar_nezazeljenih, napaka = napaka, potrdilo = potrdilo, nova_vrsta = nova_vrsta)
 
 @post('/dodaj_oblacilo/')
 @rola_required
@@ -368,19 +376,39 @@ def dodaj_oblacilo():
     if slika:
         slika = bytes(slika.file.read())
     opombe = request.forms.getunicode('opombe')
-    if tip_oblacila != 'dodatna_oblacila':
+    nova_vrsta = None
+    try:
+        repo.dobi_gen_id(VrstaOblacila, (ime, pokrajina, spol), ('ime', 'pokrajina', 'spol'))
+    except:
+        tip_imena = TipImena(ime, tip_oblacila)
+        try:
+            repo.dodaj_gen(tip_imena, serial_col=None)
+        except:
+            pass
+        
+        vrsta = VrstaOblacila(ime, spol, pokrajina) 
+        repo.dodaj_gen(vrsta, serial_col=None)
+        nova_vrsta = (True, ime, pokrajina, spol , tip_oblacila)
+    
+    if tip_oblacila != 'DodatnaOblacila':
         zaporedna_st = int(request.forms.getunicode('zaporedna_st'))
         barva = request.forms.getunicode('barva')
         stanje = bool(int(request.forms.getunicode('stanje')))
         oblacilo = GlavnaOblacila(pokrajina, spol, ime, zaporedna_st, slika, barva, stanje, opombe)
-        repo.dodaj_gen(oblacilo, serial_col=None)
-        if tip_oblacila == 'zgornji_del':
+        try:
+            repo.dodaj_gen(oblacilo, serial_col=None)
+            
+        except:
+            odziv = f'Glavno oblačilo z ime:{ime}, pokrajina:{pokrajina}, spol:{spol}, zaporedna številka:{zaporedna_st} že obstaja.'
+            redirect(url('dodaj_oblacilo', napaka = odziv))
+
+        if tip_oblacila == 'ZgornjiDel':
             sirina_ramen = pretvori_v_decimal(request.forms.getunicode('sirina_ramen'))
             obseg_prsi = pretvori_v_decimal(request.forms.getunicode('obseg_prsi'))
             dolzina_rokava = pretvori_v_decimal(request.forms.getunicode('dolzina_rokava'))
             mere = ZgornjiDel(pokrajina, spol, ime, zaporedna_st, sirina_ramen, obseg_prsi, dolzina_rokava)
             repo.dodaj_gen(mere, serial_col=None)
-        elif tip_oblacila == 'spodnji_del':
+        elif tip_oblacila == 'SpodnjiDel':
             dolzina_od_pasu_navzdol = pretvori_v_decimal(request.forms.getunicode('dolzina_od_pasu_navzdol'))
             mere = SpodnjiDel(pokrajina, spol, ime, zaporedna_st, dolzina_od_pasu_navzdol)
             repo.dodaj_gen(mere, serial_col=None)
@@ -391,7 +419,26 @@ def dodaj_oblacilo():
     else:
         kolicina = int(request.forms.getunicode('kolicina'))
         dodatna = DodatnaOblacila(pokrajina, spol, ime, slika, kolicina, opombe)
-        repo.dodaj_gen(dodatna, serial_col=None)
+        try:
+            repo.dodaj_gen(dodatna, serial_col=None)
+        except:
+            odziv = f'Dodatno blačilo z ime:{ime}, pokrajina:{pokrajina}, spol:{spol} že obstaja.'
+            redirect(url('dodaj_oblacilo', napaka = odziv))
+    redirect(url('dodaj_oblacilo', potrdilo = 'Oblačilo je bilo uspešno dodano.', nova_vrsta = json.dumps(nova_vrsta)))
+
+@post('/dodaj_omaro/')
+@rola_required
+def dodaj_omaro():
+    ime = request.forms.getunicode('ime_vrste')
+    pokrajina = request.forms.getunicode('pokrajina_vrste')
+    spol = request.forms.getunicode('spol_vrste')
+    omara = int(request.forms.getunicode('omara_vrste'))
+    posodobitev = VrstaOblacila(ime, spol, pokrajina, omara)
+    print(omara, posodobitev)
+    repo.posodobi_gen(posodobitev, id_cols=('ime', 'pokrajina', 'spol'))
+    redirect(url('dodaj_oblacilo', potrdilo = 'Podatek je bil uspešno posodobljen.'))
+
+
 
 @error(404)
 def error_404(error):

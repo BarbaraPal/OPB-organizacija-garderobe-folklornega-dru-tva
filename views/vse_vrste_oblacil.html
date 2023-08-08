@@ -17,7 +17,10 @@
                   <th scope="col" data-sortable="true">Ime</th>
                   <th scope="col" data-sortable="true">Spol</th>
                   <th scope="col" data-sortable="true">Pokrajina</th>
-                  <th scope="col" data-sortable="true">Podatki o vseh kosih te vrste</th>
+                  <th scope="col" data-sortable="true">Tip</th>
+                  <th scope="col" data-sortable="true">Omara</th>
+                  <th scope="col">Podatki o vseh kosih te vrste</th>
+                  
 
                 </tr>
               </thead>
@@ -29,6 +32,16 @@
                   <td>{{vrstica.ime}}</td>
                   <td>{{vrstica.spol}}</td>
                   <td>{{vrstica.pokrajina}}</td>
+                  % if vrstica.tip == "DodatnaOblacila":
+                  <td>dodatno oblačilo</td>
+                  % elif vrstica.tip == "ZgornjiDel":
+                  <td>zgornji del</td>
+                  % elif vrstica.tip == "SpodnjiDel":
+                  <td>spodnji del</td>
+                  % elif vrstica.tip == "EnodelniKos":
+                  <td>dodatno oblačilo</td>
+                  % end
+                  <td>{{vrstica.omara if vrstica.omara is not None else "/"}}</td>
                   <td>
                     <form action="{{url('oblacila', stran = 'oblacilo')}}" method="GET" id = "obrazec1234">
                       <input type="hidden" name="ime_vrste" value="{{vrstica.ime}}">

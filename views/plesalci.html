@@ -55,7 +55,7 @@
                     </td> 
                     <td class="text-center">
                       <form action="{{url('izbrisi_plesalca')}}" method="POST" id = "myForm5" class="needs-validation" formvalidate>
-                        <input type="hidden" name="emso" value="{{id}}">
+                        <input type="hidden" name="emso" value="{{plesalec.emso}}">
                         <button type="submit" id = "submitBtn5" onclick="showConfirmation()" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3-fill"></i></button>
                       </form>
                     </td> 

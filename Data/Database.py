@@ -102,8 +102,13 @@ class Repo:
 
         if d is None:
             raise Exception(f"Vrstica s ključem {id_tuple} ne obstaja v {tbl_name}.")
+        
+        if 'slika' in d:  # Check if the 'slika' key is present
+            slika_memoryview = d['slika']
+            if isinstance(slika_memoryview, memoryview):
+                d['slika'] = bytes(slika_memoryview)
 
-        return typ.from_dict(d)
+        return typ(**d)
 
 
     def posodobi_gen(self, typ: T, id_cols = ("id",), auto_commit=True):
@@ -157,15 +162,21 @@ class Repo:
         if serial_col != None:
             sql_cmd += f'RETURNING {serial_col}'
 
-        self.cur.execute(sql_cmd)
+        try:
+            self.cur.execute(sql_cmd)
 
-        if serial_col != None:
-            serial_val = self.cur.fetchone()[0]
+            if serial_col != None:
+                serial_val = self.cur.fetchone()[0]
 
-            # Nastavimo vrednost serial stolpca
-            setattr(typ, serial_col, serial_val)
+                # Nastavimo vrednost serial stolpca
+                setattr(typ, serial_col, serial_val)
+            if auto_commit: self.conn.commit()
+        except:
+            self.conn.rollback()
+            raise Exception('Napaka')
+        
 
-        if auto_commit: self.conn.commit()
+
 
         # Dobro se je zavedati, da tukaj sam dataclass dejansko
         # "mutiramo" in ne ustvarimo nove reference. Return tukaj ni niti potreben.
@@ -298,16 +309,20 @@ class Repo:
         
         oprava = self.cur.fetchall()
         return [OpravaDto(ime, spol, moznost, pokrajina, omara) for (ime, spol, moznost, pokrajina, omara) in oprava]   
-    
+
+
     def vrste_oblacil(self) -> List[VrstaOblacilaDto]:
         self.cur.execute(
             """
-            SELECT ime, spol, pokrajina FROM VrstaOblacila;
+            SELECT v.ime, v.spol, v.pokrajina, v.omara, t.tip 
+            FROM VrstaOblacila v
+            LEFT JOIN TipImena t ON t.ime = v.ime; 
             """)
 
         oblacila = self.cur.fetchall()
-        return  [VrstaOblacilaDto(ime, spol, pokrajina) for (ime, spol, pokrajina) in oblacila]
-    
+        return  [VrstaOblacilaDto(ime, spol, pokrajina, omara, tip) for (ime, spol, pokrajina, omara, tip) in oblacila]
+
+
     def poisci_oblacila(self, vrsta_tupple):
         pokrajna, ime, spol = vrsta_tupple
         self.cur.execute(

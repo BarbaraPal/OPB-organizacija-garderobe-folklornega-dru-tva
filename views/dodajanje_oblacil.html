@@ -7,8 +7,57 @@
             <div class="col-md-12">
               <div class="card mb-4 mb-md-0">
                 <div class="card-body">
+                 % if potrdilo:
+                 %    if nova_vrsta:
+                 {{nova_vrsta}}
+                    <p class="mb-4"><b>Dodali ste novo vrsto oblačil, ki še nima določene omare. Bi jo radi dodali?</b></p>
+                    <form action="{{url('dodaj_omaro')}}" method="POST">
+                      <div class="form-group">
+                        <label for="formGroupExampleInput">Tip</label>
+                        <input type="text" class="form-control" id="vnesen_tip" value="{{nova_vrsta[4]}}" disabled>
+                      </div>
+                      <div class="form-group">
+                        <label for="formGroupExampleInput2">Ime:</label>
+                        <input type="text" class="form-control" id="vneseno_ime" value="{{nova_vrsta[1]}}" disabled>
+                        <input type="hidden" name="ime_vrste" value="{{nova_vrsta[1]}}">
+                      </div>
+                      <div class="form-group">
+                        <label for="formGroupExampleInput2">Pokrajina:</label>
+                        <input type="text" class="form-control" id="vnesena_pokrajina" value="{{nova_vrsta[2]}}" disabled>
+                        <input type="hidden" name="pokrajina_vrste" value="{{nova_vrsta[2]}}">
+                      </div>
+                      <div class="form-group">
+                        <label for="formGroupExampleInput2">Spol:</label>
+                        <input type="text" class="form-control" id="vnesen_spol" value="{{nova_vrsta[3]}}" disabled>
+                        <input type="hidden" name="spol_vrste" value="{{nova_vrsta[3]}}">
+                      </div>
+                    <div class="form-group">
+                      <label for="omara">Omara</label>
+                      <input type="number" class="form-control form-control-sm" id="omara" name="omara_vrste" min="0" step="1" required>
+                    </div>
+                    <button type="submit" class="btn btn-secondary btn-sm" id="dodajomaro" >Dodaj</button>
+                    </form>
+                    <form action="{{url('dodaj_oblacilo')}}" method="GET">
+                      <div class="form-group">
+                        <label for="nedodajomare">Če ne želite dodati podatka o omari pritisnite ta gumb:</label>
+                        <input type="hidden"  name="potrdilo" value="Uspešno dodana vrsta oblačila. Omaro lahko vedno dodaš na strani Vrste oblačil.">
+                        <button type="submit" class="btn btn-secondary btn-sm" id="nedodajomare" >Ne želim dodati omare</button>
+                      </div>
+                    </form>
+                  % else:
+                      <div  style="margin-top: 5px;" class="alert alert-success">
+                        {{potrdilo}}
+                      </div>
+                  % end
+                % end
+
+                % if napaka:
+                  <div  style="margin-top: 5px;" class="alert alert-danger">
+                    {{napaka}}
+                  </div>
+                % end
                   <p class="mb-4"><b>Dodajanje oblačil</b></p>
-                    <form action="{{url('dodaj_oblacilo')}}" method="POST">
+                    <form>
                         <div class="form-group">
                             <select class="custom-select required custom-select-sm" name="tip" id="vrsta" onchange="showFormSection()">
                                 <option value="" selected>Kaj vnašam?</option>
@@ -21,7 +70,7 @@
                     </form>
                     <!--Glavna oblačila: zgornji del-->
                     <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formzgornji_del" enctype="multipart/form-data">
-                      <input type="hidden" name="tip" value="zgornji_del">
+                      <input type="hidden" name="tip" value="ZgornjiDel">
                     <div class="form-group">
                         <label for="imevrste">Ime <small>(Pazite, da se kos oblačila ujema z izbranim tipom!)</small></label>
                         <input type="input" class="form-control form-control-sm" name="ime_vrste" list="existingNames1" id = "ime1">
@@ -100,7 +149,7 @@
   
                     <!--Glavna oblačila: spodnji del-->
                     <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formspodnji_del" enctype="multipart/form-data">
-                      <input type="hidden" name="tip" value="spodnji_del">
+                      <input type="hidden" name="tip" value="SpodnjiDel">
                       <div class="form-group">
                           <label for="imevrste">Ime <small>(Pazite, da se kos oblačila ujema z izbranim tipom!)</small></label>
                           <input type="input" class="form-control form-control-sm" name="ime_vrste" list="existingNames2" id = "ime2">
@@ -142,11 +191,11 @@
                           <input type="input" class="form-control" name="barva" >
                       </div>
                       <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="stanje" id="inlineRadio3" value="option1" checked>
+                          <input class="form-check-input" type="radio" name="stanje" id="inlineRadio3" value="1" checked>
                           <label class="form-check-label" for="inlineRadio1">uporabno</label>
                         </div>
                         <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="stanje" id="inlineRadio4" value="option2">
+                          <input class="form-check-input" type="radio" name="stanje" id="inlineRadio4" value="0">
                           <label class="form-check-label" for="inlineRadio2">ni uporabno</label>
                         </div>
                         <div class="form-group">
@@ -170,7 +219,7 @@
 
                     <!--Glavna oblačila: enodelni kos-->
                     <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formenodelni_kos" enctype="multipart/form-data">
-                      <input type="hidden" name="tip" value="enodelni_kos">
+                      <input type="hidden" name="tip" value="EnodelniKos">
                       <div class="form-group">
                           <label for="imevrste">Ime <small>(Pazite, da se kos oblačila ujema z izbranim tipom!)</small></label>
                           <input type="input" class="form-control form-control-sm" name="ime_vrste" list="existingNames3" id = "ime3">
@@ -240,7 +289,7 @@
   
                     <!--Obrazec za dodatna oblačila-->
                     <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formdodatna_oblacila" style="display: none;" enctype="multipart/form-data">
-                      <input type="hidden" name="tip" value="dodatna_oblacila">
+                      <input type="hidden" name="tip" value="DodatnaOblacila">
                       <div class="form-group">
                         <label for="imevrste">Ime <small>(Pazite, da se kos oblačila ujema z izbranim tipom!)</small></label>
                         <input type="input" class="form-control form-control-sm" name="ime_vrste" list="existingNames4" id = "ime4">

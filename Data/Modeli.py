@@ -33,6 +33,8 @@ class VrstaOblacilaDto:
     ime: str
     spol: str
     pokrajina: str
+    omara: int
+    tip: str
 
 @dataclass_json
 @dataclass
