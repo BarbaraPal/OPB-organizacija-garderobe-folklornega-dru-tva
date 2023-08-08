@@ -103,7 +103,7 @@
             <label for="emsonovega">Emšo</label>
             <input type="text" class="form-control" id="emsonovega" name="emsonovega" required>
           </div>
-          <div class="form-group col-md-1">
+          <div class="form-group col-md-1" style="display: flex; justify-content: space-between; align-items: center;">
             <button type="submit" class="btn btn-secondary" id = "gumb2" disabled>Dodaj</button>
           </div>
           </div>
@@ -117,23 +117,33 @@
   
   </div>
 </section>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
 <script>
   $(document).ready(function() {
-      IzbiranjeDatuma()
+    IzbiranjeDatuma()
     });
   $(document).ready(function() {
-      DodajanjePlesalca()
+    DodajanjePlesalca()
     });
-
-    
+  
 </script>
 
 <script>
+    
   function showConfirmation() {
-      // Display a confirmation dialog
-      if (confirm("Ali ste prepričani, da želite izbrisati plesalca?")) {
-          document.getElementById("myForm5").submit();
-      } else {
-      }
+    // Display a confirmation dialog
+    if (confirm("Ali ste prepričani, da želite izbrisati plesalca?")) {
+      // No need to do anything here, the form will be submitted
+    } else {
+      alert("Brisanje plesalca preklicano.");
+      event.preventDefault(); // Prekine standardno obnašanje obrazca
+    }
   }
-  </script>
+</script>
+
+
+
+
+

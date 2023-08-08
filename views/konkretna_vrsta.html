@@ -14,13 +14,16 @@
         </div>
       </div>
     </div>
-
-    % if str(oblacila[0])[:15] != "DodatnaOblacila":
+    % if str(oblacila[0])[:10] != "DodatnaObl":
         <div class="row">
           % for index, oblacilo in enumerate(oblacila):
           <div class="col-md-3 mb-4">
             <div class="card" style="width: 18rem;">
-              <img src="/static/logom.jpg" alt="Logo">
+              % if oblacilo.slika is not None:
+              <img src="data:image/png;base64,{{ oblacilo.slika }}" alt="Slika">
+              % else:
+              <img src="/static/obesalnik.jpg" alt="Ni slike">
+              % end
               <div class="card-body"> 
                 <h5 class="card-title">{{vrsta.ime}} : {{oblacilo.zaporednast}}</h5>
                 <p class="card-text">Barva: {{oblacilo.barva}}</p>

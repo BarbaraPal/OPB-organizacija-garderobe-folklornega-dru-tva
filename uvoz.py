@@ -135,9 +135,8 @@ def dodaj_relacijo_oprava_vrsta(df):
 
 def uvoz_slik(kos_oblacila, pot):
     slika = open(pot, 'rb').read()
-
-    oblacilo = repo.dobi_gen_id(GlavnaOblacila, kos_oblacila, id_cols=("ime","pokrajina","spol","zaporednast"))
-    oblacilo.slika = bytes(slika)
+    oblacilo = repo.dobi_gen_slike(GlavnaOblacila, kos_oblacila, id_cols=("ime","pokrajina","spol","zaporednast"))
+    oblacilo.slika = slika
     repo.posodobi_gen(oblacilo, id_cols=("ime","pokrajina","spol","zaporednast"))
 
 #uvoz_slik(('bluza', 'Štajerska', 'Ž', 9), "Data/podatki/slike_stajerska_bluza/modra_rjava_mala_kockasta.jpg")

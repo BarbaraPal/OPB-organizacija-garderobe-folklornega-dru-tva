@@ -5,7 +5,6 @@ from datetime import date, datetime, timedelta
 
 from enum import Enum
 from decimal import Decimal
-
 # Predlagam uporabo (vsaj) dataclass-ov
 
 # Nahitro dataclass doda nekaj bližnjic za delo z razredi in omogoča tudi nekaj bolj naprednih funkcij,
@@ -51,6 +50,7 @@ class DodatnaOblacilaDto:
     opombe: str
     slika: bytes
 
+# Apply the custom decoder configuration
 @dataclass_json
 @dataclass
 class GlavnaOblacila:

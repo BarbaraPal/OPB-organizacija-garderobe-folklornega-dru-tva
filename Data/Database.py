@@ -12,7 +12,7 @@ from datetime import date, datetime
 from dataclasses_json import dataclass_json
 
 
-
+import base64
 import dataclasses
 # Ustvarimo generično TypeVar spremenljivko. Dovolimo le naše entitene, ki jih imamo tudi v bazi
 # kot njene vrednosti. Ko dodamo novo entiteno, jo moramo dodati tudi v to spremenljivko.
@@ -122,11 +122,8 @@ class Repo:
         d = {field: getattr(typ, field) for field in fields}
     
         # Spremenimo "slika" atribut v bytea
-        if isinstance(typ, tuple):
-            d['slika'] = bytes(getattr(typ, 'slika'))
-        else:
-            id_conditions = ' AND '.join([f'{id_col} = %s' for id_col in id_cols])
-            sql_cmd = f'UPDATE {tbl_name} SET\n' + ',\n'.join([f'{field} = %s' for field in fields]) + f'\nWHERE {id_conditions}'
+        if hasattr(typ, 'slika'):
+            d['slika'] = bytes(typ.slika)
 
         id_conditions = ' AND '.join([f'{id_col} = %s' for id_col in id_cols])
         sql_cmd = f'UPDATE {tbl_name} SET\n' + ',\n'.join([f'{field} = %s' for field in fields]) + f'\nWHERE {id_conditions}'
@@ -178,10 +175,31 @@ class Repo:
         Generična metoda, ki izbriše vrstico it določene tabele v bazi na podlagi njegovega idja.
         """
         tbl_name = typ.__name__
-        sql_cmd = f'Delete  FROM {tbl_name} WHERE {id_col} = %s';
+        sql_cmd = f'Delete  FROM {tbl_name} WHERE {id_col} = %s;'
         self.cur.execute(sql_cmd, (id,))
         self.conn.commit()
     
+    def dobi_gen_slike(self, typ: Type[T], id_tuple: Tuple[str], id_cols: Tuple[str]) -> T:
+        """
+        Generična metoda, ki vrne dataclass objekt pridobljen iz baze na podlagi njegovega PRIMARY KEY-a.
+        """
+        tbl_name = typ.__name__
+        id_conditions = " AND ".join([f"{col} = %s" for col in id_cols])
+        sql_cmd = f"SELECT * FROM {tbl_name} WHERE {id_conditions};"
+        self.cur.execute(sql_cmd, id_tuple)
+
+        d = self.cur.fetchone()
+
+        if d is None:
+            raise Exception(f"Vrstica s ključem {id_tuple} ne obstaja v {tbl_name}.")
+        
+        if 'slika' in d:  # Check if the 'slika' key is present
+            slika_memoryview = d['slika']
+            if isinstance(slika_memoryview, memoryview):
+                d['slika'] = bytes(slika_memoryview)
+        return typ(**d)
+
+
     def profil(self, uporabnisko_ime) -> PlesalecDto:
         self.cur.execute(
             """
@@ -309,7 +327,7 @@ class Repo:
                 WHERE g.ime = %s AND g.pokrajina = %s AND g.spol = %s;
                 """, (ime, pokrajna, spol))
             oblacila = self.cur.fetchall()
-            return [ZgornjiDelDto(zaporedna_st, barva, stanje, opombe, slika, sirina_ramen, obseg_prsi, dolzina_rokava) for (zaporedna_st, barva, stanje, opombe, slika, sirina_ramen, obseg_prsi, dolzina_rokava) in oblacila]
+            return [ZgornjiDelDto(zaporedna_st, barva, stanje, opombe, slika if slika is None else base64.b64encode(slika).decode('utf-8'), sirina_ramen, obseg_prsi, dolzina_rokava) for (zaporedna_st, barva, stanje, opombe, slika, sirina_ramen, obseg_prsi, dolzina_rokava) in oblacila]
         
         elif tabela == 'SpodnjiDel':
             self.cur.execute(
@@ -320,7 +338,7 @@ class Repo:
                 WHERE g.ime = %s AND g.pokrajina = %s AND g.spol = %s;
                 """, (ime, pokrajna, spol))
             oblacila = self.cur.fetchall()
-            return [SpodnjiDelDto(zaporedna_st, barva, stanje, opombe, slika, dolzina_od_pasu_navzdol) for (zaporedna_st, barva, stanje, opombe, slika, dolzina_od_pasu_navzdol) in oblacila]
+            return [SpodnjiDelDto(zaporedna_st, barva, stanje, opombe, slika if slika is None else base64.b64encode(slika).decode('utf-8'), dolzina_od_pasu_navzdol) for (zaporedna_st, barva, stanje, opombe, slika, dolzina_od_pasu_navzdol) in oblacila]
         
         elif tabela == 'EnodelniKos':
             self.cur.execute(
@@ -331,7 +349,7 @@ class Repo:
                 WHERE g.ime = %s AND g.pokrajina = %s AND g.spol = %s;
                 """, (ime, pokrajna, spol))
             oblacila = self.cur.fetchall()
-            return [EnodelniKosDto(zaporedna_st, barva, stanje, opombe, slika, dolzina_telesa) for (zaporedna_st, barva, stanje, opombe, slika, dolzina_telesa) in oblacila]
+            return [EnodelniKosDto(zaporedna_st, barva, stanje, opombe,slika if slika is None else base64.b64encode(slika).decode('utf-8'), dolzina_telesa) for (zaporedna_st, barva, stanje, opombe, slika, dolzina_telesa) in oblacila]
         
         elif tabela == 'DodatnaOblacila':
             self.cur.execute(
@@ -340,7 +358,7 @@ class Repo:
                 WHERE ime = %s AND pokrajina = %s AND spol = %s;
                 """, (ime, pokrajna, spol))
             oblacila = self.cur.fetchall()
-            return [DodatnaOblacilaDto(kolicina, opombe, slika) for (kolicina, opombe, slika) in oblacila]
+            return [DodatnaOblacilaDto(kolicina, opombe, slika if slika is None else base64.b64encode(slika).decode('utf-8')) for (kolicina, opombe, slika) in oblacila]
         
         else: 
             raise Exception('Napačna tabela!') # se načeloma ne bi smelo zgoditi!
@@ -353,3 +371,6 @@ class Repo:
         """)
         imena_po_tipih = self.cur.fetchall()
         return {tip : imena for tip,imena in imena_po_tipih}
+    
+    def dodaj_sliko(self, slika):
+        return psycopg2.Binary(slika)

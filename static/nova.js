@@ -54,8 +54,8 @@ function IzbiranjeDatuma(){
 
 function DodajanjeDela(seznam_plesalcev, rola){
     $(document).ready(function() {
-      var predlogi = seznam_plesalcev
-      
+      var predlogi = seznam_plesalcev;
+      var rola = rola;
       function preveriVeljavnostPolj(rola) {
         
         var vrstaDela = $("#vrstaDela").val();
@@ -137,20 +137,28 @@ function DodajanjePlesalca(){
       var priimek = $("#Priimek").val().trim();
       var spol = $("#Spol").val();
       var datumPrikljucitve = $("#datetimepicker1").val().trim();
+      var emso = $("#emsonovega").val().trim();
       var vsaPoljaIzpolnjena = true;
 
       if (ime === "" || priimek === "") {
         vsaPoljaIzpolnjena = false;
       }
-      
+      if (!(/^[a-zA-Z]+$/.test(ime))) {
+        vsaPoljaIzpolnjena = false;
+      } 
+      if (!(/^[a-zA-Z]+$/.test(priimek))) {
+        vsaPoljaIzpolnjena = false;
+      } 
       if (spol === "") {
         vsaPoljaIzpolnjena = false;
       }
       if (datumPrikljucitve === "" || !isValidDate2(datumPrikljucitve)) {
         vsaPoljaIzpolnjena = false;
       }
-
-      // Enable/Disable the button based on whether all fields are filled
+      if (!/^[0-9]{13}$/.test(emso)) {
+        vsaPoljaIzpolnjena = false;
+      }
+      
       var $gumb2 = $("#gumb2");
       if (vsaPoljaIzpolnjena) {
         $gumb2.attr("disabled", false);
@@ -162,7 +170,6 @@ function DodajanjePlesalca(){
       }
     }
 
-    // Function to check if the date is valid
     function isValidDate2(dateString) {
       var regEx = /^\d{4}-\d{2}-\d{2}$/;
       if (!dateString.match(regEx)) return false;  // Invalid format
@@ -173,7 +180,7 @@ function DodajanjePlesalca(){
     }
 
     // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna
-    $("#Ime, #Priimek, #Spol, #datetimepicker1").on("input change", function () {
+    $("#Ime, #Priimek, #Spol, #datetimepicker1, #emsonovega").on("input change", function () {
       preveriVeljavnostPolj2();
     });
 
@@ -239,6 +246,24 @@ function DodajanjeKosaOblacila(seznam, imeId, pokrajinaId, obrazecId, gumbId) {
       }
     });
   });
+}
+
+function PrikazovanjeImenaSlike(slikaid, slikalabel){
+  $(document).ready(function() {
+    $("#" + slikaid).on("change", function() {
+        var fileInput = $(this)[0];
+        if (fileInput.files && fileInput.files[0]) {
+            var selectedFile = fileInput.files[0];
+            console.log("Izbrana datoteka:", selectedFile.name);
+
+            // Prikaz imena izbrane datoteke v obrazcu
+            $("#" + slikalabel).text("Izbrana datoteka: " + selectedFile.name);
+        } else {
+            // Če ni izbrana nobena datoteka, ponastavimo prikaz
+            $("#" + slikalabel).text("");
+        }
+    });
+});
 }
 
 

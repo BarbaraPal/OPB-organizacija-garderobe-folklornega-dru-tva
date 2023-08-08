@@ -7,7 +7,7 @@
             <div class="col-md-12">
               <div class="card mb-4 mb-md-0">
                 <div class="card-body">
-                  <p class="mb-4"><b>Dodajanje oblačil in čevljev</b></p>
+                  <p class="mb-4"><b>Dodajanje oblačil</b></p>
                     <form action="{{url('dodaj_oblacilo')}}" method="POST">
                         <div class="form-group">
                             <select class="custom-select required custom-select-sm" name="tip" id="vrsta" onchange="showFormSection()">
@@ -16,12 +16,11 @@
                                 <option value="spodnji_del">Glavna oblačila: spodnji del</option>
                                 <option value="enodelni_kos">Glavna oblačila: enodelni kos</option>
                                 <option value="dodatna_oblacila">Dodatna oblačila</option>
-                                <option value="cevlji">Čevlji</option>
                             </select>
                         </div>
                     </form>
                     <!--Glavna oblačila: zgornji del-->
-                    <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formzgornji_del">
+                    <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formzgornji_del" enctype="multipart/form-data">
                       <input type="hidden" name="tip" value="zgornji_del">
                     <div class="form-group">
                         <label for="imevrste">Ime <small>(Pazite, da se kos oblačila ujema z izbranim tipom!)</small></label>
@@ -46,8 +45,8 @@
                         <div class="form-group">
                           <label for="zaporednast">Spol</label>
                           <select class="custom-select required custom-select-sm" name="spol_vrste" id="vrstaDela">
-                            <option value="" selected>Ž</option>
-                            <option value="">M</option>
+                            <option value="Ž" selected>Ž</option>
+                            <option value="M">M</option>
                           </select>
                         </div>
                       </div>
@@ -71,10 +70,13 @@
                         <input class="form-check-input" type="radio" name="stanje" id="inlineRadio2" value="0">
                         <label class="form-check-label" for="inlineRadio2">ni uporabno</label>
                       </div>
-                    <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="validatedCustomFile" name = "slika">
-                        <label class="custom-file-label" for="validatedCustomFile">Izberi sliko tega oblačila med datotekami...</label>
-                    </div>
+                      <div class="form-group">
+                        <div class="custom-file">
+                          <input type="file" class="custom-file-input" id="validatedCustomFile1" name="slika" accept=".jpg">
+                          <label class="custom-file-label" for="validatedCustomFile1">Izberi sliko...</label>
+                        </div>
+                        <div id="izbranaSlikaLabel1"></div>
+                      </div>
                     
                     <div class="form-group">
                         <label for="sirinaramen">Širina ramen (cm)</label>
@@ -97,7 +99,7 @@
   
   
                     <!--Glavna oblačila: spodnji del-->
-                    <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formspodnji_del">
+                    <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formspodnji_del" enctype="multipart/form-data">
                       <input type="hidden" name="tip" value="spodnji_del">
                       <div class="form-group">
                           <label for="imevrste">Ime <small>(Pazite, da se kos oblačila ujema z izbranim tipom!)</small></label>
@@ -122,8 +124,8 @@
                           <div class="form-group">
                             <label for="zaporednast">Spol</label>
                             <select class="custom-select required custom-select-sm" name="spol_vrste" id="vrstaDela2">
-                              <option value="" selected>Ž</option>
-                              <option value="">M</option>
+                              <option value="Ž" selected>Ž</option>
+                              <option value="M">M</option>
                             </select>
                           </div>
                         </div>
@@ -147,10 +149,13 @@
                           <input class="form-check-input" type="radio" name="stanje" id="inlineRadio4" value="option2">
                           <label class="form-check-label" for="inlineRadio2">ni uporabno</label>
                         </div>
-                      <div class="custom-file">
-                          <input type="file" class="custom-file-input" id="validatedCustomFile2" name="slika">
-                          <label class="custom-file-label" for="validatedCustomFile">Izberi sliko tega oblačila med datotekami...</label>
-                      </div>
+                        <div class="form-group">
+                          <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="validatedCustomFile2" name="slika" accept=".jpg, .jpeg, .png">
+                            <label class="custom-file-label" for="validatedCustomFile2">Izberi sliko...</label>
+                          </div>
+                          <div id="izbranaSlikaLabel2"></div>
+                        </div>
                       <div class="form-group">
                         <label for="dolzinaodpasunavzdol">Dolžina od pasu navzdol (cm)</label>
                         <input type="number" class="form-control" id="dolzinaodpasunavzdol" name="dolzina_od_pasu_navzdol" min="1" step="1">
@@ -164,7 +169,7 @@
                     </form>
 
                     <!--Glavna oblačila: enodelni kos-->
-                    <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formenodelni_kos">
+                    <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formenodelni_kos" enctype="multipart/form-data">
                       <input type="hidden" name="tip" value="enodelni_kos">
                       <div class="form-group">
                           <label for="imevrste">Ime <small>(Pazite, da se kos oblačila ujema z izbranim tipom!)</small></label>
@@ -189,8 +194,8 @@
                           <div class="form-group">
                             <label for="zaporednast">Spol</label>
                             <select class="custom-select required custom-select-sm" name="spol_vrste" id="vrstaDela3">
-                              <option value="" selected>Ž</option>
-                              <option value="">M</option>
+                              <option value="Ž" selected>Ž</option>
+                              <option value="M">M</option>
                             </select>
                           </div>
                         </div>
@@ -207,17 +212,20 @@
                           <input type="input" class="form-control" name="barva" >
                       </div>
                       <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="stanje" id="inlineRadio5" value="option1" checked>
+                          <input class="form-check-input" type="radio" name="stanje" id="inlineRadio5" value="1" checked>
                           <label class="form-check-label" for="inlineRadio1">uporabno</label>
                         </div>
                         <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="stanje" id="inlineRadio6" value="option2">
+                          <input class="form-check-input" type="radio" name="stanje" id="inlineRadio6" value="0">
                           <label class="form-check-label" for="inlineRadio2">ni uporabno</label>
                         </div>
-                      <div class="custom-file">
-                          <input type="file" class="custom-file-input" id="validatedCustomFile3" name="slika">
-                          <label class="custom-file-label" for="validatedCustomFile">Izberi sliko tega oblačila med datotekami...</label>
-                      </div>
+                        <div class="form-group">
+                          <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="validatedCustomFile3" name="slika" accept=".jpg, .jpeg, .png">
+                            <label class="custom-file-label" for="validatedCustomFile3">Izberi sliko...</label>
+                          </div>
+                          <div id="izbranaSlikaLabel3"></div>
+                        </div>
                       <div class="form-group">
                         <label for="dolzinatelesa">Dolžina telesa (cm)</label>
                         <input type="number" class="form-control" id="dolzinatelesa" name="dolzina_telesa" min="1" step="1">
@@ -231,7 +239,7 @@
                       </form>
   
                     <!--Obrazec za dodatna oblačila-->
-                    <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formdodatna_oblacila" style="display: none;">
+                    <form action="{{url('dodaj_oblacilo')}}" method="POST" id="formdodatna_oblacila" style="display: none;" enctype="multipart/form-data">
                       <input type="hidden" name="tip" value="dodatna_oblacila">
                       <div class="form-group">
                         <label for="imevrste">Ime <small>(Pazite, da se kos oblačila ujema z izbranim tipom!)</small></label>
@@ -257,8 +265,8 @@
                         <div class="form-group">
                           <label for="zaporednast">Spol</label>
                           <select class="custom-select required custom-select-sm" name="spol_vrste" id="vrstaDela4">
-                            <option value="" selected>Ž</option>
-                            <option value="">M</option>
+                            <option value="Ž" selected>Ž</option>
+                            <option value="M">M</option>
                           </select>
                         </div>
                       </div>
@@ -271,10 +279,11 @@
                       </div>
                     </div>
                     <div class="form-group">
-                        <div class="custom-file">
-                            <input type="file" class="custom-file-input" id="validatedCustomFile4" name="slika">
-                            <label class="custom-file-label" for="validatedCustomFile2">Izberi sliko med datotekami...</label>
-                        </div>
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="validatedCustomFile4" name="slika" accept=".jpg, .jpeg, .png">
+                        <label class="custom-file-label" for="validatedCustomFile4">Izberi sliko...</label>
+                      </div>
+                      <div id="izbranaSlikaLabel4"></div>
                     </div>
                         <div class="form-group">
                             <label for="exampleFormControlTextarea2">Opombe</label>
@@ -299,13 +308,18 @@
     $(document).ready(function() {
         showFormSection()
     });
-    
+    $(document).ready(function() {
+      PrikazovanjeImenaSlike("validatedCustomFile1", "izbranaSlikaLabel1");
+      PrikazovanjeImenaSlike("validatedCustomFile2", "izbranaSlikaLabel2");
+      PrikazovanjeImenaSlike("validatedCustomFile3", "izbranaSlikaLabel3");
+      PrikazovanjeImenaSlike("validatedCustomFile4", "izbranaSlikaLabel4")
+    });
     $(document).ready(function() {
       var slovar_nezazeljenih = {{!slovar_nezazeljenih}};
       DodajanjeKosaOblacila(slovar_nezazeljenih["ZgornjiDel"], "ime1", "pokrajina1","formzgornji_del", "gumboddaj1");
       DodajanjeKosaOblacila(slovar_nezazeljenih["SpodnjiDel"], "ime2", "pokrajina2","formspodnji_del", "gumboddaj2");
       DodajanjeKosaOblacila(slovar_nezazeljenih["EnodelniKos"], "ime3", "pokrajina3","form_enodelnikos", "gumboddaj3");
-      DodajanjeKosaOblacila(slovar_nezazeljenih["DodatnaOblacila"], "ime4", "pokrajina4","formdodatna_oblacila", "gumboddaj4");    
+      DodajanjeKosaOblacila(slovar_nezazeljenih["DodatnaOblacila"], "ime4", "pokrajina4","formdodatna_oblacila", "gumboddaj4")   
     });
   </script>
   

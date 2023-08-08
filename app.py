@@ -14,7 +14,8 @@ from functools import wraps
 
 import os
 import json
-
+import io
+import base64
 #import tracemalloc
 #tracemalloc.start()
 
@@ -66,6 +67,11 @@ def pretvori_v_decimal(vrednost):
     except:
         return None
 
+def pretvori_v_bytes(slika):
+    try:
+        return bytes(slika)
+    except:
+        return None
 
 
 @get('/static/<filename:path>')
@@ -204,7 +210,7 @@ def izbrisi_plesalca():
     emso_plesalca = request.forms.getunicode('emso_plesalca')
     repo.izbrisi_gen(Plesalec, emso_plesalca, id_col='emso')
     redirect(url('plesalci', id = 'vsi_plesalci', odziv = 'Uspešno izbrisan plesalec!'))
-
+    
 @post('/dodaj_uporabnika/')
 @rola_required
 def dodaj_uporabnika():
@@ -332,6 +338,7 @@ def oblacila(stran):
         spol_vrste = bottle.request.query.getunicode('spol_vrste')
         pokrajina_vrste = bottle.request.query.getunicode('pokrajina_vrste')
         vrsta = repo.dobi_gen_id(VrstaOblacila, (ime_vrste, spol_vrste, pokrajina_vrste), ('ime','spol', 'pokrajina'))
+    
         try:
             oblacila = repo.poisci_oblacila((pokrajina_vrste, ime_vrste, spol_vrste))
         except Exception:
@@ -354,6 +361,37 @@ def dodaj_oblacilo():
 @rola_required
 def dodaj_oblacilo():
     tip_oblacila = request.forms.getunicode('tip')
+    ime = request.forms.getunicode('ime_vrste')
+    pokrajina = request.forms.getunicode('pokrajina_vrste')
+    spol = request.forms.getunicode('spol_vrste')
+    slika = request.files.get('slika')
+    if slika:
+        slika = bytes(slika.file.read())
+    opombe = request.forms.getunicode('opombe')
+    if tip_oblacila != 'dodatna_oblacila':
+        zaporedna_st = int(request.forms.getunicode('zaporedna_st'))
+        barva = request.forms.getunicode('barva')
+        stanje = bool(int(request.forms.getunicode('stanje')))
+        oblacilo = GlavnaOblacila(pokrajina, spol, ime, zaporedna_st, slika, barva, stanje, opombe)
+        repo.dodaj_gen(oblacilo, serial_col=None)
+        if tip_oblacila == 'zgornji_del':
+            sirina_ramen = pretvori_v_decimal(request.forms.getunicode('sirina_ramen'))
+            obseg_prsi = pretvori_v_decimal(request.forms.getunicode('obseg_prsi'))
+            dolzina_rokava = pretvori_v_decimal(request.forms.getunicode('dolzina_rokava'))
+            mere = ZgornjiDel(pokrajina, spol, ime, zaporedna_st, sirina_ramen, obseg_prsi, dolzina_rokava)
+            repo.dodaj_gen(mere, serial_col=None)
+        elif tip_oblacila == 'spodnji_del':
+            dolzina_od_pasu_navzdol = pretvori_v_decimal(request.forms.getunicode('dolzina_od_pasu_navzdol'))
+            mere = SpodnjiDel(pokrajina, spol, ime, zaporedna_st, dolzina_od_pasu_navzdol)
+            repo.dodaj_gen(mere, serial_col=None)
+        else:
+            dolzina_telesa = pretvori_v_decimal(request.forms.getunicode('dolzina_telesa'))
+            mere = EnodelniKos(pokrajina, spol, ime, zaporedna_st, dolzina_telesa)
+            repo.dodaj_gen(mere, serial_col=None)
+    else:
+        kolicina = int(request.forms.getunicode('kolicina'))
+        dodatna = DodatnaOblacila(pokrajina, spol, ime, slika, kolicina, opombe)
+        repo.dodaj_gen(dodatna, serial_col=None)
 
 @error(404)
 def error_404(error):
