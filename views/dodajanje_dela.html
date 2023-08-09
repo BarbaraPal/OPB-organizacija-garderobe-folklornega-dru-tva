@@ -19,8 +19,12 @@
                     <form action="{{url('dodaj_delo')}}" method="POST" id="myForm">
                         % if rola == 'True':
                         <div class="form-group">
-                            <input type="text" class="form-control" id="imeInput" placeholder="Vnesi ime" name="plesalec">
-                            <div id="predlogi"></div>
+                            <input type="text" class="form-control" id="imeInput" list="existingNames1" placeholder="Vnesi ime" name="plesalec">
+                            <datalist id="existingNames1">
+                              % for v in seznam_plesalcev:
+                                <option value="{{v}}">{{v}}</option>
+                              % end
+                            </datalist>
                         </div>
                         % else:
                         <input type="hidden" name="plesalec" value="{{emso}}">
@@ -72,9 +76,6 @@
   <script>
     seznam_imen_priimkov_in_up_imen = {{!seznam_plesalcev}};
     var rola = "{{!rola}}";
-    $(document).ready(function () {
-      IskanjeImenDelo(seznam_imen_priimkov_in_up_imen);
-    });
     $(document).ready(function() {
       IzbiranjeDatuma()
     });

@@ -1,0 +1,67 @@
+%rebase('osnova.html', naslov='Čevlji', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="card mb-4 mb-lg-4">
+        <div class="card-body p-0">
+          <div class="table-container">
+          <table class="table borderless" data-toggle="table" data-sticky-header="true" data-search="true" data-show-columns="true" >
+              <thead class="table-light">
+                <tr >
+                  <th scope="col" data-sortable="true">Vrsta</th>
+                  <th scope="col" data-sortable="true">Velikost</th>
+                  <th scope="col" data-sortable="true">Zaporedna številka</th>
+                  <th scope="col" data-sortable="true">Lastnik</th>
+                  % if rola == 'True':
+                  
+                  <th scope="col">Izbriši vnos</th>
+                  % end
+                  
+
+                </tr>
+              </thead>
+              <tbody>
+                % for vrstica in cevlji:
+                
+                <tr>
+                
+                  <td>{{vrstica.vrsta}}</td>
+                  <td>{{vrstica.velikost}}</td>
+                  <td>{{vrstica.zapst}}</td>
+                  <td> </td>
+                  
+                  
+                  % if rola == 'True':  
+                  <td class="text-center">
+                    <form action="{{url('odstrani_cevlje')}}" method="POST">
+                      <input type="hidden" name="vrsta" value="{{vrstica.vrsta}}">
+                      <input type="hidden" name="velikost" value="{{vrstica.velikost}}">
+                      <input type="hidden" name="zapst" value="{{vrstica.zapst}}">
+                      <button type="submit" id = "submitBtn5" onclick="showConfirmation2()" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3-fill"></i></button>
+                    </form>
+                  </td> 
+                  % end 
+                </tr>
+                
+                % end
+            </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+    function showConfirmation2() {
+  // Display a confirmation dialog
+  if (confirm("Ali ste prepričani, da želite izbrisati ta vnos?")) {
+      // No need to do anything here, the form will be submitted
+  } else {
+    alert("Brisanje preklicano.");
+    event.preventDefault(); // Prekine standardno obnašanje obrazca
+  }
+}
+</script>

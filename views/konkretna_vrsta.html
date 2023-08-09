@@ -14,12 +14,17 @@
         </div>
         <div class="col-md-3" id ="prikazomare">
           <strong>Omara:</strong> {{vrsta.omara if vrsta.omara is not None else "/"}}
+          % if rola == 'True':
           <button type="submit" class="btn btn-secondary btn-sm showFormBtnOmara">Spremeni omaro</button>
+          % end
         </div>
         <div class="col-md-3 d-flex" >
-          <form id ="formomare" style="display: none;">
-          <strong>Omara:</strong>                
-          <input type="text" class="form-control mr-sm-2" id="inputomare" placeholder="Vnesi podatek" value="{{vrsta.omara if vrsta.omara is not None else '/'}}" name="inputomare">
+          <form id ="formomare" style="display: none;" action="{{url('spremeni_omaro')}}" method="POST">
+          <strong>Omara:</strong>
+          <input type="hidden" name="ime_vrste" value="{{vrsta.ime}}">
+          <input type="hidden" name="pokrajina_vrste" value="{{vrsta.pokrajina}}">
+          <input type="hidden" name="spol_vrste" value="{{vrsta.spol}}">               
+          <input type="text" class="form-control mr-sm-2" id="inputomare" placeholder="Vnesi podatek" value="{{vrsta.omara if vrsta.omara is not None else '/'}}" name="omara_vrste">
           <button type="submit" class="btn btn-secondary btn-sm">Potrdi</button>
         </form>
         </div>
@@ -59,36 +64,56 @@
                 <li class="list-group-item">Dolžina telesa: {{oblacilo.dolzinatelesa if oblacilo.dolzinatelesa is not None else '/'}}</li>
                 % end
               </ul>
-              <form id = "card3_{{index}}" style="display: none;">
-              <ul class="list-group list-group-flush" >
-                <li class="list-group-item"><b>Stanje - spremeni</b></li>
+              <form id = "card3_{{index}}" style="display: none;" action="{{url('posodobi_podatke_glavna_oblacila')}}" method="POST">
+                <ul class="list-group list-group-flush" >
+                  <input type="hidden" name="ime_vrste" value="{{vrsta.ime}}">
+                  <input type="hidden" name="pokrajina_vrste" value="{{vrsta.pokrajina}}">
+                  <input type="hidden" name="spol_vrste" value="{{vrsta.spol}}">
+                  <input type="hidden" name="zaporedna_st" value="{{oblacilo.zaporednast}}">  
+                  <li class="list-group-item"><b>Stanje - spremeni</b></li>
                 <li class="list-group-item">
-                  <select class="custom-select mr-sm-2" id="uporabnost">
+                  <select class="custom-select mr-sm-2" id="uporabnost" name="stanje">
+                    % if oblacilo.stanje == False:
+                    <option value="0" selected>neuporabno</option>
+                    <option value="1" >uporabno</option>
+                    % else:
                     <option value="1" selected>uporabno</option>
-                    <option value="2">neuporabno</option>
+                    <option value="0">neuporabno</option>
+                    % end
                   </select>
+                </li>
+                <li class="list-group-item"><b>Opombe - spremeni</b></li>
+                <li class="list-group-item">
+                  <textarea class="form-control" id="opombespremeni" name="opombe" rows="2" value="{{oblacilo.opombe}}"></textarea>
                 </li>
                 <li class="list-group-item"><b>Mere - spremeni(cm)</b></li>
                 % if str(oblacila[0])[:10] == "ZgornjiDel":
+                <input type="hidden" name="tip_vrste" value="ZgornjiDel">
                 <li class="list-group-item"><label for="sirinaramen">Širina ramen:</label>
-                <input type="text" class="form-control" id="sirinaramen" placeholder="Vnesi podatek" value="{{oblacilo.sirinaramen if oblacilo.sirinaramen is not None else '/'}}" name="sirinaramen"></li>
+                <input type="text" class="form-control" id="sirinaramen" placeholder="Vnesi podatek" value="{{oblacilo.sirinaramen if oblacilo.sirinaramen is not None else '/'}}" name="sirina_ramen"></li>
                 <li class="list-group-item"><label for="obsegprsi">Obseg prsi:</label>
-                <input type="text" class="form-control" id="obsegprsi" placeholder="Vnesi podatek" value="{{oblacilo.obsegprsi if oblacilo.obsegprsi is not None else '/'}}" name="obsegprsi"  ></li>
+                <input type="text" class="form-control" id="obsegprsi" placeholder="Vnesi podatek" value="{{oblacilo.obsegprsi if oblacilo.obsegprsi is not None else '/'}}" name="obseg_prsi"  ></li>
                 <li class="list-group-item"><label for="dolzinarokava">Dolžina rokava:</label>
-                <input type="text" class="form-control" id="dolzinarokava" placeholder="Vnesi podatek" value="{{oblacilo.dolzinarokava if oblacilo.dolzinarokava is not None else '/'}}" name="dolzinarokava"></li>
+                <input type="text" class="form-control" id="dolzinarokava" placeholder="Vnesi podatek" value="{{oblacilo.dolzinarokava if oblacilo.dolzinarokava is not None else '/'}}" name="dolzina_rokava"></li>
                 % elif str(oblacila[0])[:10] == "SpodnjiDel":
+                <input type="hidden" name="tip_vrste" value="SpodnjiDel">
                 <li class="list-group-item"><label for="dolzinaodpasunavzdol">Dolžina od pasu navzdol:</label>
-                <input type="text" class="form-control" id="dolzinaodpasunavzdol" placeholder="Vnesi podatek" value="{{oblacilo.dolzinaodpasunavzdol if oblacilo.dolzinaodpasunavzdol is not None else '/'}}" name="dolzinaodpasunavzdol"></li>
+                <input type="text" class="form-control" id="dolzinaodpasunavzdol" placeholder="Vnesi podatek" value="{{oblacilo.dolzinaodpasunavzdol if oblacilo.dolzinaodpasunavzdol is not None else '/'}}" name="dolzina_od_pasu_navzdol"></li>
                 % elif str(oblacila[0])[:11] == "EnodelniKos":
+                <input type="hidden" name="tip_vrste" value="EnodelniKos">
                 <li class="list-group-item"><label for="enodelnikos">Dolžina telesa:</label>
-                <input type="text" class="form-control" id="enodelnikos" placeholder="Vnesi podatek" value="{{oblacilo.dolzinatelesa if oblacilo.dolzinatelesa is not None else '/'}}" name="enodelnikos"></li>
+                <input type="text" class="form-control" id="enodelnikos" placeholder="Vnesi podatek" value="{{oblacilo.dolzinatelesa if oblacilo.dolzinatelesa is not None else '/'}}" name="dolzina_telesa"></li>
                 % end
               </ul>
               <button type="submit" class="btn btn-secondary">Spremeni</button>
               </form>
-              <form id = "card5_{{index}}" enctype="multipart/form-data" style="display: none;">
+              <form id = "card5_{{index}}" enctype="multipart/form-data" style="display: none;" action="{{url('spremeni_sliko_glavna')}}" method="POST">
                 <ul class="list-group list-group-flush" >
                   <li class="list-group-item">
+                    <input type="hidden" name="ime_vrste" value="{{vrsta.ime}}">
+                    <input type="hidden" name="pokrajina_vrste" value="{{vrsta.pokrajina}}">
+                    <input type="hidden" name="spol_vrste" value="{{vrsta.spol}}">
+                    <input type="hidden" name="zaporedna_st" value="{{oblacilo.zaporednast}}">
                     <div class="custom-file">
                       <input type="file" class="custom-file-input" id="validatedCustomFile1" name="slika" accept=".jpg">
                       <label class="custom-file-label" for="validatedCustomFile1">Izberi sliko...</label>
@@ -101,34 +126,116 @@
 
 
             </div>
+            % if rola == 'True':
               <div class="btn-group " role="group" id = "card4_{{index}}" >
                 <div class = "mr-1">
                     <button type="submit" class="btn btn-secondary btn-sm showFormBtn" id="showFormBtn" data-index="{{index}}">Uredi</button>
                 </div>
                 % if oblacilo.slika is not None:
-                <form  class="mr-1">
+                <div class = "mr-1">
                   <button type="submit" class="btn btn-secondary btn-sm showFormBtnSlika">Posodobi sliko</button>
-                </form>
+                </div>
                 % else:
-                <form  class="mr-1">
+                <div  class="mr-1">
                   <button type="submit" class="btn btn-secondary btn-sm showFormBtnSlika">Dodaj sliko</button>
-                </form>
+                </div>
                 % end
-                <form action="{{url('izbrisi_kos_oblacila')}}" method="POST" class="needs-validation form-inline" formvalidate>
-                    <input type="hidden" name="emso" value="{{id}}">
-                    <button type="submit" onclick="showConfirmation()" class="btn btn-outline-danger btn-sm">Izbriši<i class="bi bi-trash3-fill"></i></button>
+                <form action="{{url('odstrani_glavno_oblacilo')}}" method="POST" class="needs-validation form-inline" formvalidate>
+                    <input type="hidden" name="ime_vrste" value="{{vrsta.ime}}">
+                    <input type="hidden" name="pokrajina_vrste" value="{{vrsta.pokrajina}}">
+                    <input type="hidden" name="spol_vrste" value="{{vrsta.spol}}">
+                    <input type="hidden" name="zaporedna_st" value="{{oblacilo.zaporednast}}">
+                    <button type="submit" onclick="showConfirmation2()" class="btn btn-outline-danger btn-sm">Izbriši<i class="bi bi-trash3-fill"></i></button>
                 </form>
             
             </div>
+            % end
           </div>
           % if (index + 1) % 4 == 0: 
-            </div>
-            <div class="row">
+          </div>
+          <div class="row">
+          % end
+        % end
+        </div>
+      
+    % else:
+      <div class="row">
+      
+        % for index, oblacilo in enumerate(oblacila):
+        <div class="col-md-3 mb-4">
+          <div class="card" style="width: 18rem;">
+            % if oblacilo.slika is None or oblacilo.slika =='':
+            <img src="/static/obesalnik.jpg" alt="Ni slike">
+            % else:
+            <img src="data:image/png;base64,{{ oblacilo.slika }}" alt="Slika">
             % end
+            <div class="card-body" id = "card6_{{index}}"> 
+              <h5 class="card-title">{{vrsta.ime}}</h5>
+              <p class="card-text">Količina: {{oblacilo.kolicina}}</p>
+              % if oblacilo.opombe is not None:
+              <p class="card-text">Opombe: {{oblacilo.opombe}}</p>
+              % end
+            </div>
+            <form id = "card7_{{index}}" style="display: none;" action="{{url('posodobi_podatke_dodatna_oblacila')}}" method="POST">
+              <ul class="list-group list-group-flush" >
+                <input type="hidden" name="ime_vrste" value="{{vrsta.ime}}">
+                <input type="hidden" name="pokrajina_vrste" value="{{vrsta.pokrajina}}">
+                <input type="hidden" name="spol_vrste" value="{{vrsta.spol}}">
+
+              <li class="list-group-item"><label for="kolicina">Količina:</label>
+                <input type="number" class="form-control" id="kolicina" placeholder="Vnesi podatek" value="{{oblacilo.kolicina}}" name="kolicina"></li>    
+
+              <li class="list-group-item"><b>Opombe - spremeni</b></li>
+              <li class="list-group-item">
+                <textarea class="form-control" id="opombespremeni_dodatna" name="opombe" rows="2" value="{{oblacilo.opombe}}"></textarea>
+              </li>
+            </ul>
+            <button type="submit" class="btn btn-secondary">Spremeni</button>
+            </form>
+            <form id = "card8_{{index}}" enctype="multipart/form-data" style="display: none;" action="{{url('spremeni_sliko_dodatna')}}" method="POST">
+              <ul class="list-group list-group-flush" >
+                <li class="list-group-item">
+                  <input type="hidden" name="ime_vrste" value="{{vrsta.ime}}">
+                  <input type="hidden" name="pokrajina_vrste" value="{{vrsta.pokrajina}}">
+                  <input type="hidden" name="spol_vrste" value="{{vrsta.spol}}">
+                  <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="validatedCustomFile2" name="slika" accept=".jpg">
+                    <label class="custom-file-label" for="validatedCustomFile2">Izberi sliko...</label>
+                  </div>
+                </li>
+              </ul>
+              <button type="submit" class="btn btn-secondary">Posodobi</button>
+            </form>
+
+          </div>
+          % if rola == 'True':
+            <div class="btn-group " role="group" id = "card9_{{index}}" >
+              <div class = "mr-1">
+                  <button type="submit" class="btn btn-secondary btn-sm showFormBtnDodatnaOblacila" id="showFormBtn1" data-index="{{index}}">Uredi</button>
+              </div>
+              <div class = "mr-1">
+                <button type="submit" class="btn btn-secondary btn-sm showFormBtnSlikaDodatna">Posodobi sliko</button>
+              </div>
+              <form action="{{url('odstrani_dodatno_oblacilo')}}" method="POST" class="needs-validation form-inline" formvalidate>
+                  <input type="hidden" name="ime_vrste" value="{{vrsta.ime}}">
+                  <input type="hidden" name="pokrajina_vrste" value="{{vrsta.pokrajina}}">
+                  <input type="hidden" name="spol_vrste" value="{{vrsta.spol}}">
+                  <button type="submit" onclick="showConfirmation2()" class="btn btn-outline-danger btn-sm">Izbriši<i class="bi bi-trash3-fill"></i></button>
+              </form>
+          
+          </div>
           % end
         </div>
-      % end
+        % if (index + 1) % 4 == 0: 
+        </div>
+        <div class="row">
+        % end
+      % end      
+    </div>
     % end
+
+        
+      
   </div>
 </section>
 
@@ -155,37 +262,65 @@
   });
   
   $(".showFormBtn").click(function() {
+  var index = $(this).data("index");
+  $("#card1_" + index).hide();
+  $("#card2_" + index).hide();
+  $("#card4_" + index).hide();
+  $("#card3_" + index).show();
+});
+var index = $(this).data("index");
+$("#card3_" + index).on("keydown", function(event) {
+  var pritisnjenaTipka = event.key;
+
+  // Dovoljene so številke in znak '/'
+  var dovoljeneTipke = /^[0-9\/]$/;
+  // Dovoljeno brisanje
+  if (pritisnjenaTipka === "Backspace" || pritisnjenaTipka === "Delete") {
+    return;
+  }
+  // Preverite, ali je pritisnjena tipka dovoljena
+  if (!dovoljeneTipke.test(pritisnjenaTipka)) {
+    // Če tipka ni dovoljena, preprečimo privzeto obnašanje (vnos neveljavnega znaka)
+    event.preventDefault();
+  }
+});
+
+$("#spremeniopombe").off("keydown"); // Odstrani prejšnji event handler, če obstaja
+$("#spremeniopombe").on("keydown", function(event) {
+  // Dovolimo vnos vseh tipk
+});
+
+
+$("#spremeniopombe").off("keydown"); // Odstrani prejšnji event handler, če obstaja
+$("#spremeniopombe").on("keydown", function(event) {
+  // Dovolimo vnos vseh tipk
+});
+
+  $(".showFormBtnDodatnaOblacila").click(function() {
     var index = $(this).data("index");
-    $("#card1_" + index).hide();
-    $("#card2_" + index).hide();
-    $("#card4_" + index).hide();
-    $("#card3_" + index).show();
-    $("#card3_" + index).on("keydown", function (event) {
-    // Preberite pritisnjeno tipko
-    var pritisnjenaTipka = event.key;
+    $("#card9_" + index).hide();
+    $("#card7_" + index).show();
     
-    // Dovoljene so številke in znak '/'
-    var dovoljeneTipke = /^[0-9\/]$/;
-    // Dovoljeno brisanje
-    if (pritisnjenaTipka === "Backspace" || pritisnjenaTipka === "Delete") {
-      return;
-    }
-    // Preverite, ali je pritisnjena tipka dovoljena
-    if (!dovoljeneTipke.test(pritisnjenaTipka)) {
-      // Če tipka ni dovoljena, preprečimo privzeto obnašanje (vnos neveljavnega znaka)
-      event.preventDefault();
-    }
-    });
   });
 
 
-  $(".showFormBtnSlika").click(function() {
+  $(".showFormBtnSlikaDodatna").click(function() {
     var index = $(this).data("index");
-    $("#card1_" + index).hide();
-    $("#card2_" + index).hide();
-    $("#card4_" + index).hide();
-    $("#card5_" + index).show();
+    $("#card9_" + index).hide();
+    $("#card8_" + index).show();
     
   });
+
   
+</script>
+<script>
+  function showConfirmation2() {
+  // Display a confirmation dialog
+  if (confirm("Ali ste prepričani, da želite izbrisati ta vnos?")) {
+      // No need to do anything here, the form will be submitted
+  } else {
+    alert("Brisanje preklicano.");
+    event.preventDefault(); // Prekine standardno obnašanje obrazca
+  }
+}
 </script>

@@ -79,8 +79,13 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
+            <a class="nav-link" href="/kostumske_podobe/osnovna/stran/">Kostumske podobe</a>
+          </li>
+          % if rola == 'True':
+          <li class="nav-item">
             <a class="nav-link" href="/plesalci/vsi_plesalci/">Plesalci</a>
           </li>
+          % end
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Oblačila
@@ -89,19 +94,18 @@
               <li><a class="dropdown-item" href="/oblacila/vrste_oblacil/">Oblačila po vrstah</a></li>
               % if rola == 'True':
               <li><a class="dropdown-item" href="/dodaj_oblacilo/">Dodaj oblačila</a></li>
-              % else:
-              <li><a class="dropdown-item disabled" href="/dodaj_oblacilo/">Dodaj oblačila</a></li>
               % end
             </ul>
-            % if rola == 'True':
+            
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Čevlji</a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Vsi čevlji</a></li>
-                <li><a class="dropdown-item" href="#">Dodaj čevlje</a></li>
+                <li><a class="dropdown-item" href="/vsi_cevlji/">Vsi čevlji</a></li>
+                % if rola == 'True':
+                <li><a class="dropdown-item" href="/dodajanje_cevljev/">Dodaj čevlje</a></li>
+                % end
               </ul>
             </li>
-            % end
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

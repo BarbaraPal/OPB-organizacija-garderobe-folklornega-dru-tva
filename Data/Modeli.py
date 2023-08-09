@@ -240,6 +240,10 @@ class CevljiDto:
     zapst: int
 
 @dataclass
+class TipiCevljevDto:
+    vrsta: str
+
+@dataclass
 class DeloDto:
     emso: str
     vrstadela: str

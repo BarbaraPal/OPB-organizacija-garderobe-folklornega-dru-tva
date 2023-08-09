@@ -128,7 +128,7 @@ class Repo:
     
         # Spremenimo "slika" atribut v bytea
         if hasattr(typ, 'slika'):
-            d['slika'] = bytes(typ.slika)
+            d['slika'] = bytes(typ.slika) if typ.slika is not None else typ.slika
 
         id_conditions = ' AND '.join([f'{id_col} = %s' for id_col in id_cols])
         sql_cmd = f'UPDATE {tbl_name} SET\n' + ',\n'.join([f'{field} = %s' for field in fields]) + f'\nWHERE {id_conditions}'
@@ -181,13 +181,14 @@ class Repo:
         # Dobro se je zavedati, da tukaj sam dataclass dejansko
         # "mutiramo" in ne ustvarimo nove reference. Return tukaj ni niti potreben.
 
-    def izbrisi_gen(self,  typ: Type[T], id: int | str, id_col = "id"):
+    def izbrisi_gen(self,  typ: Type[T], id_tuple: Tuple[str], id_cols: Tuple[str]):
         """
         Generična metoda, ki izbriše vrstico it določene tabele v bazi na podlagi njegovega idja.
         """
         tbl_name = typ.__name__
-        sql_cmd = f'Delete  FROM {tbl_name} WHERE {id_col} = %s;'
-        self.cur.execute(sql_cmd, (id,))
+        id_conditions = " AND ".join([f"{col} = %s" for col in id_cols])
+        sql_cmd = f'Delete  FROM {tbl_name} WHERE {id_conditions};'
+        self.cur.execute(sql_cmd, id_tuple)
         self.conn.commit()
     
     def dobi_gen_slike(self, typ: Type[T], id_tuple: Tuple[str], id_cols: Tuple[str]) -> T:
@@ -389,3 +390,23 @@ class Repo:
     
     def dodaj_sliko(self, slika):
         return psycopg2.Binary(slika)
+    
+    def tipi_cevljev(self) -> List[TipiCevljevDto]:
+        self.cur.execute(
+            """
+            SELECT vrsta
+            FROM TipCevljev;
+            """)
+
+        tipi = self.cur.fetchall()
+        return  [TipiCevljevDto(tip) for (tip) in tipi]
+    
+    def vsi_cevlji(self) -> List[CevljiDto]:
+        self.cur.execute(
+            """
+            SELECT emsolastnika, vrsta, velikost,zapst
+            FROM Cevlji;
+            """)
+
+        cevlji = self.cur.fetchall()
+        return [CevljiDto(emsolastnika, vrsta, velikost, zapst) for (emsolastnika, vrsta, velikost, zapst) in cevlji]

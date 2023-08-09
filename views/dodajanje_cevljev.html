@@ -1,0 +1,109 @@
+%rebase('osnova.html', naslov='Dodajanje čevljev', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4"><b>Dodajanje čevljev</b></p>
+                  % if potrdilo:
+                    <div class="alert alert-success" role="alert" style="margin-top: 3%;"> 
+                      {{potrdilo}}
+                    </div>
+                  % end
+                  % if napaka:
+                  <div  style="margin-top: 5px;" class="alert alert-danger">
+                    {{napaka}}
+                  </div>
+                  % end
+                  % if zahteva:
+                     <p class="mb-4"><b>Dodali ste novo vrsto čevljev, ki še nimajo slike. Bi jo radi dodali?</b></p>
+                     <form action="{{url('dodaj_sliko_cevljev')}}" method="POST">
+                       <div class="form-group">
+                         <label for="formGroupExampleInput">Vrsta</label>
+                         <input type="text" class="form-control" id="vrstacevljev" value="{{tip}}" disabled>
+                       </div>
+                       <div class="form-group">
+                        <div class="custom-file">
+                          <input type="file" class="custom-file-input" id="validatedCustomFile1" name="slika" accept=".jpg">
+                          <label class="custom-file-label" for="validatedCustomFile1">Izberi sliko...</label>
+                        </div>
+                        <div id="izbranaSlikaLabel1"></div>
+                      </div>
+                       
+                    
+                     <button type="submit" class="btn btn-secondary btn-sm" id="dodajslikovrste" >Dodaj</button>
+                     </form>
+                     <form action="{{url('dodajanje_cevljev')}}" method="GET">
+                       <div class="form-group">
+                         <label for="nedodaj">Če ne želite dodati slike pritisnite ta gumb:</label>
+                         <input type="hidden"  name="potrdilo" value="Uspešno dodani čevlji. Sliko lahko kadarkoli dodate.">
+                         <button type="submit" class="btn btn-secondary btn-sm" id="nedodaj" >Ne želim dodati slike</button>
+                       </div>
+                     </form>
+                  % end
+                    <!--ČEVLJI-->
+                    <form action="{{url('dodaj_cevlje')}}" method="POST" id="formcevlji">
+                      <input type="hidden" name="formcevlji" value="formcevlji">
+                    <div class="form-group">
+                        <label for="imevrste">Vrsta</label>
+                        <input type="input" class="form-control form-control-sm" name="tip" list="existingNames1" id = "vrsta">
+                        <datalist id="existingNames1">
+                          % for v in seznam_vrst_cevljev:
+                            <option value="{{v.vrsta[0]}}">{{v.vrsta[0]}}</option>
+                          % end
+                          </datalist>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="zaporednast">Velikost</label>
+                            <input type="number" class="form-control form-control-sm" id="zaporednast1" name="velikost" min="36" max="50" step="1" required>
+                          </div>
+                      </div>
+                    
+                      <div class="col-md-6">
+                        <div class="form-group">
+                          <label for="zaporednast">Zaporedna številka</label>
+                          <input type="number" class="form-control form-control-sm" id="zaporednast2" name="zaporednast" min="1" step="1" required>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="imevrste">Lastnik</label>
+                      <input type="input" class="form-control form-control-sm" name="lastnik" list="existingNames2" id = "plesalci">
+                      <datalist id="existingNames2">
+                        % for v in plesalci:
+                          <option value="{{v}}">{{plesalci[v].ime}} {{plesalci[v].priimek}}</option>
+                        % end
+                        </datalist>
+                  </div>                  
+                    <button type="submit" class="btn btn-secondary" id="gumb" disabled>Dodaj</button>
+                    </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    $(document).ready(function() {
+      var $gumb = $("#gumb");
+  $("#vrsta").on("blur", function() {
+    var vrednost = $(this).val().trim(); // Preberemo vrednost in odstranimo morebitne presledke na začetku in koncu
+
+    if (vrednost != "") {
+      $gumb.attr("disabled", false);
+    }
+  });
+});
+
+  $(document).ready(function() {
+      PrikazovanjeImenaSlike("validatedCustomFile1", "izbranaSlikaLabel1");
+    });
+  </script>
+  
