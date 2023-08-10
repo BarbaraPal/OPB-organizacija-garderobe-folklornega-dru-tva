@@ -1,6 +1,6 @@
 %rebase('osnova.html', naslov='Dodajanje čevljev', uporabnik=uporabnisko_ime, rola = rola)
 <section style="background-color: #eee;">
-    <div class="container py-5">
+    <div class="container py-4">
       <div class="row">
         <div class="col-lg-12">
           <div class="row">
@@ -20,10 +20,11 @@
                   % end
                   % if zahteva:
                      <p class="mb-4"><b>Dodali ste novo vrsto čevljev, ki še nimajo slike. Bi jo radi dodali?</b></p>
-                     <form action="{{url('dodaj_sliko_cevljev')}}" method="POST">
+                     <form action="{{url('dodaj_sliko_cevljev')}}" method="POST" enctype="multipart/form-data">
                        <div class="form-group">
                          <label for="formGroupExampleInput">Vrsta</label>
                          <input type="text" class="form-control" id="vrstacevljev" value="{{tip}}" disabled>
+                         <input type="hidden" value="{{tip}}" name="tip">
                        </div>
                        <div class="form-group">
                         <div class="custom-file">
@@ -47,7 +48,9 @@
                     <!--ČEVLJI-->
                     <form action="{{url('dodaj_cevlje')}}" method="POST" id="formcevlji">
                       <input type="hidden" name="formcevlji" value="formcevlji">
-                    <div class="form-group">
+                      <div class="row">
+                        <div class="col-md-8">
+                        <div class="form-group">
                         <label for="imevrste">Vrsta</label>
                         <input type="input" class="form-control form-control-sm" name="tip" list="existingNames1" id = "vrsta">
                         <datalist id="existingNames1">
@@ -55,16 +58,16 @@
                             <option value="{{v.vrsta[0]}}">{{v.vrsta[0]}}</option>
                           % end
                           </datalist>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6">
+                        </div>
+                        </div>
+                      <div class="col-md-2">
                         <div class="form-group">
                             <label for="zaporednast">Velikost</label>
                             <input type="number" class="form-control form-control-sm" id="zaporednast1" name="velikost" min="36" max="50" step="1" required>
                           </div>
                       </div>
                     
-                      <div class="col-md-6">
+                      <div class="col-md-2">
                         <div class="form-group">
                           <label for="zaporednast">Zaporedna številka</label>
                           <input type="number" class="form-control form-control-sm" id="zaporednast2" name="zaporednast" min="1" step="1" required>
@@ -89,21 +92,89 @@
         </div>
       </div>
     </div>
+
+    <div class="container py-1">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4"><b>Vrste čevljev</b></p>
+                  % if potrdilo1:
+                    <div class="alert alert-success" role="alert" style="margin-top: 3%;"> 
+                      {{potrdilo1}}
+                    </div>
+                  % end
+
+                  <table class="table borderless" data-toggle="table" data-sticky-header="true" >
+                    <thead class="table-light">
+                      <tr >
+                        <th scope="col" data-sortable="true">Vrsta</th>
+                        <th scope="col" data-sortable="true">Slika vrste</th>
+                        <th scope="col">Izbriši vrsto</th>
+                        
+      
+                      </tr>
+                    </thead>
+                    <tbody>
+                      
+                      % for v in seznam_vrst_cevljev:
+                      <tr>
+                        
+                        <td>{{v.vrsta[0]}}</td>
+                        <td class="text-center">
+                          <form action="{{url('slika_cevljev', id = v.vrsta[0]) }}" method="GET" id = "poglejsliko" class="needs-validation" novalidate>
+                            <button type="submit" id = "poglejslikobtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-image"></i></button>
+                          </form>
+                        </td>
+                          
+                        <td class="text-center">
+                          <form action="{{url('odstrani_tip_cevljev')}}" method="POST">
+                            <input type="hidden" name="vrsta" value="{{v.vrsta[0]}}">
+                            <button type="submit" id = "submitBtn5" onclick="showConfirmation3()" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3-fill"></i></button>
+                          </form>
+                        </td> 
+                      </tr>
+                      % end
+                  </tbody>
+                  </table>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
-  <script>
-    $(document).ready(function() {
-      var $gumb = $("#gumb");
+<script>
+  $(document).ready(function() {
+    var $gumb = $("#gumb");
   $("#vrsta").on("blur", function() {
-    var vrednost = $(this).val().trim(); // Preberemo vrednost in odstranimo morebitne presledke na začetku in koncu
+    var vrednost = $(this).val().trim(); 
 
     if (vrednost != "") {
       $gumb.attr("disabled", false);
     }
   });
-});
+  });
 
   $(document).ready(function() {
       PrikazovanjeImenaSlike("validatedCustomFile1", "izbranaSlikaLabel1");
     });
-  </script>
   
+
+</script>
+
+<script>
+  function showConfirmation3() {
+// Display a confirmation dialog
+if (confirm("Ali ste prepričani, da želite izbrisati vrsto čevljev? S tem boste izbrisali tudi vse čevlje te vrste.")) {
+    // No need to do anything here, the form will be submitted
+} else {
+  alert("Brisanje preklicano.");
+  event.preventDefault(); // Prekine standardno obnašanje obrazca
+}
+}
+</script>

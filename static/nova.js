@@ -272,6 +272,3 @@ function PrikazovanjeImenaSlike(slikaid, slikalabel){
 
 
 
-
-
-

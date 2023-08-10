@@ -58,13 +58,14 @@
                       <th scope="col" class="text-center">Pokrajina</th>
                       <th scope="col" class="text-center">Spol</th>
                       <th scope="col" class="text-center">Omara</th>
+                      <th scope="col" class="text-center">Več...</th>
                     </tr>
                   </thead>
                   <tbody>
                     
                     % sez = []
                     % if seznam[(kostumska_podoba, imeoprave)]:
-                    <tr><td colspan="4"><b>Obvezni deli</b></td></tr>
+                    <tr><td colspan="5"><b>Obvezni deli</b></td></tr>
                       % max_moznost = max([vrsta.moznost for vrsta in seznam[(kostumska_podoba, imeoprave)]])
                       % for i in seznam[(kostumska_podoba, imeoprave)]:
                         % if i.moznost == 0:
@@ -73,16 +74,21 @@
                           <td>{{i.pokrajina}}</td>
                           <td>{{i.spol}}</td>
                           <td>{{i.omara}}</td>
+                          <td class="text-center">
+                            <form > 
+                              <button type="submit" id = "gumb1234" class="btn btn-outline-secondary"><i class="bi bi-info"></i></button>
+                            </form>
+                          </td>
                         </tr>
                         % else:
                         %   sez.append(i)
                         % end
                       % end
                       % if max_moznost != 0:
-                        <tr><td colspan="4"><b>Ena izmed možnosti</b></td></tr>
+                        <tr><td colspan="5"><b>Ena izmed možnosti</b></td></tr>
                       % end
                       % for j in range(1,max_moznost + 1):
-                          <tr><td colspan="4">{{j}}. možnost</td></tr>
+                          <tr><td colspan="5">{{j}}. možnost</td></tr>
                           % for k in sez:
                             % if k.moznost == j:
 
@@ -91,12 +97,17 @@
                               <td>{{k.pokrajina}}</td>
                               <td>{{k.spol}}</td>
                               <td>{{k.omara}}</td>
+                              <td class="text-center">
+                                <form > 
+                                  <button type="submit" id = "gumb1234" class="btn btn-outline-secondary"><i class="bi bi-info"></i></button>
+                                </form>
+                              </td>
                             </tr>              
                             % end
                           % end
                         % end
                     % else:
-                      <tr><td colspan="4"><b>Ni podatkov.</b></td></tr>
+                      <tr><td colspan="5"><b>Ni podatkov.</b></td></tr>
                     % end
                   </tbody>
                 </table>                      

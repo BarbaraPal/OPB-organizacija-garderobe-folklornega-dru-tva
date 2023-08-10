@@ -133,20 +133,23 @@ def dodaj_relacijo_oprava_vrsta(df):
 #uporabnik3 = auth.dodaj_uporabnika("garderober2", True, "12345678", "1111111111113")
 #uporabnik4 = auth.dodaj_uporabnika("navaden", False, "12345678", "1111111111124")
 
-def uvoz_slik(kos_oblacila, pot):
+def uvoz_slik(tabela, id_cols, id, pot):
     slika = open(pot, 'rb').read()
-    oblacilo = repo.dobi_gen_slike(GlavnaOblacila, kos_oblacila, id_cols=("ime","pokrajina","spol","zaporednast"))
-    oblacilo.slika = slika
-    repo.posodobi_gen(oblacilo, id_cols=("ime","pokrajina","spol","zaporednast"))
+    objekt = repo.dobi_gen_slike(tabela, id, id_cols=id_cols)
+    objekt.slika = slika
+    repo.posodobi_gen(objekt, id_cols=id_cols)
 
-#uvoz_slik(('bluza', 'Štajerska', 'Ž', 9), "Data/podatki/slike_stajerska_bluza/modra_rjava_mala_kockasta.jpg")
-#uvoz_slik(('bluza', 'Štajerska', 'Ž', 8), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
-#uvoz_slik(('bluza', 'Štajerska', 'Ž', 7), "Data/podatki/slike_stajerska_bluza/bez_rozice.jpg")
-#uvoz_slik(('bluza', 'Štajerska', 'Ž', 5), "Data/podatki/slike_stajerska_bluza/oranzna_s_krizci.jpg")
-#uvoz_slik(('bluza', 'Štajerska', 'Ž', 4), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
-#uvoz_slik(('bluza', 'Štajerska', 'Ž', 3), "Data/podatki/slike_stajerska_bluza/modra_bez_kockasta.jpg")
-#uvoz_slik(('bluza', 'Štajerska', 'Ž', 2), "Data/podatki/slike_stajerska_bluza/modra_s_pikicami.jpg")
-#uvoz_slik(('bluza', 'Štajerska', 'Ž', 1), "Data/podatki/slike_stajerska_bluza/modra_rjava_velika_kockasta.jpg")
+#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 9), "Data/podatki/slike_stajerska_bluza/modra_rjava_mala_kockasta.jpg")
+#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 8), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
+#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 7), "Data/podatki/slike_stajerska_bluza/bez_rozice.jpg")
+#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 5), "Data/podatki/slike_stajerska_bluza/oranzna_s_krizci.jpg")
+#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 4), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
+#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 3), "Data/podatki/slike_stajerska_bluza/modra_bez_kockasta.jpg")
+#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 2), "Data/podatki/slike_stajerska_bluza/modra_s_pikicami.jpg")
+#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 1), "Data/podatki/slike_stajerska_bluza/modra_rjava_velika_kockasta.jpg")
+
+uvoz_slik(TipCevljev, ('vrsta',),('škorenjci',), "slike/logom.jpg")
+uvoz_slik(TipCevljev, ('vrsta',),('mežiški nizki čeveljci',), "slike/logom.jpg")
 
 
 #def dodajanje_slik_v_bazo():

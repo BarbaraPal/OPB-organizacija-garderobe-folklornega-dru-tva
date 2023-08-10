@@ -5,6 +5,11 @@
     <div class="row">
       <div class="card mb-4 mb-lg-4">
         <div class="card-body p-0">
+          % if odziv:
+        <div class="alert alert-success" role="alert" style="margin-top: 3%;">
+          {{odziv}}
+        </div>
+        % end
         % if napaka:
         <div class="alert alert-danger" role="alert" style="margin-top: 3%;">
           {{napaka}}
@@ -19,7 +24,10 @@
                   <th scope="col" data-sortable="true">Pokrajina</th>
                   <th scope="col" data-sortable="true">Tip</th>
                   <th scope="col" data-sortable="true">Omara</th>
-                  <th scope="col">Podatki o vseh kosih te vrste</th>
+                  <th scope="col" class="text-center">Vsi kosi te vrste</th>
+                  % if rola == 'True':
+                  <th scope="col" class="text-center" >Izbriši</th>
+                  % end
                   
 
                 </tr>
@@ -39,17 +47,27 @@
                   % elif vrstica.tip == "SpodnjiDel":
                   <td>spodnji del</td>
                   % elif vrstica.tip == "EnodelniKos":
-                  <td>dodatno oblačilo</td>
+                  <td>enodelni kos</td>
                   % end
                   <td>{{vrstica.omara if vrstica.omara is not None else "/"}}</td>
-                  <td>
+                  <td class="text-center">
                     <form action="{{url('oblacila', stran = 'oblacilo')}}" method="GET" id = "obrazec1234">
                       <input type="hidden" name="ime_vrste" value="{{vrstica.ime}}">
                       <input type="hidden" name="spol_vrste" value="{{vrstica.spol}}">
                       <input type="hidden" name="pokrajina_vrste" value="{{vrstica.pokrajina}}">  
-                      <button type="submit" id = "gumb1234" class="btn btn-secondary">Podatki</button>
+                      <button type="submit" id = "gumb1234" class="btn btn-outline-secondary"><i class="bi bi-grid"></i></button>
                     </form>
-                  </td> 
+                  </td>
+                  % if rola == 'True':
+                  <td class="text-center">
+                    <form action="{{url('odstrani_vrsto')}}" method="POST">
+                      <input type="hidden" name="ime" value="{{vrstica.ime}}">
+                      <input type="hidden" name="spol" value="{{vrstica.spol}}">
+                      <input type="hidden" name="pokrajina" value="{{vrstica.pokrajina}}">  
+                      <button type="submit" onclick="showConfirmation()" class="btn btn-outline-danger"><i class="bi bi-trash3-fill"></i></button>
+                    </form>
+                  </td>
+                  % end
                 </tr>
                 
                 % end
@@ -61,3 +79,16 @@
     </div>
   </div>
 </section>
+
+<script>
+    
+  function showConfirmation() {
+    // Display a confirmation dialog
+    if (confirm("Ali ste prepričani, da želite izbrisati to vrsto oblačil?")) {
+      // No need to do anything here, the form will be submitted
+    } else {
+      alert("Brisanje preklicano.");
+      event.preventDefault(); // Prekine standardno obnašanje obrazca
+    }
+  }
+</script>

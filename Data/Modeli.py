@@ -234,14 +234,28 @@ class PlesalecDto:
 
 @dataclass
 class CevljiDto:
-    emso: str
+    emsolastnika: str
     vrsta: str
     velikost: int
     zapst: int
 
 @dataclass
+class CevljiDto2:
+    emsolastnika: str
+    vrsta: str
+    velikost: int
+    zapst: int
+    ime: str
+    priimek: str
+
+@dataclass
 class TipiCevljevDto:
     vrsta: str
+
+@dataclass
+class SlikeCevljevDto:
+    vrsta: str
+    slika: bytes = field(default=None) 
 
 @dataclass
 class DeloDto:

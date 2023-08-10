@@ -114,10 +114,12 @@
                     <input type="hidden" name="pokrajina_vrste" value="{{vrsta.pokrajina}}">
                     <input type="hidden" name="spol_vrste" value="{{vrsta.spol}}">
                     <input type="hidden" name="zaporedna_st" value="{{oblacilo.zaporednast}}">
+                    
                     <div class="custom-file">
-                      <input type="file" class="custom-file-input" id="validatedCustomFile1" name="slika" accept=".jpg">
-                      <label class="custom-file-label" for="validatedCustomFile1">Izberi sliko...</label>
+                      <input type="file" class="custom-file-input" id="validatedCustomFile11" name="slika" accept=".jpg">
+                      <label class="custom-file-label" for="validatedCustomFile11">Izberi sliko...</label>
                     </div>
+                    <div id="izbranaSlikaLabel11"></div>
                   </li>
                 </ul>
                 <button type="submit" class="btn btn-secondary">Posodobi</button>
@@ -128,18 +130,15 @@
             </div>
             % if rola == 'True':
               <div class="btn-group " role="group" id = "card4_{{index}}" >
+                
                 <div class = "mr-1">
                     <button type="submit" class="btn btn-secondary btn-sm showFormBtn" id="showFormBtn" data-index="{{index}}">Uredi</button>
                 </div>
-                % if oblacilo.slika is not None:
+
                 <div class = "mr-1">
-                  <button type="submit" class="btn btn-secondary btn-sm showFormBtnSlika">Posodobi sliko</button>
+                  <button type="submit" class="btn btn-secondary btn-sm showFormBtnSlika" id="showFormBtnSlika" data-index="{{index}}">Posodobi sliko</button>
                 </div>
-                % else:
-                <div  class="mr-1">
-                  <button type="submit" class="btn btn-secondary btn-sm showFormBtnSlika">Dodaj sliko</button>
-                </div>
-                % end
+
                 <form action="{{url('odstrani_glavno_oblacilo')}}" method="POST" class="needs-validation form-inline" formvalidate>
                     <input type="hidden" name="ime_vrste" value="{{vrsta.ime}}">
                     <input type="hidden" name="pokrajina_vrste" value="{{vrsta.pokrajina}}">
@@ -199,9 +198,10 @@
                   <input type="hidden" name="pokrajina_vrste" value="{{vrsta.pokrajina}}">
                   <input type="hidden" name="spol_vrste" value="{{vrsta.spol}}">
                   <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="validatedCustomFile2" name="slika" accept=".jpg">
-                    <label class="custom-file-label" for="validatedCustomFile2">Izberi sliko...</label>
+                    <input type="file" class="custom-file-input" id="validatedCustomFile12" name="slika" accept=".jpg">
+                    <label class="custom-file-label" for="validatedCustomFile12">Izberi sliko...</label>
                   </div>
+                  <div id="izbranaSlikaLabel12"></div>
                 </li>
               </ul>
               <button type="submit" class="btn btn-secondary">Posodobi</button>
@@ -214,7 +214,7 @@
                   <button type="submit" class="btn btn-secondary btn-sm showFormBtnDodatnaOblacila" id="showFormBtn1" data-index="{{index}}">Uredi</button>
               </div>
               <div class = "mr-1">
-                <button type="submit" class="btn btn-secondary btn-sm showFormBtnSlikaDodatna">Posodobi sliko</button>
+                <button type="submit" class="btn btn-secondary btn-sm showFormBtnSlikaDodatna" id="showFormBtnSlikaDodatna" data-index="{{index}}" >Posodobi sliko</button>
               </div>
               <form action="{{url('odstrani_dodatno_oblacilo')}}" method="POST" class="needs-validation form-inline" formvalidate>
                   <input type="hidden" name="ime_vrste" value="{{vrsta.ime}}">
@@ -240,80 +240,13 @@
 </section>
 
 <script>
-  $(".showFormBtnOmara").click(function() {
-    $("#prikazomare").hide();
-    $("#formomare").show();
-    $("#formomare").on("keydown", function (event) {
-    // Preberite pritisnjeno tipko
-    var pritisnjenaTipka = event.key;
-    
-    // Dovoljene so številke in znak '/'
-    var dovoljeneTipke = /^[0-9\/]$/;
-    // Dovoljeno brisanje
-    if (pritisnjenaTipka === "Backspace" || pritisnjenaTipka === "Delete") {
-      return;
-    }
-    // Preverite, ali je pritisnjena tipka dovoljena
-    if (!dovoljeneTipke.test(pritisnjenaTipka)) {
-      // Če tipka ni dovoljena, preprečimo privzeto obnašanje (vnos neveljavnega znaka)
-      event.preventDefault();
-    }
+$(document).ready(function() {
+      PrikazovanjeImenaSlike("validatedCustomFile11", "izbranaSlikaLabel11");
+      PrikazovanjeImenaSlike("validatedCustomFile12", "izbranaSlikaLabel12");
     });
-  });
+
+  SpreminjanjeOblacilVsiKosi();
   
-  $(".showFormBtn").click(function() {
-  var index = $(this).data("index");
-  $("#card1_" + index).hide();
-  $("#card2_" + index).hide();
-  $("#card4_" + index).hide();
-  $("#card3_" + index).show();
-});
-var index = $(this).data("index");
-$("#card3_" + index).on("keydown", function(event) {
-  var pritisnjenaTipka = event.key;
-
-  // Dovoljene so številke in znak '/'
-  var dovoljeneTipke = /^[0-9\/]$/;
-  // Dovoljeno brisanje
-  if (pritisnjenaTipka === "Backspace" || pritisnjenaTipka === "Delete") {
-    return;
-  }
-  // Preverite, ali je pritisnjena tipka dovoljena
-  if (!dovoljeneTipke.test(pritisnjenaTipka)) {
-    // Če tipka ni dovoljena, preprečimo privzeto obnašanje (vnos neveljavnega znaka)
-    event.preventDefault();
-  }
-});
-
-$("#spremeniopombe").off("keydown"); // Odstrani prejšnji event handler, če obstaja
-$("#spremeniopombe").on("keydown", function(event) {
-  // Dovolimo vnos vseh tipk
-});
-
-
-$("#spremeniopombe").off("keydown"); // Odstrani prejšnji event handler, če obstaja
-$("#spremeniopombe").on("keydown", function(event) {
-  // Dovolimo vnos vseh tipk
-});
-
-  $(".showFormBtnDodatnaOblacila").click(function() {
-    var index = $(this).data("index");
-    $("#card9_" + index).hide();
-    $("#card7_" + index).show();
-    
-  });
-
-
-  $(".showFormBtnSlikaDodatna").click(function() {
-    var index = $(this).data("index");
-    $("#card9_" + index).hide();
-    $("#card8_" + index).show();
-    
-  });
-
-  
-</script>
-<script>
   function showConfirmation2() {
   // Display a confirmation dialog
   if (confirm("Ali ste prepričani, da želite izbrisati ta vnos?")) {

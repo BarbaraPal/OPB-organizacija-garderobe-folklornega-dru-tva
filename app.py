@@ -331,7 +331,8 @@ def oblacila(stran):
     rola = bottle.request.get_cookie('rola')
     vrste_oblacil = repo.vrste_oblacil()
     if stran == 'vrste_oblacil':
-        return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, napaka = False)
+        odziv = request.query.getunicode('odziv')
+        return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, napaka = False, odziv = odziv)
     else:
         ime_vrste = bottle.request.query.getunicode('ime_vrste')
         spol_vrste = bottle.request.query.getunicode('spol_vrste')
@@ -341,9 +342,9 @@ def oblacila(stran):
         try:
             oblacila = repo.poisci_oblacila((pokrajina_vrste, ime_vrste, spol_vrste))
             if oblacila == []:
-                return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, napaka = 'Oblačil te vrste še/več ni!')    
+                return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, napaka = 'Oblačil te vrste še/več ni!', odziv = False)    
         except Exception:
-            return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, napaka = 'Neznana napaka!')
+            return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, napaka = 'Neznana napaka!', odziv = False)
         return template('konkretna_vrsta.html', uporabnisko_ime = uporabnisko_ime, rola = rola, oblacila = oblacila, vrsta = vrsta)
 
 @get('/dodaj_oblacilo/')
@@ -499,8 +500,8 @@ def spremeni_sliko_glavna():
     slika = slika_get if slika_get != b'' else None
     oblacilo = repo.dobi_gen_id(GlavnaOblacila, (ime, pokrajina, spol, zaporedna_st), id_cols=("ime","pokrajina","spol","zaporednast"))
     oblacilo.slika = slika
-    #repo.posodobi_gen(oblacilo, id_cols=("ime","pokrajina","spol","zaporednast"))
-    #redirect(url('oblacila', stran = 'oblacilo', ime_vrste = ime, pokrajina_vrste = pokrajina, spol_vrste = spol))
+    repo.posodobi_gen(oblacilo, id_cols=("ime","pokrajina","spol","zaporednast"))
+    redirect(url('oblacila', stran = 'oblacilo', ime_vrste = ime, pokrajina_vrste = pokrajina, spol_vrste = spol))
 
 @post('/posodobi_podatke_dodatna_oblacila/')
 @   rola_required
@@ -536,8 +537,17 @@ def spremeni_sliko_dodatna():
     slika = slika_get if slika_get != b'' else None
     oblacilo = repo.dobi_gen_id(DodatnaOblacila, (ime, pokrajina, spol), id_cols=("ime","pokrajina","spol"))
     oblacilo.slika = slika
-    #repo.posodobi_gen(oblacilo, id_cols=("ime","pokrajina","spol"))
-    #redirect(url('oblacila', stran = 'oblacilo', ime_vrste = ime, pokrajina_vrste = pokrajina, spol_vrste = spol))
+    repo.posodobi_gen(oblacilo, id_cols=("ime","pokrajina","spol"))
+    redirect(url('oblacila', stran = 'oblacilo', ime_vrste = ime, pokrajina_vrste = pokrajina, spol_vrste = spol))
+
+@post('/odstrani_vrsto/')
+@rola_required
+def odstrani_vrsto():
+    ime = request.forms.getunicode('ime')
+    pokrajina = request.forms.getunicode('pokrajina')
+    spol = request.forms.getunicode('spol')
+    repo.izbrisi_gen(VrstaOblacila, (ime,pokrajina, spol), id_cols=('ime','pokrajina', 'spol'))
+    redirect(url('oblacila', stran = 'vrste_oblacil', odziv = 'Uspešno izbrisana vrsta oblačil!'))
 
 
 @get('/vsi_cevlji/')
@@ -546,7 +556,9 @@ def vsi_cevlji():
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     cevlji = repo.vsi_cevlji()
-    return template('vsi_cevlji.html', uporabnisko_ime = uporabnisko_ime, rola = rola, cevlji = cevlji)
+    plesalci = repo.plesalci()
+    odziv = request.query.getunicode('odziv')
+    return template('vsi_cevlji.html', uporabnisko_ime = uporabnisko_ime, rola = rola, cevlji = cevlji, plesalci = plesalci, odziv = odziv)
 
 
 @get('/dodajanje_cevljev/')
@@ -557,10 +569,11 @@ def dodajanje_cevljev():
     plesalci = repo.plesalci()
     vrste_cevljev = repo.tipi_cevljev()
     potrdilo = request.query.getunicode('potrdilo')
+    potrdilo1 = request.query.getunicode('potrdilo1')
     napaka = request.query.getunicode('napaka')
     zahteva = request.query.getunicode('zahteva')
     tip = request.query.getunicode('tip')
-    return template('dodajanje_cevljev.html', uporabnisko_ime = uporabnisko_ime, rola = rola, seznam_vrst_cevljev = vrste_cevljev, plesalci = plesalci, potrdilo = potrdilo, napaka = napaka, zahteva = zahteva, tip = tip)
+    return template('dodajanje_cevljev.html', uporabnisko_ime = uporabnisko_ime, rola = rola, seznam_vrst_cevljev = vrste_cevljev, plesalci = plesalci, potrdilo = potrdilo, napaka = napaka, zahteva = zahteva, tip = tip, potrdilo1 = potrdilo1)
 
 @post('/dodaj_cevlje/')
 @rola_required
@@ -571,13 +584,20 @@ def dodaj_cevlje():
     zaporednast = request.forms.getunicode('zaporednast')
     emsolastnika = request.forms.getunicode('lastnik')
     lastnik = emsolastnika if emsolastnika != '' else None
-    cevlji = Cevlji(tip, zaporednast, velikost,lastnik)
+    if lastnik is not None:
+        try:
+            repo.dobi_gen_id(Plesalec, (lastnik,), ('emso',))
+        except:
+            odziv = f'Plesalec z EMŠO: {lastnik} ne obstaja. Izberite obstoječega plesalca ali pustite polje prazno.'
+            redirect(url('dodajanje_cevljev', napaka = odziv))
+    
+    cevlji = Cevlji(tip, zaporednast, velikost, lastnik)
     seznam_vrst_cevljev = []
     for i in vrste_cevljev: 
         seznam_vrst_cevljev.append(i.vrsta[0])
     if tip not in seznam_vrst_cevljev:
-        tip = TipCevljev(tip, slika=None)
-        repo.dodaj_gen(tip, serial_col=None)
+        tip_cevlja = TipCevljev(tip, slika=None)
+        repo.dodaj_gen(tip_cevlja, serial_col=None)
         repo.dodaj_gen(cevlji, serial_col=None)
         redirect(url('dodajanje_cevljev', zahteva = 'dodaj sliko', tip = tip))
     else:
@@ -592,14 +612,21 @@ def dodaj_cevlje():
 @rola_required
 def dodaj_sliko_cevljev():
     tip = request.forms.getunicode('tip')
-    print(type(request.files.get('slika')))
-    if request.files.get('slika'):
-        slika= bytes(request.files.get('slika').file.read())
+    slika_get = bytes(request.files.get('slika').file.read())
+    slika = slika_get if slika_get != b'' else None
+    preusmeritev = request.forms.get('preusmeritev')
+    if slika:
         posodobitev = TipCevljev(tip, slika)
-        repo.posodobi_gen(posodobitev, id_cols=('vrsta', 'slika'))
-        redirect(url('dodajanje_cevljev', potrdilo = 'Slika je bila uspešno dodana.'))
+        repo.posodobi_gen(posodobitev, id_cols=('vrsta',))
+        if preusmeritev:
+            redirect(url('slika_cevljev', id = tip))
+        else:
+            redirect(url('dodajanje_cevljev', potrdilo = 'Slika je bila uspešno dodana.'))
     else:
-        redirect(url('dodajanje_cevljev', potrdilo = 'Uspešno dodani čevlji. Sliko lahko kadarkoli dodate.'))
+        if preusmeritev:
+            redirect(url('slika_cevljev', id = tip))
+        else:
+            redirect(url('dodajanje_cevljev', potrdilo = 'Uspešno dodani čevlji. Sliko lahko kadarkoli dodate.'))
 
 @post('/odstrani_cevlje/')
 @rola_required
@@ -608,6 +635,40 @@ def odstrani_cevlje():
     velikost = int(request.forms.getunicode('velikost'))
     zapst = int(request.forms.getunicode('zapst'))
     repo.izbrisi_gen(Cevlji, (vrsta, zapst, velikost), id_cols=('vrsta', 'zapst', 'velikost'))
+    redirect(url('vsi_cevlji'))
+
+@get('/slika_cevljev/<id>/')
+@cookie_required
+def slika_cevljev(id):
+    slike = repo.vrste_cevljev_in_slike()
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
+    return template('slika_cevljev.html', slike = slike, uporabnisko_ime = uporabnisko_ime, rola = rola, id = id)
+
+@post('/odstrani_tip_cevljev/')
+@rola_required
+def odstrani_tip_cevljev():
+    vrsta = request.forms.getunicode('vrsta')
+    repo.izbrisi_gen(TipCevljev, (vrsta,), ('vrsta',))
+    redirect(url('dodajanje_cevljev', potrdilo1 = f'Vrsta čevljev: {vrsta} uspešno izbrisana.'))
+
+@post('/urejanje_lastnika_cevljev/')
+@rola_required
+def urejanje_lastnika_cevljev():
+    vrsta = request.forms.getunicode('vrsta')
+    velikost = int(request.forms.getunicode('velikost'))
+    zapst = int(request.forms.getunicode('zapst'))
+    lastnik_get = request.forms.get('emso')
+    emso_lastnika = lastnik_get if lastnik_get != '/' else None
+    if emso_lastnika is not None:
+        try:
+            repo.dobi_gen_id(Plesalec, (emso_lastnika,), ('emso',))
+        except:
+            odziv = f'Plesalec z EMŠO: {emso_lastnika} ne obstaja. Izberite obstoječega plesalca ali izberite možnost "ni lastnika".'
+            redirect(url('vsi_cevlji', odziv = odziv))
+    
+    cevelj = Cevlji(vrsta, zapst, velikost, emso_lastnika)
+    repo. posodobi_gen(cevelj, id_cols=('vrsta', 'velikost', 'zapst'))
     redirect(url('vsi_cevlji'))
 
 @error(404)

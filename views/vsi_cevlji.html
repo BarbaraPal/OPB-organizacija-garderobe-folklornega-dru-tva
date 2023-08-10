@@ -1,11 +1,15 @@
 %rebase('osnova.html', naslov='Čevlji', uporabnik=uporabnisko_ime, rola = rola)
 <section style="background-color: #eee;">
-
   <div class="container-fluid">
     <div class="row">
       <div class="card mb-4 mb-lg-4">
         <div class="card-body p-0">
           <div class="table-container">
+            % if odziv:
+                <div class="alert alert-danger" role="alert" style="margin-top: 3%;"> 
+                  {{odziv}}
+                </div>
+            % end
           <table class="table borderless" data-toggle="table" data-sticky-header="true" data-search="true" data-show-columns="true" >
               <thead class="table-light">
                 <tr >
@@ -13,6 +17,10 @@
                   <th scope="col" data-sortable="true">Velikost</th>
                   <th scope="col" data-sortable="true">Zaporedna številka</th>
                   <th scope="col" data-sortable="true">Lastnik</th>
+                  % if rola == 'True':
+                  <th scope="col">Dodaj/spremeni/odstrani lastnika</th>
+                  % end
+                  <th scope="col">Slika vrste</th>
                   % if rola == 'True':
                   
                   <th scope="col">Izbriši vnos</th>
@@ -22,14 +30,51 @@
                 </tr>
               </thead>
               <tbody>
-                % for vrstica in cevlji:
+                
+                % for index, vrstica in enumerate(cevlji):
                 
                 <tr>
                 
                   <td>{{vrstica.vrsta}}</td>
                   <td>{{vrstica.velikost}}</td>
                   <td>{{vrstica.zapst}}</td>
-                  <td> </td>
+                  % if vrstica.ime == None:
+                    <td>nimajo lastnika</td>
+                  % else:
+                    <td>{{vrstica.ime}} {{vrstica.priimek}} 
+                      % if rola == 'True':
+                        (emšo: {{vrstica.emsolastnika}})
+                      % end
+                    </td>
+                  % end
+                  % if rola == 'True':
+                  <td class="text-center">
+                    <div id = "card1_{{index}}">
+                    <button type="submit" class="btn btn-secondary btn-sm showFormBtn" id="showFormBtn" data-index="{{index}}">Uredi</button>
+                    </div>
+                    <form id = "card2_{{index}}" style="display: none;"  action="{{url('urejanje_lastnika_cevljev')}}" method="POST">
+                      <input type="hidden" name="vrsta" value="{{vrstica.vrsta}}">
+                      <input type="hidden" name="velikost" value="{{vrstica.velikost}}">
+                      <input type="hidden" name="zapst" value="{{vrstica.zapst}}">
+                      <div class="form-group">
+                        <label for="lastnik">Nov lastnik</label>
+                        <input type="input" class="form-control form-control-sm" name="emso" list="existingNames2" id = "plesalci">
+                        <datalist id="existingNames2">
+                            <option value="{{'/'}}">ni lastnika</option>
+                          % for v in plesalci:
+                            <option value="{{v}}">{{plesalci[v].ime}} {{plesalci[v].priimek}}</option>
+                          % end
+                          </datalist>
+                      </div> 
+                      <button type="submit" class="btn btn-outline-secondary btn-sm">Potrdi</button>
+                    </form>
+                  </td>
+                  % end
+                  <td class="text-center">
+                    <form action="{{url('slika_cevljev', id = vrstica.vrsta) }}" method="GET" id = "poglejsliko" class="needs-validation" novalidate>
+                      <button type="submit" id = "poglejslikobtn" class="btn btn-outline-secondary btn-sm"><i class="bi bi-image"></i></button>
+                    </form>
+                  </td>
                   
                   
                   % if rola == 'True':  
@@ -55,7 +100,11 @@
 </section>
 
 <script>
-    function showConfirmation2() {
+$(document).ready(function() {
+    KlikSpremembaObrazca2()
+  });
+
+  function showConfirmation2() {
   // Display a confirmation dialog
   if (confirm("Ali ste prepričani, da želite izbrisati ta vnos?")) {
       // No need to do anything here, the form will be submitted
@@ -64,4 +113,7 @@
     event.preventDefault(); // Prekine standardno obnašanje obrazca
   }
 }
+
+
+
 </script>

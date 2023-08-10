@@ -96,19 +96,23 @@ class Repo:
         tbl_name = typ.__name__
         id_conditions = " AND ".join([f"{col} = %s" for col in id_cols])
         sql_cmd = f"SELECT * FROM {tbl_name} WHERE {id_conditions};"
-        self.cur.execute(sql_cmd, id_tuple)
+        try:
+            self.cur.execute(sql_cmd, id_tuple)
 
-        d = self.cur.fetchone()
+            d = self.cur.fetchone()
 
-        if d is None:
-            raise Exception(f"Vrstica s ključem {id_tuple} ne obstaja v {tbl_name}.")
+            if d is None:
+                raise Exception(f"Vrstica s ključem {id_tuple} ne obstaja v {tbl_name}.")
         
-        if 'slika' in d:  # Check if the 'slika' key is present
-            slika_memoryview = d['slika']
-            if isinstance(slika_memoryview, memoryview):
-                d['slika'] = bytes(slika_memoryview)
+            if 'slika' in d:  # Check if the 'slika' key is present
+                slika_memoryview = d['slika']
+                if isinstance(slika_memoryview, memoryview):
+                    d['slika'] = bytes(slika_memoryview)
 
-        return typ(**d)
+            return typ(**d)
+        except:
+            self.conn.rollback()
+            raise Exception('Napaka')
 
 
     def posodobi_gen(self, typ: T, id_cols = ("id",), auto_commit=True):
@@ -388,9 +392,6 @@ class Repo:
         imena_po_tipih = self.cur.fetchall()
         return {tip : imena for tip,imena in imena_po_tipih}
     
-    def dodaj_sliko(self, slika):
-        return psycopg2.Binary(slika)
-    
     def tipi_cevljev(self) -> List[TipiCevljevDto]:
         self.cur.execute(
             """
@@ -401,12 +402,24 @@ class Repo:
         tipi = self.cur.fetchall()
         return  [TipiCevljevDto(tip) for (tip) in tipi]
     
-    def vsi_cevlji(self) -> List[CevljiDto]:
+    def vsi_cevlji(self) -> List[CevljiDto2]:
         self.cur.execute(
             """
-            SELECT emsolastnika, vrsta, velikost,zapst
-            FROM Cevlji;
+            SELECT c.emsolastnika, c.vrsta, c.velikost, c.zapst, p.ime, p.priimek
+            FROM Cevlji c
+            LEFT JOIN Plesalec p ON p.emso = c.emsolastnika;
             """)
 
         cevlji = self.cur.fetchall()
-        return [CevljiDto(emsolastnika, vrsta, velikost, zapst) for (emsolastnika, vrsta, velikost, zapst) in cevlji]
+        return [CevljiDto2(emsolastnika, vrsta, velikost, zapst, ime, priimek) for (emsolastnika, vrsta, velikost, zapst, ime, priimek) in cevlji]
+
+    def vrste_cevljev_in_slike(self) -> List[SlikeCevljevDto]:
+        self.cur.execute(
+            """
+            SELECT vrsta, slika
+            FROM TipCevljev;
+            """)
+
+        slike = self.cur.fetchall()
+        return [SlikeCevljevDto(vrsta, slika if slika is None else base64.b64encode(slika).decode('utf-8')) for (vrsta, slika) in slike]    
+    
