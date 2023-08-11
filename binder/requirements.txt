@@ -5,4 +5,5 @@ bottle
 dataclasses-json
 openpyxl
 bcrypt
+numpy
 
