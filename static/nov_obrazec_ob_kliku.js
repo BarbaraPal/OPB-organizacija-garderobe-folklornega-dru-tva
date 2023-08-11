@@ -133,3 +133,93 @@ $("#spremeniopombe").on("keydown", function(event) {
   });
 
 }
+
+function KlikSpremembaObrazcaZaKostumskePodobe(){
+  $("#gumb_dodaj_obvezni_del, #gumb_dodaj_obvezni_del2").click(function() {
+    $("#div_posebnosti").hide();
+    $("#form_posebnosti").hide();
+    $("#form_cevlji_dodaj").hide();
+    $("#div_cevlji_posebnosti").hide();
+    $("#form_cevlji").hide();
+    $("#div_dodaj_k_obstojeci_moznosti").hide();
+    $("#form_dodaj_k_obstojeci_moznosti").hide();
+    $("#div_dodaj_moznost").hide();
+    $("#form_dodaj_del_moznost").hide();
+    $("#div_dodaj").show();
+    $("#form_dodaj_del").show();
+  });
+
+  $("#gumb_dodaj_moznost, #gumb_dodaj_moznost2").click(function() {
+    $("#div_posebnosti").hide();
+    $("#form_posebnosti").hide();
+    $("#form_cevlji_dodaj").hide();
+    $("#div_cevlji_posebnosti").hide();
+    $("#form_cevlji").hide();
+    $("#div_dodaj").hide();
+    $("#form_dodaj_del").hide();
+    $("#div_dodaj_k_obstojeci_moznosti").hide();
+    $("#form_dodaj_k_obstojeci_moznosti").hide();
+    $("#div_dodaj_moznost").show();
+    $("#form_dodaj_del_moznost").show();
+  });
+
+  $("#gumb_dodaj_k_eni_izmed_moznosti").click(function() {
+    $("#div_posebnosti").hide();
+    $("#form_posebnosti").hide();
+    $("#form_cevlji_dodaj").hide();
+    $("#div_cevlji_posebnosti").hide();
+    $("#form_cevlji").hide();
+    $("#div_dodaj").hide();
+    $("#form_dodaj_del").hide();
+    $("#div_dodaj_moznost").hide();
+    $("#form_dodaj_del_moznost").hide();
+    $("#div_dodaj_k_obstojeci_moznosti").show();
+    $("#form_dodaj_k_obstojeci_moznosti").show();
+  });
+
+  $("#gumb_form_za_cevlje").click(function(){
+    $("#div_posebnosti").hide();
+    $("#form_posebnosti").hide();
+    $("#div_dodaj").hide();
+    $("#form_dodaj_del").hide();
+    $("#div_dodaj_moznost").hide();
+    $("#form_dodaj_del_moznost").hide();
+    $("#div_dodaj_k_obstojeci_moznosti").hide();
+    $("#form_dodaj_k_obstojeci_moznosti").hide();
+    $("#form_cevlji_dodaj").hide();
+    $("#div_cevlji_posebnosti").show();
+    $("#form_cevlji").show();
+  });
+
+  $("#gumb_form_za_cevlje_dodaj").click(function(){
+    $("#div_posebnosti").hide();
+    $("#form_posebnosti").hide();
+    $("#div_dodaj").hide();
+    $("#form_dodaj_del").hide();
+    $("#div_dodaj_moznost").hide();
+    $("#form_dodaj_del_moznost").hide();
+    $("#div_dodaj_k_obstojeci_moznosti").hide();
+    $("#form_dodaj_k_obstojeci_moznosti").hide();
+    $("#form_cevlji").hide();
+    $("#div_cevlji_posebnosti").show();
+    $("#form_cevlji_dodaj").show();
+    
+ 
+  });
+
+  $("#posebnosti_dodaj_gumb").click(function(){
+    $("#div_dodaj").hide();
+    $("#form_dodaj_del").hide();
+    $("#div_dodaj_moznost").hide();
+    $("#form_dodaj_del_moznost").hide();
+    $("#div_dodaj_k_obstojeci_moznosti").hide();
+    $("#form_dodaj_k_obstojeci_moznosti").hide();
+    $("#form_cevlji_dodaj").hide();
+    $("#div_cevlji_posebnosti").hide();
+    $("#form_cevlji").hide();
+    $("#div_posebnosti").show();
+    $("#form_posebnosti").show();
+  });
+}
+
+

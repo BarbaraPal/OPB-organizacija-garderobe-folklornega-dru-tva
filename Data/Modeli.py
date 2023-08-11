@@ -180,7 +180,7 @@ class OpravaKostumskePodobe:
     imekostumskepodobe: str
     imeoprave: str
     spoloprave: str
-    vrstacevljev: str
+    vrstacevljev: str = field(default=None)
     posebnosti: str = field(default="")
 
 @dataclass_json

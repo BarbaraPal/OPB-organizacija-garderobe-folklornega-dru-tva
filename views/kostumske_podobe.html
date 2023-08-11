@@ -1,5 +1,4 @@
 %rebase('osnova.html', naslov='Oblacila', uporabnik=uporabnisko_ime, rola = rola)
-
 <div class="container-fluid">
   <div class="row" >
     <div class="col-md col-md-3 col-xl-2 px-sm-2 px-0" style="background-color: #f8f9fa">
@@ -40,12 +39,81 @@
         <div class="col py-3">
           <h3>Kostumske podobe</h3>
           <p class="lead">
-            Za navadnega uporabnika bodo tu napisana navodila premikanja med kostumskimi podobami, za garderoberja pa bo tu obrazec za dodajanje oblačil v opravo.</p>    
+            Za navadnega uporabnika bodo tu napisana navodila premikanja med kostumskimi podobami, za garderoberja pa bo tu obrazec za dodajanje oblačil v opravo.</p> 
+            % mnozica = set()
+            % for i in seznam.keys():
+            % mnozica.add(i[0])
+            % end
+
+            % mnozica2 = set()
+            % for i in seznam.keys():
+            % mnozica2.add(i[1])
+            % end
+            
+            % if rola == 'True':
+              <div class="container py-5">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="card mb-4 mb-md-0">
+                          <div class="card-body">
+                            <p class="mb-4"><b>Dodajanje oprave kostumske podobe</b></p>
+                            %if odziv:
+                            <div class="alert alert-danger" role="alert" style="margin-top: 3%;">
+                              {{odziv}}
+                            </div>
+                            %end
+                              <form  id="obrazec_oprava_kostumske_podobe" action="{{url('dodaj_kostumsko_podobo')}}" method="POST">
+                                  <div class="form-group">
+                                    <label for="kostumska_podoba">Ime kostumske podobe:</label>
+                                    <input type="text" class="form-control" list="existingNames1" id="kostumska_podoba" name="kostumska_podoba">
+                                    <datalist id="existingNames1">
+                                      % for v in mnozica:
+                                        <option value="{{v}}">{{v}}</option>
+                                      % end
+                                    </datalist>
+                                  </div>
+
+                                  <div class="form-group">
+                                    <label for="oprava">Ime oprave kostumske podobe:</label>
+                                    <input type="text" class="form-control" list="existingNames2" id="oprava" name="oprava">
+                                    <datalist id="existingNames2">
+                                      % for v in mnozica2:
+                                        <option value="{{v}}">{{v}}</option>
+                                      % end
+                                    </datalist>
+                                  </div>
+                                  <div class="form-group">
+                                    <label for="spol">Spol oprave:</label>
+                                    <select class="custom-select required" id="spol" name="spol_oprave">
+                                        <option value="M">M</option>
+                                        <option value="Ž">Ž</option>
+                                        <option value="UNI" selected>UNI (lahko izvajata oba spola)</option>
+                                    </select>
+                                </div>
+                                  <button type="submit" class="btn btn-secondary" id="gumb" disabled>Dodaj</button>
+                                
+                              </form>
+                            
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            % end
         </div>
       % else:
-      
-      
+    
       <div class="container py-5" >
+        <p><b>{{kostumska_podoba}}: {{imeoprave}}</b></p>
+        %if napaka:
+        <div class="alert alert-danger" role="alert" style="margin-top: 3%;">
+          {{napaka}}
+        </div>
+        %end
         <div class="row">
           <div class="col-lg-6">
             <div class="card mb-4">
@@ -59,13 +127,20 @@
                       <th scope="col" class="text-center">Spol</th>
                       <th scope="col" class="text-center">Omara</th>
                       <th scope="col" class="text-center">Več...</th>
+                      % if rola == 'True':
+                        <th scope="col" class="text-center">Odstrani</th>
+                      % end
                     </tr>
                   </thead>
                   <tbody>
                     
                     % sez = []
                     % if seznam[(kostumska_podoba, imeoprave)]:
-                    <tr><td colspan="5"><b>Obvezni deli</b></td></tr>
+                      % if rola == 'True':
+                        <tr><td colspan="6"><b>Obvezni deli</b></td></tr>
+                      % else:
+                        <tr><td colspan="5"><b>Obvezni deli</b></td></tr>
+                      % end
                       % max_moznost = max([vrsta.moznost for vrsta in seznam[(kostumska_podoba, imeoprave)]])
                       % for i in seznam[(kostumska_podoba, imeoprave)]:
                         % if i.moznost == 0:
@@ -75,20 +150,47 @@
                           <td>{{i.spol}}</td>
                           <td>{{i.omara}}</td>
                           <td class="text-center">
-                            <form > 
-                              <button type="submit" id = "gumb1234" class="btn btn-outline-secondary"><i class="bi bi-info"></i></button>
+                            <form action="{{url('oblacila', stran = 'oblacilo')}}" method="get" > 
+                              <input type="hidden" name="ime_vrste" value="{{i.ime}}">
+                              <input type="hidden" name="pokrajina_vrste" value="{{i.pokrajina}}">
+                              <input type="hidden" name="spol_vrste" value="{{i.spol}}">
+                              <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-info"></i></button>
                             </form>
                           </td>
+                          % if rola == 'True':
+                          <td class="text-center">
+                            <form action="{{url('odstrani_povezavo_oblacilo_KP')}}" method="POST" > 
+                              <input type="hidden" name="kostumska_podoba" value="{{kostumska_podoba}}">
+                              <input type="hidden" name="oprava" value="{{imeoprave}}">
+                              <input type="hidden" name="ime_vrste" value="{{i.ime}}">
+                              <input type="hidden" name="pokrajina_vrste" value="{{i.pokrajina}}">
+                              <input type="hidden" name="spol_vrste" value="{{i.spol}}">
+                              <button type="submit" onclick="showConfirmation()" class="btn btn-outline-danger"><i class="bi bi-trash3-fill"></i></button>
+                            </form>
+                          </td>
+                          % end
                         </tr>
                         % else:
                         %   sez.append(i)
                         % end
                       % end
+                      % if rola == 'True':
+                      <tr><td colspan="6"><button id = "gumb_dodaj_obvezni_del" type="submit" class="btn btn-outline-secondary">dodaj obvezni del</button> 
+                        <button id = "gumb_dodaj_moznost" type="submit" class="btn btn-outline-secondary">dodaj možnost</button></td></tr>
+                      % end
                       % if max_moznost != 0:
-                        <tr><td colspan="5"><b>Ena izmed možnosti</b></td></tr>
+                        % if rola == 'True':
+                          <tr><td colspan="6"><b>Ena izmed možnosti</b></td></tr>
+                        % else:
+                          <tr><td colspan="5"><b>Ena izmed možnosti</b></td></tr>
+                        % end
                       % end
                       % for j in range(1,max_moznost + 1):
+                        % if rola == 'True':
+                          <tr><td colspan="6">{{j}}. možnost</td></tr>
+                        % else:
                           <tr><td colspan="5">{{j}}. možnost</td></tr>
+                        % end
                           % for k in sez:
                             % if k.moznost == j:
 
@@ -98,16 +200,40 @@
                               <td>{{k.spol}}</td>
                               <td>{{k.omara}}</td>
                               <td class="text-center">
-                                <form > 
-                                  <button type="submit" id = "gumb1234" class="btn btn-outline-secondary"><i class="bi bi-info"></i></button>
+                                <form action="{{url('oblacila', stran = 'oblacilo')}}" method="get"> 
+                                  <input type="hidden" name="ime_vrste" value="{{k.ime}}">
+                                  <input type="hidden" name="pokrajina_vrste" value="{{k.pokrajina}}">
+                                  <input type="hidden" name="spol_vrste" value="{{k.spol}}">
+                                  <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-info"></i></button>
                                 </form>
                               </td>
-                            </tr>              
+                              % if rola == 'True':
+                                <td class="text-center">
+                                  <form  > 
+                                    <input type="hidden" name="ime_vrste" value="{{i.ime}}">
+                                    <input type="hidden" name="pokrajina_vrste" value="{{i.pokrajina}}">
+                                    <input type="hidden" name="spol_vrste" value="{{i.spol}}">
+                                    <button type="submit" onclick="showConfirmation()" class="btn btn-outline-danger"><i class="bi bi-trash3-fill"></i></button>
+                                  </form>
+                                </td>
+                              % end
+                            </tr>
+                                          
                             % end
                           % end
                         % end
+                        % if rola == 'True' and max_moznost > 0:
+                            <tr><td colspan="6"><button id = "gumb_dodaj_k_eni_izmed_moznosti" type="submit" class="btn btn-outline-secondary">dodaj del k eni izmed možnosti</button></td></tr>
+                        % end
                     % else:
-                      <tr><td colspan="5"><b>Ni podatkov.</b></td></tr>
+                      % max_moznost = 0
+                      % if rola != 'True':
+                        <tr><td colspan="5"><b>Ni podatkov.</b></td></tr>
+                      % else:
+                        <tr><td colspan="6"><b>Ni podatkov.</b></td></tr>
+                        <tr><td colspan="6"><button id = "gumb_dodaj_obvezni_del2" type="submit" class="btn btn-outline-secondary">dodaj obvezni del</button> 
+                          <button id = "gumb_dodaj_moznost2" type="submit" class="btn btn-outline-secondary">dodaj možnost</button></td></tr>
+                      % end
                     % end
                   </tbody>
                 </table>                      
@@ -121,13 +247,28 @@
                   <div class="col-sm-3">
                     <p class="mb-0">Tip čevljev:</p>
                   </div>
-                  <div class="col-sm-9">
+                  
                     % if slovar_oprave[(kostumska_podoba, imeoprave)][0]:
+                    <div class="col-sm-6">
                       <p class="text-muted mb-0">{{slovar_oprave[(kostumska_podoba, imeoprave)][0]}}</p>
+                    </div>
+                      % if rola == 'True':
+                      <div class="col-sm-2">
+                          <button id = "gumb_form_za_cevlje" type="submit" class="btn btn-outline-secondary">Spremeni</button>
+                      </div>
+                      % end
                     % else:
+                    <div class="col-sm-6">
                       <p class="text-muted mb-0">Ni podatka.</p>
+                    </div>
+                      % if rola == 'True':
+                      <div class="col-sm-2">
+                          <button id = "gumb_form_za_cevlje_dodaj" type="submit" class="btn btn-outline-secondary">Dodaj</button>
+                      </div>
+                      % end
                     % end
-                  </div>
+                  
+                  
                 </div>
                 <hr>
                 <div class="row">
@@ -140,9 +281,228 @@
                       % end
                   </div>
                 </div>
+                
+                % if rola == 'True':
+                <hr>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <button type="submit" class="btn btn-outline-secondary" id="posebnosti_dodaj_gumb" >Dodaj posebnost</button>
+                    </div>
+                    % if slovar_oprave[(kostumska_podoba, imeoprave)][1] != '/':
+                    <div class="col-sm-6">
+                      <form action="{{url('odstrani_posebnosti_oprave')}}" method="POST">
+                        <input type="hidden" name="kostumska_podoba" value="{{kostumska_podoba}}">
+                        <input type="hidden" name="oprava" value="{{imeoprave}}">
+                        <button type="submit" onclick="showConfirmation2()" class="btn btn-outline-danger" id="posebnosti_odstrani_gumb" >Odstrani posebnosti</button>
+                      </form>    
+                    </div>
+                    % end
+                  </div>
+                % end
               </div>
             </div>
+            <div id="div_dodaj" class="card mb-4" style="display: none;">
+              <div class="card-body">
+                <p class="mb-4"><b>Dodajanje obveznega dela</b></p>
+                  <form id="form_dodaj_del" style="display: none;" action="{{url('dodaj_oblacila_k_kostumski_podobi')}}" method="POST">
+                    <input type="hidden" name="kostumska_podoba" value="{{kostumska_podoba}}">
+                    <input type="hidden" name="oprava" value="{{imeoprave}}">
+                    <input type="hidden" name="moznost" value="0">
+                      <div class="form-group">
+                        <label for="form_dodaj_obvezni_del_ime_kosa">Ime</label>
+                        <input type="text" class="form-control form-control-sm" id="form_dodaj_obvezni_del_ime_kosa" list="imena1" name="ime_vrste">
+                        <datalist id="imena1">
+                          % for v in seznam_imen:
+                            <option value="{{v[0]}}">{{v[0]}}</option>
+                          % end
+                          </datalist>
+                      </div>
+                      <div class="form-group">
+                        <label for="form_dodaj_obvezni_del_pokrajina">Pokrajina <small>(če kos oblačila ni značilen za točno določeno pokrajino vnesite SLO)</small></label>
+                        <input type="text" class="form-control form-control-sm" id="form_dodaj_obvezni_del_pokrajina" list="pokrajina1" name="pokrajina_vrste">
+                        <datalist id="pokrajina1">
+                          % for v in seznam_pokrajin:
+                            <option value="{{v[0]}}">{{v[0]}}</option>
+                          % end
+                          </datalist>
+                        
+                      </div>
+                      <div class="form-group">
+                        <label for="form_dodaj_obvezni_del_spol">Spol</label>
+                        <select class="custom-select required custom-select-sm" id="form_dodaj_obvezni_del_spol" name="spol_vrste">
+                            % if imeoprave == 'moška':
+                              <option value="M" selected>M</option>
+                            % elif imeoprave == 'ženska':
+                              <option value="Ž" selected>Ž</option>
+                            % else:
+                              <option value="M" selected>M</option>
+                              <option value="Ž" >Ž</option>
+                            % end
+
+                        </select>
+                      </div>
+                      
+                      <button type="submit" class="btn btn-secondary" id="form_dodaj_obvezni_del_gumb_dodaj" disabled>Dodaj</button>
+                    
+                  </form>
+              </div>
+            </div>
+
+            <div id="div_dodaj_moznost" class="card mb-4" style="display: none;">
+              <div class="card-body">
+                <p id="p_dodaj_moznost" class="mb-4"><b>Dodajanje k {{max_moznost + 1}}. možnosti</b></p>
+                  <form id="form_dodaj_del_moznost" style="display: none;" action="{{url('dodaj_oblacila_k_kostumski_podobi')}}" method="POST">
+                    <input type="hidden" name="kostumska_podoba" value="{{kostumska_podoba}}">
+                    <input type="hidden" name="oprava" value="{{imeoprave}}">
+                    <input type="hidden" name="moznost" value="{{max_moznost + 1}}">
+                      <div class="form-group">
+                        <label for="form_dodaj_ime_kosa_moznost">Ime</label>
+                        <input type="text" class="form-control form-control-sm" id="form_dodaj_ime_kosa_moznost" list="imena2" name="ime_vrste">
+                        <datalist id="imena2">
+                          % for v in seznam_imen:
+                            <option value="{{v[0]}}">{{v[0]}}</option>
+                          % end
+                          </datalist>
+                      </div>
+                      <div class="form-group">
+                        <label for="form_dodaj_pokrajina_moznost">Pokrajina <small>(če kos oblačila ni značilen za točno določeno pokrajino vnesite SLO)</small></label>
+                        <input type="text" class="form-control form-control-sm" id="form_dodaj_pokrajina_moznost" list="pokrajina2" name="pokrajina_vrste">
+                        <datalist id="pokrajina2">
+                          % for v in seznam_pokrajin:
+                            <option value="{{v[0]}}">{{v[0]}}</option>
+                          % end
+                          </datalist>
+                      </div>
+                      <div class="form-group">
+                        <label for="form_dodaj_spol_moznost">Spol</label>
+                        <select class="custom-select required custom-select-sm" id="form_dodaj_spol_moznost" name="spol_vrste">
+                            % if imeoprave == 'moška':
+                              <option value="M" selected>M</option>
+                            % elif imeoprave == 'ženska':
+                              <option value="Ž" selected>Ž</option>
+                            % else:
+                              <option value="M" selected>M</option>
+                              <option value="Ž" >Ž</option>
+                            % end
+                        </select>
+                      </div>
+                      
+                      <button type="submit" class="btn btn-secondary" id="gumb_dodaj_del_moznost" disabled>Dodaj</button>
+                    
+                  </form>
+              </div>
+            </div>
+
+
+            <div id="div_dodaj_k_obstojeci_moznosti" class="card mb-4" style="display: none;">
+              <div class="card-body">
+                <p class="mb-4"><b>Dodajanje k obstoječi možnosti</b></p>
+                  <form id="form_dodaj_k_obstojeci_moznosti" style="display: none;" action="{{url('dodaj_oblacila_k_kostumski_podobi')}}" method="POST">
+                    <input type="hidden" name="kostumska_podoba" value="{{kostumska_podoba}}">
+                    <input type="hidden" name="oprava" value="{{imeoprave}}">
+                      <div class="form-group">
+                        <label for="st_moznosti">H kateri možnosti želite dodati kos?</label>
+                        <input type="number" class="form-control form-control-sm" id="zaporednast1" name="moznost" min="1" max = "{{max_moznost}}" step="1" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="form_dodaj_k_obstojeci_moznosti_ime_kosa">Ime</label>
+                        <input type="text" class="form-control form-control-sm" id="form_dodaj_k_obstojeci_moznosti_ime_kosa" list="imena3" name="ime_vrste">
+                        <datalist id="imena3">
+                          % for v in seznam_imen:
+                            <option value="{{v[0]}}">{{v[0]}}</option>
+                          % end
+                          </datalist>
+                      </div>
+                      <div class="form-group">
+                        <label for="form_dodaj_k_obstojeci_moznosti_pokrajina">Pokrajina <small>(če kos oblačila ni značilen za točno določeno pokrajino vnesite SLO)</small></label>
+                        <input type="text" class="form-control form-control-sm" id="form_dodaj_k_obstojeci_moznosti_pokrajina" list="pokrajina3" name="pokrajina_vrste">
+                        <datalist id="pokrajina3">
+                          % for v in seznam_pokrajin:
+                            <option value="{{v[0]}}">{{v[0]}}</option>
+                          % end
+                          </datalist>
+                      </div>
+                      <div class="form-group">
+                        <label for="form_dodaj_k_obstojeci_moznosti_spol">Spol</label>
+                        <select class="custom-select required custom-select-sm" id="form_dodaj_k_obstojeci_moznosti_spol" name="spol_vrste">
+                            % if imeoprave == 'moška':
+                              <option value="M" selected>M</option>
+                            % elif imeoprave == 'ženska':
+                              <option value="Ž" selected>Ž</option>
+                            % else:
+                              <option value="M" selected>M</option>
+                              <option value="Ž" >Ž</option>
+                            % end
+                        </select>
+                      </div>
+                      
+                      <button type="submit" class="btn btn-secondary" id="form_dodaj_k_obstojeci_moznosti_gumb_dodaj" disabled>Dodaj</button>
+                    
+                  </form>
+              </div>
+            </div>
+            <div id="div_cevlji_posebnosti" class="card mb-4" style="display: none;">
+              <div class="card-body">
+                % if slovar_oprave[(kostumska_podoba, imeoprave)][0]:
+                  <p class="mb-4"><b>Spremeni tip čevljev</b></p>
+                  <form id="form_cevlji" style="display: none;" action="{{url('spremeni_čevlje_oprave')}}" method="POST">
+                    <input type="hidden" name="kostumska_podoba" value="{{kostumska_podoba}}">
+                    <input type="hidden" name="oprava" value="{{imeoprave}}">
+                      <div class="form-group">
+                        <label for="tip_cevljev">Tip čevljev <small>(če želite izbrisati trenutni vnos čevljev, pustite polje prazno)</small></label>
+                        <select id="tip_cevljev" class="form-control form-control-sm" list="seznam_tipov_cevljev" name="cevlji">
+                        <datalist id="seznam_tipov_cevljev">
+                          <option value="{{''}}" selected></option>
+                          % for v in seznam_tipov_cevljev:
+                            <option value="{{v[0]}}">{{v[0]}}</option>
+                          % end
+                          </datalist>
+                        </select>
+                      </div>     
+                      <button type="submit" class="btn btn-secondary" id="tip_cevljev_gumb">Posodobi</button>
+                  </form>
+                  % else:
+                  <p class="mb-4"><b>Dodaj tip čevljev</b></p>
+                  <form id="form_cevlji_dodaj" style="display: none;" action="{{url('spremeni_čevlje_oprave')}}" method="POST">
+                    <input type="hidden" name="kostumska_podoba" value="{{kostumska_podoba}}">
+                    <input type="hidden" name="oprava" value="{{imeoprave}}">
+                    <div class="form-group">
+                      <label for="tip_cevljev_dodaj">Tip čevljev</label>
+                      <select id="tip_cevljev_dodaj" class="form-control form-control-sm" list="seznam_tipov_cevljev2" name="cevlji">
+                        <datalist id="seznam_tipov_cevljev2">
+                          <option value="{{''}}" selected></option>
+                          % for v in seznam_tipov_cevljev:
+                            <option value="{{v[0]}}">{{v[0]}}</option>
+                          % end
+                          </datalist>
+                        </select>
+                    </div>     
+                    <button type="submit" class="btn btn-secondary" id="tip_cevljev_dodaj_gumb" disabled>Dodaj</button>
+                </form>
+                % end
+              </div>
+            </div>
+
+            <div id="div_posebnosti" class="card mb-4" style="display: none;">
+              <div class="card-body">
+                  <p class="mb-4"><b>Dodaj posebnost</b></p>
+                  <form id="form_posebnosti" style="display: none;"  action="{{url('dodaj_posebnosti_oprave')}}" method="POST">
+                    <input type="hidden" name="kostumska_podoba" value="{{kostumska_podoba}}">
+                    <input type="hidden" name="oprava" value="{{imeoprave}}">
+                    <div class="form-group">
+                      <textarea class="form-control" id="exampleFormControlTextarea1" name="posebnost" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-secondary" id="gumb_posebnost_dodaj" disabled>Dodaj</button>
+                  </form>
+                
+              </div>
+            </div>
+
+            
+            
           </div>
+
+          
         </div>
       </div>
       % end
@@ -150,3 +510,36 @@
     </div>
   </div>
 </div>     
+
+<script>
+  $(document).ready(function() {
+      DodajanjeOpraveKostumskePodobe();
+      KlikSpremembaObrazcaZaKostumskePodobe();
+      DodajanjeObveznegaDela();
+      DodajanjeKEniIzmedMoznosti();
+      DodajanjeMoznosti();
+      DodajanjeTipaCevljev();
+      DodajanjePosebnosti();
+    });
+
+    function showConfirmation() {
+    // Display a confirmation dialog
+    if (confirm("Ali ste prepričani, da želite izbrisati to vrsto oblačil iz oprave kostumske podobe?")) {
+      // No need to do anything here, the form will be submitted
+    } else {
+      alert("Brisanje preklicano.");
+      event.preventDefault(); // Prekine standardno obnašanje obrazca
+    }
+  }
+
+  function showConfirmation2() {
+    // Display a confirmation dialog
+    if (confirm("Ali ste prepričani, da želite izbrisati posebnosti? S tem boste izgubili vse podatke o njih.")) {
+      // No need to do anything here, the form will be submitted
+    } else {
+      alert("Brisanje preklicano.");
+      event.preventDefault(); // Prekine standardno obnašanje obrazca
+    }
+  }
+  
+</script>

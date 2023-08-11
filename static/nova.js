@@ -267,6 +267,248 @@ function PrikazovanjeImenaSlike(slikaid, slikalabel){
 }
 
 
+function DodajanjeOpraveKostumskePodobe(){
+  $(document).ready(function() {    
+    function preveriVeljavnostPolj() {
+      var ime = $("#kostumska_podoba").val().trim();
+      var oprava = $("#oprava").val().trim();
+      var vsaPoljaIzpolnjena = true;
+
+      if (ime === "" || oprava === "") {
+        vsaPoljaIzpolnjena = false;
+      }
+      
+      var $gumb = $("#gumb");
+      if (vsaPoljaIzpolnjena) {
+        $gumb.attr("disabled", false);
+        $gumb.addClass("btn-primary").removeClass("btn-primary");
+      } else {
+        $gumb.attr("disabled", true);
+        $gumb.addClass("btn-secondary").removeClass("btn-primary");
+
+      }
+    }
+
+    // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna
+    $("#kostumska_podoba, #oprava").on("input change", function () {
+      preveriVeljavnostPolj();
+    });
+
+    // Ob oddaji obrazca preveri, če so vsa polja izpolnjena
+    $("#obrazec_oprava_kostumske_podobe").on("submit", function (event) {
+      preveriVeljavnostPolj();
+      if (!$("#gumb").prop("disabled")) {
+        return true;
+      } else {
+        event.preventDefault();
+        alert("Prosim izpolnite vsa polja.");
+      }
+    });
+    
+
+  });
+}
+
+function DodajanjeObveznegaDela(){
+  $(document).ready(function() {    
+    function preveriVeljavnostPolj() {
+      var ime = $("#form_dodaj_obvezni_del_ime_kosa").val().trim();
+      var oprava = $("#form_dodaj_obvezni_del_pokrajina").val().trim();
+      var vsaPoljaIzpolnjena = true;
+
+      if (ime === "" || oprava === "") {
+        vsaPoljaIzpolnjena = false;
+      }
+      
+      var $gumb = $("#form_dodaj_obvezni_del_gumb_dodaj");
+      if (vsaPoljaIzpolnjena) {
+        $gumb.attr("disabled", false);
+        $gumb.addClass("btn-primary").removeClass("btn-primary");
+      } else {
+        $gumb.attr("disabled", true);
+        $gumb.addClass("btn-secondary").removeClass("btn-primary");
+
+      }
+    }
+
+    // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna
+    $("#form_dodaj_obvezni_del_ime_kosa, #form_dodaj_obvezni_del_pokrajina").on("input change", function () {
+      preveriVeljavnostPolj();
+    });
+
+    // Ob oddaji obrazca preveri, če so vsa polja izpolnjena
+    $("#form_dodaj_obvezni_del").on("submit", function (event) {
+      preveriVeljavnostPolj();
+      if (!$("#form_dodaj_obvezni_del_gumb_dodaj").prop("disabled")) {
+        return true;
+      } else {
+        event.preventDefault();
+        alert("Prosim izpolnite vsa polja.");
+      }
+    });
+    
+
+  });
+}
+
+function DodajanjeMoznosti(){
+  $(document).ready(function() {    
+    function preveriVeljavnostPolj() {
+      var ime = $("#form_dodaj_ime_kosa_moznost").val().trim();
+      var oprava = $("#form_dodaj_pokrajina_moznost").val().trim();
+      var vsaPoljaIzpolnjena = true;
+
+      if (ime === "" || oprava === "") {
+        vsaPoljaIzpolnjena = false;
+      }
+      
+      var $gumb = $("#gumb_dodaj_del_moznost");
+      if (vsaPoljaIzpolnjena) {
+        $gumb.attr("disabled", false);
+        $gumb.addClass("btn-primary").removeClass("btn-primary");
+      } else {
+        $gumb.attr("disabled", true);
+        $gumb.addClass("btn-secondary").removeClass("btn-primary");
+
+      }
+    }
+
+    // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna
+    $("#form_dodaj_ime_kosa_moznost, #form_dodaj_pokrajina_moznost").on("input change", function () {
+      preveriVeljavnostPolj();
+    });
+
+    // Ob oddaji obrazca preveri, če so vsa polja izpolnjena
+    $("#form_dodaj_del_moznost").on("submit", function (event) {
+      preveriVeljavnostPolj();
+      if (!$("#gumb_dodaj_del_moznost").prop("disabled")) {
+        return true;
+      } else {
+        event.preventDefault();
+        alert("Prosim izpolnite vsa polja.");
+      }
+    });
+    
+
+  });
+}
+
+
+function DodajanjeKEniIzmedMoznosti(){
+  $(document).ready(function() {    
+    function preveriVeljavnostPolj() {
+      var ime = $("#form_dodaj_k_obstojeci_moznosti_ime_kosa").val().trim();
+      var oprava = $("#form_dodaj_k_obstojeci_moznosti_pokrajina").val().trim();
+      var vsaPoljaIzpolnjena = true;
+
+      if (ime === "" || oprava === "") {
+        vsaPoljaIzpolnjena = false;
+      }
+      
+      var $gumb = $("#form_dodaj_k_obstojeci_moznosti_gumb_dodaj");
+      if (vsaPoljaIzpolnjena) {
+        $gumb.attr("disabled", false);
+        $gumb.addClass("btn-primary").removeClass("btn-primary");
+      } else {
+        $gumb.attr("disabled", true);
+        $gumb.addClass("btn-secondary").removeClass("btn-primary");
+
+      }
+    }
+
+    // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna
+    $("#form_dodaj_k_obstojeci_moznosti_ime_kosa, #form_dodaj_k_obstojeci_moznosti_pokrajina").on("input change", function () {
+      preveriVeljavnostPolj();
+    });
+
+    // Ob oddaji obrazca preveri, če so vsa polja izpolnjena
+    $("#form_dodaj_k_obstojeci_moznosti").on("submit", function (event) {
+      preveriVeljavnostPolj();
+      if (!$("#form_dodaj_k_obstojeci_moznosti_gumb_dodaj").prop("disabled")) {
+        return true;
+      } else {
+        event.preventDefault();
+        alert("Prosim izpolnite vsa polja.");
+      }
+    });
+    
+
+  });
+}
+
+
+function DodajanjeTipaCevljev(){
+  $(document).ready(function() {    
+    function preveriVeljavnostPolj() {
+      var ime = $("#tip_cevljev_dodaj").val().trim();
+      var vsaPoljaIzpolnjena = true;
+
+      if (ime === "") {
+        vsaPoljaIzpolnjena = false;
+      }
+      
+      var $gumb = $("#tip_cevljev_dodaj_gumb");
+      if (vsaPoljaIzpolnjena) {
+        $gumb.attr("disabled", false);
+        $gumb.addClass("btn-primary").removeClass("btn-primary");
+      } else {
+        $gumb.attr("disabled", true);
+        $gumb.addClass("btn-secondary").removeClass("btn-primary");
+
+      }
+    }
+
+    // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna
+    $("#tip_cevljev_dodaj").on("input change", function () {
+      preveriVeljavnostPolj();
+    });
+
+    // Ob oddaji obrazca preveri, če so vsa polja izpolnjena
+    $("#form_cevlji_dodaj").on("submit", function (event) {
+      preveriVeljavnostPolj();
+      if (!$("#tip_cevljev_dodaj_gumb").prop("disabled")) {
+        return true;
+      } else {
+        event.preventDefault();
+        alert("Prosim izpolnite vsa polja.");
+      }
+    });
+    
+
+  });
+}
+
+function DodajanjePosebnosti(){
+  $(document).ready(function() {    
+    function preveriVeljavnostPolj() {
+      var ime = $("#exampleFormControlTextarea1").val().trim();
+      var vsaPoljaIzpolnjena = true;
+
+      if (ime === "") {
+        vsaPoljaIzpolnjena = false;
+      }
+      
+      var $gumb = $("#gumb_posebnost_dodaj");
+      if (vsaPoljaIzpolnjena) {
+        $gumb.attr("disabled", false);
+        $gumb.addClass("btn-primary").removeClass("btn-primary");
+      } else {
+        $gumb.attr("disabled", true);
+        $gumb.addClass("btn-secondary").removeClass("btn-primary");
+
+      }
+    }
+
+    // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna
+    $("#exampleFormControlTextarea1").on("input change", function () {
+      preveriVeljavnostPolj();
+    });
+    
+
+  });
+}
+
+
 
 
 

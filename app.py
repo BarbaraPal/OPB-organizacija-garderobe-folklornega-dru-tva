@@ -109,7 +109,6 @@ def prijava():
     """
     username = request.forms.getunicode('uporabniskoime')
     password = request.forms.getunicode('geslo')
-
     if not auth.obstaja_uporabnik(username):
         return template("prijava.html", napaka="Uporabnik s tem imenom ne obstaja.")
 
@@ -308,6 +307,14 @@ def dodaj_delo():
 def kostumske_podobe(kostumska_podoba, imeoprave):
     uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
     rola = bottle.request.get_cookie("rola")
+    odziv = request.query.getunicode('odziv')
+    napaka_get = request.query.getunicode('napaka')
+    napaka = napaka_get if napaka_get != "None" else None
+    vrste_oblacil = repo.vrste_oblacil()
+    seznam_pokrajin = list(set([vrsta.pokrajina for vrsta in vrste_oblacil]))
+    seznam_imen = list(set([vrsta.ime for vrsta in vrste_oblacil]))
+    tipi_cevljev = repo.tipi_cevljev()
+    seznam_tipov_cevljev = [tip.vrsta for tip in tipi_cevljev]
     uporabnik = repo.profil(uporabnisko_ime)
     podatek = repo.kostumske_podobe(uporabnik)
     slovar_oprave = {}
@@ -322,7 +329,90 @@ def kostumske_podobe(kostumska_podoba, imeoprave):
             slovar_kostumskih_podob[oprava.imekostumskepodobe] = [oprava.imeoprave]
         else:
             slovar_kostumskih_podob[oprava.imekostumskepodobe].append(oprava.imeoprave)
-    return template('kostumske_podobe.html', uporabnisko_ime = uporabnisko_ime, rola = rola, podatek = podatek, seznam = slovar, slovar_kostumskih_podob = slovar_kostumskih_podob, kostumska_podoba = kostumska_podoba, imeoprave = imeoprave, slovar_oprave = slovar_oprave)
+    return template('kostumske_podobe.html', uporabnisko_ime = uporabnisko_ime, 
+                    rola = rola, odziv = odziv, napaka = napaka, podatek = podatek, 
+                    seznam = slovar, slovar_kostumskih_podob = slovar_kostumskih_podob, 
+                    kostumska_podoba = kostumska_podoba, imeoprave = imeoprave, slovar_oprave = slovar_oprave, 
+                    seznam_imen = seznam_imen, seznam_pokrajin = seznam_pokrajin, seznam_tipov_cevljev = seznam_tipov_cevljev)
+
+@post('/dodaj_kostumsko_podobo/')
+@rola_required
+def dodaj_kostumsko_podobo():
+    kostumska_podoba = request.forms.getunicode('kostumska_podoba')
+    ime_oprave = request.forms.getunicode('oprava')
+    spol_oprave = request.forms.getunicode('spol_oprave')
+    oprava = OpravaKostumskePodobe(kostumska_podoba, ime_oprave, spol_oprave)
+    try:
+        repo.dodaj_gen(oprava, serial_col=None)
+    except:
+        redirect(url('kostumske_podobe', kostumska_podoba = 'osnovna', imeoprave = 'stran', odziv = 'Ta oprava kostumske podobe že obstaja.'))
+    redirect(url('kostumske_podobe', kostumska_podoba = kostumska_podoba, imeoprave = ime_oprave))
+
+@post('/dodaj_oblacila_k_kostumski_podobi/')
+@rola_required
+def dodaj_oblacila_k_kostumski_podobi():
+    kostumska_podoba = request.forms.getunicode('kostumska_podoba')
+    ime_oprave = request.forms.getunicode('oprava')
+    moznost = int(request.forms.getunicode('moznost'))
+    ime = request.forms.getunicode('ime_vrste')
+    pokrajina = request.forms.getunicode('pokrajina_vrste')
+    spol = request.forms.getunicode('spol_vrste')
+    povezava = ROpravaVrsta(pokrajina, spol, ime, ime_oprave, kostumska_podoba, moznost)
+    try:
+        napaka = None
+        repo.dodaj_gen(povezava, serial_col=None)
+    except:
+        napaka = 'Napaka! Dodali ste vrsto oblačila, ki ne obstaja ali je že v tej opravi.'
+    
+    redirect(url('kostumske_podobe', kostumska_podoba = kostumska_podoba, imeoprave = ime_oprave, napaka = napaka))
+
+@post('/odstrani_povezavo_oblacilo_KP/')
+@rola_required
+def odstrani_povezavo_oblacilo_KP():
+    kostumska_podoba = request.forms.getunicode('kostumska_podoba')
+    ime_oprave = request.forms.getunicode('oprava')
+    ime = request.forms.getunicode('ime_vrste')
+    pokrajina = request.forms.getunicode('pokrajina_vrste')
+    spol = request.forms.getunicode('spol_vrste')
+    repo.izbrisi_gen(ROpravaVrsta, (kostumska_podoba, ime_oprave, ime, pokrajina, spol), ('imekostumskepodobe', 'imeoprave', 'imevrste', 'pokrajinavrste', 'spolvrste'))
+    redirect(url('kostumske_podobe', kostumska_podoba = kostumska_podoba, imeoprave = ime_oprave))
+
+@post('/spremeni_cevlje_oprave/')
+@rola_required
+def spremeni_čevlje_oprave():
+    kostumska_podoba = request.forms.getunicode('kostumska_podoba')
+    ime_oprave = request.forms.getunicode('oprava')
+    tip_cevljev_get = request.forms.getunicode('cevlji')
+    tip_cevljev = tip_cevljev_get if tip_cevljev_get != '' else None
+    oprava = repo.dobi_gen_id(OpravaKostumskePodobe, (kostumska_podoba, ime_oprave), ('imekostumskepodobe', 'imeoprave'))
+    oprava.vrstacevljev = tip_cevljev
+    repo.posodobi_gen(oprava, id_cols=('imekostumskepodobe', 'imeoprave'))
+    redirect(url('kostumske_podobe', kostumska_podoba = kostumska_podoba, imeoprave = ime_oprave))
+
+@post('/dodaj_posebnosti_oprave/')
+@rola_required
+def dodaj_posebnosti_oprave():
+    kostumska_podoba = request.forms.getunicode('kostumska_podoba')
+    ime_oprave = request.forms.getunicode('oprava')
+    posebnost = request.forms.getunicode('posebnost')
+    oprava = repo.dobi_gen_id(OpravaKostumskePodobe, (kostumska_podoba, ime_oprave), ('imekostumskepodobe', 'imeoprave'))
+    if oprava.posebnosti == None or oprava.posebnosti == '':
+        oprava.posebnosti = f'{posebnost}'
+    else:
+        oprava.posebnosti = f'{oprava.posebnosti}; {posebnost}'
+    repo.posodobi_gen(oprava, id_cols=('imekostumskepodobe', 'imeoprave'))
+    redirect(url('kostumske_podobe', kostumska_podoba = kostumska_podoba, imeoprave = ime_oprave))
+
+@post('/odstrani_posebnosti_oprave/')
+@rola_required
+def odstrani_posebnosti_oprave():
+    kostumska_podoba = request.forms.getunicode('kostumska_podoba')
+    ime_oprave = request.forms.getunicode('oprava')
+    oprava = repo.dobi_gen_id(OpravaKostumskePodobe, (kostumska_podoba, ime_oprave), ('imekostumskepodobe', 'imeoprave'))
+    oprava.posebnosti = None
+    repo.posodobi_gen(oprava, id_cols=('imekostumskepodobe', 'imeoprave'))
+    redirect(url('kostumske_podobe', kostumska_podoba = kostumska_podoba, imeoprave = ime_oprave))
+
 
 @get('/oblacila/<stran>/')
 @cookie_required
@@ -670,6 +760,7 @@ def urejanje_lastnika_cevljev():
     cevelj = Cevlji(vrsta, zapst, velikost, emso_lastnika)
     repo. posodobi_gen(cevelj, id_cols=('vrsta', 'velikost', 'zapst'))
     redirect(url('vsi_cevlji'))
+    
 
 @error(404)
 def error_404(error):
