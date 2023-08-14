@@ -16,6 +16,8 @@ import os
 import json
 import io
 import base64
+from itertools import permutations
+
 #import tracemalloc
 #tracemalloc.start()
 
@@ -72,6 +74,44 @@ def pretvori_v_bytes(slika):
         return bytes(slika)
     except:
         return None
+
+def find_all_combinations(plesalci, oblacila):
+    all_combinations = list(permutations(oblacila, len(plesalci)))
+    return all_combinations
+
+def najdi_optimum(slovar_plesalcev, slovar_oblacil, tip_oblacil):
+    oblacila = [primary for primary in slovar_oblacil.keys()]
+    plesalci = [emso for emso in slovar_plesalcev.keys()]
+    combinations = find_all_combinations(plesalci, oblacila)
+    minimum = 1000000
+    kombinacija = False
+
+    for i in combinations:
+        minimum_primer = 0
+        for j in plesalci:
+            index = plesalci.index(j)
+            oblacilo = i[index]
+            if tip_oblacil == 'ZgornjiDel':
+                mere_za_plesalca = [slovar_plesalcev[j].sirinaramen, slovar_plesalcev[j].obsegprsi, slovar_plesalcev[j].dolzinarokava]
+                mere_oblacila = [slovar_oblacil[oblacilo].sirinaramen, slovar_oblacil[oblacilo].obsegprsi, slovar_oblacil[oblacilo].dolzinarokava]
+            elif tip_oblacil == 'SpodnjiDel':
+                mere_za_plesalca = [slovar_plesalcev[j].dolzinaodpasunavzdol]
+                mere_oblacila = [slovar_oblacil[oblacilo].dolzinaodpasunavzdol]
+            else:
+                mere_za_plesalca = [slovar_plesalcev[j].dolzinatelesa]
+                mere_oblacila = [slovar_oblacil[oblacilo].dolzinatelesa]
+
+            if all(mera_za_plesalca <= mera_oblacila for mera_za_plesalca, mera_oblacila in zip(mere_za_plesalca, mere_oblacila)):
+                minimum_primer += sum((mera_za_plesalca - mera_oblacila) ** 2 for mera_za_plesalca, mera_oblacila in zip(mere_za_plesalca, mere_oblacila))
+            else:
+                minimum_primer = 100000000
+                break
+
+        if minimum_primer < minimum:
+            minimum = minimum_primer
+            kombinacija = i
+    
+    return (kombinacija, plesalci)
 
 
 @get('/static/<filename:path>')
@@ -185,6 +225,14 @@ def plesalci(id):
         cevlji = repo.cevlji_posameznika(plesalec.emso)
         delo = repo.delo_posameznika(plesalec.emso)
         return template('podatki_plesalca.html', uporabnisko_ime = uporabnisko_ime, rola = rola, plesalecdto = plesalec, seznam_imen = seznam_imen, napaka = napaka, potrdilo = potrdilo, cevljidto = cevlji, delodto = delo, potrdilo_mere = potrdilo_mere)
+
+@get('/dodajanje_plesalcev/')
+@rola_required
+def dodaj_plesalca():
+    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
+    rola = bottle.request.get_cookie("rola")
+    return template('dodajanje_plesalcev.html', uporabnisko_ime = uporabnisko_ime, rola = rola)
+
 
 @post('/dodaj_plesalca/')
 @rola_required
@@ -761,6 +809,97 @@ def urejanje_lastnika_cevljev():
     repo. posodobi_gen(cevelj, id_cols=('vrsta', 'velikost', 'zapst'))
     redirect(url('vsi_cevlji'))
     
+@get('/ujemanje_plesalec_oblacilo/')
+@rola_required
+def ujemanje_plesalec_oblacilo():
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
+    napaka = request.query.getunicode('napaka')
+    plesalci = repo.plesalci()
+    return template('ujemanje_plesalec_oblacilo.html', uporabnisko_ime = uporabnisko_ime, rola= rola, plesalci = plesalci, napaka = napaka)
+
+@post('/ujemanje_plesalec_oblacilo_1/')
+@rola_required
+def ujemanje_plesalec_oblacilo_1():
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
+    spol = request.forms.getunicode('spol')
+    tip = request.forms.getunicode('tip')
+    plesalci = repo.plesalci()
+    izbrani_plesalci = {}
+    for plesalec in plesalci:
+        emso = request.forms.getunicode(plesalec)
+        if emso is not None:
+            podatki = plesalci[emso]
+            izbrani_plesalci[emso] = podatki
+    plesalci_json = json.dumps(list(izbrani_plesalci.keys()))
+    vrste_oblacil = repo.vrste_oblacil()
+    seznam_vrst_oblacil = []
+    for vrsta in vrste_oblacil:
+        if vrsta.tip == tip and vrsta.spol == spol:
+            seznam_vrst_oblacil.append(vrsta)
+    return template('ujemanje_plesalec_oblacilo1.html', spol = spol, tip = tip, plesalci = izbrani_plesalci, 
+                    seznam = seznam_vrst_oblacil, uporabnisko_ime = uporabnisko_ime, rola= rola,
+                    plesalci_json = plesalci_json)
+
+@post('/ujemanje_plesalec_oblacilo_2/')
+@rola_required
+def ujemanje_plesalec_oblacilo_2():
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
+    spol = request.forms.getunicode('spol')
+    tip = request.forms.getunicode('tip')
+    plesalci_json = request.forms.getunicode('plesalci')
+    plesalci_emso = json.loads(plesalci_json)
+    plesalci = repo.plesalci()
+    izbrani_plesalci = {emso: plesalci[emso] for emso in plesalci_emso}
+    vrste = request.forms.getall("vrsta")
+    vrste_json = [v.encode('iso-8859-1').decode('utf-8') for v in vrste]
+
+    seznam_oblacil = []
+    for v in vrste_json:
+        ime, pokrajina, spol = v.strip('()').split(', ')
+        vrsta_tuple = (ime, pokrajina, spol)
+        oblacila = repo.izberi_oblacila(vrsta_tuple)
+        seznam_oblacil += oblacila
+    return template('ujemanje_plesalec_oblacilo2.html', spol = spol, tip = tip, plesalci = izbrani_plesalci, 
+                    uporabnisko_ime = uporabnisko_ime, rola= rola,
+                    plesalci_json = plesalci_json, seznam_oblacil = seznam_oblacil)
+
+@post('/ujemanje_plesalec_oblacilo_3/')
+@rola_required
+def ujemanje_plesalec_oblacilo_3():
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
+    tip = request.forms.getunicode('tip')
+    plesalci_json = request.forms.getunicode('plesalci')
+    plesalci_emso = json.loads(plesalci_json)
+
+    oblacila = request.forms.getall("oblacilo")
+    oblacila_json = [o.encode('iso-8859-1').decode('utf-8') for o in oblacila]
+    if len(plesalci_emso) > len(oblacila_json):
+        napaka = 'Izbranih plesalcev je več kot izbranih oblačil.'
+        redirect(url('ujemanje_plesalec_oblacilo', napaka = napaka))
+    
+    seznam_oblacil = []
+    for o in oblacila_json:
+        ime, pokrajina, spol, zaporednast = o.strip('()').split(', ')
+        oblacilo_tuple = (ime, pokrajina, spol, zaporednast)
+        seznam_oblacil.append(oblacilo_tuple)
+    
+    slovar_plesalcev = repo.mere_plesalci(tip, plesalci_emso)
+    plesalci = repo.plesalci()
+    if tip == 'ZgornjiDel':
+        slovar_oblacil = repo.mere_zgornji_del(tip, seznam_naborov=seznam_oblacil)
+    elif tip == 'SpodnjiDel':
+        slovar_oblacil = repo.mere_spodnji_del(tip, seznam_naborov=seznam_oblacil)
+    else:
+        slovar_oblacil = repo.mere_enodelni_kos(tip, seznam_naborov=seznam_oblacil)
+
+    ujemanja, pripadajoci_plesalci = najdi_optimum(slovar_plesalcev, slovar_oblacil, tip)
+    return template('izpis_ujemanj.html', uporabnisko_ime = uporabnisko_ime, rola= rola, 
+                    slovar_oblacil = slovar_oblacil, slovar_plesalcev = slovar_plesalcev,
+                    ujemanja = ujemanja, pripadajoci_plesalci = pripadajoci_plesalci, plesalci = plesalci, tip = tip)
 
 @error(404)
 def error_404(error):

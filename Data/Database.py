@@ -268,6 +268,45 @@ class Repo:
         podatki_o_delu_uporabnika = self.cur.fetchall()
         return [DeloDto(emso, vrstadela, skupno_trajanje) for (vrstadela, skupno_trajanje, emso ) in podatki_o_delu_uporabnika]
 
+    def delo_posameznika_mesec(self, emso, mesec) -> List[DeloDto]:
+        self.cur.execute(
+            """
+            SELECT SUM(trajanje) AS skupno_trajanje
+            FROM Delo
+            WHERE EXTRACT('month' FROM datumizvajanja) = %s
+            AND emso = %s
+            """, (mesec, emso,))
+        
+        podatki_o_delu_uporabnika = self.cur.fetchall()
+        return podatki_o_delu_uporabnika
+    
+    def delo_posameznika_leto(self, emso, leto) -> List[DeloDto]:
+        self.cur.execute(
+            """
+            SELECT SUM(trajanje) AS skupno_trajanje, EXTRACT('month' FROM datumizvajanja) AS mesec
+            FROM Delo 
+            WHERE EXTRACT('year' FROM datumizvajanja) = %s
+            AND emso = %s
+            GROUP BY EXTRACT('month' FROM datumizvajanja);
+            """, (leto, emso,))
+        
+        podatki_o_delu_uporabnika = self.cur.fetchall()
+        return {mesec: skupno_trajanje for (skupno_trajanje, mesec) in podatki_o_delu_uporabnika}
+    
+    def delo_posameznika_leto_skupaj(self, emso, leto) -> List[DeloDto]:
+        self.cur.execute(
+            """
+            SELECT SUM(trajanje) AS skupno_trajanje
+            FROM Delo 
+            WHERE EXTRACT('year' FROM datumizvajanja) = %s
+            AND emso = %s;
+            """, (leto, emso,))
+        
+        podatki_o_delu_uporabnika = self.cur.fetchall()
+        return (emso, podatki_o_delu_uporabnika)
+
+
+
     def kostumske_podobe(self, uporabnik):
         if uporabnik.rola == True:
             self.cur.execute(
@@ -423,3 +462,49 @@ class Repo:
         slike = self.cur.fetchall()
         return [SlikeCevljevDto(vrsta, slika if slika is None else base64.b64encode(slika).decode('utf-8')) for (vrsta, slika) in slike]    
     
+    def mere_zgornji_del(self, tip: str , seznam_naborov):          
+        id_conditions = " OR ".join([f"(ime = '{ime}' AND pokrajina = '{pokrajina}' AND spol = '{spol}' AND zaporednast = '{zaporednast}' AND sirinaramen IS NOT NULL AND obsegprsi IS NOT NULL AND dolzinarokava IS NOT NULL)" for (ime, pokrajina, spol, zaporednast) in seznam_naborov])
+        sql_cmd = f"SELECT * FROM {tip} WHERE {id_conditions};"
+
+        self.cur.execute(sql_cmd)
+        oblacila = self.cur.fetchall()
+        return {(ime, pokrajina, spol, zaporednast): MereZgornjiDelDto(sirinaramen, obsegprsi, dolzinarokava) for (ime, pokrajina, spol, zaporednast, sirinaramen, obsegprsi, dolzinarokava) in oblacila}
+
+    def mere_spodnji_del(self, tip: str, seznam_naborov):          
+        id_conditions = " OR ".join([f"(ime = '{ime}' AND pokrajina = '{pokrajina}' AND spol = '{spol}' AND zaporednast = '{zaporednast}' AND dolzinaodpasunavzdol IS NOT NULL)" for (ime, pokrajina, spol, zaporednast) in seznam_naborov])
+        sql_cmd = f"SELECT * FROM {tip} WHERE {id_conditions};"
+
+        self.cur.execute(sql_cmd)
+        oblacila = self.cur.fetchall()
+        return {(ime, pokrajina, spol, zaporednast): MereSpodnjiDelDto(dolzinaodpasunavzdol) for (ime, pokrajina, spol, zaporednast, dolzinaodpasunavzdol) in oblacila}
+
+    def mere_enodelni_kos(self, tip: str, seznam_naborov):  
+        id_conditions = " OR ".join([f"(ime = '{ime}' AND pokrajina = '{pokrajina}' AND spol = '{spol}' AND zaporednast = '{zaporednast}' AND dolzinatelesa IS NOT NULL)" for (ime, pokrajina, spol, zaporednast) in seznam_naborov])
+        sql_cmd = f"SELECT * FROM {tip} WHERE {id_conditions};"
+
+        self.cur.execute(sql_cmd)
+        oblacila = self.cur.fetchall()
+        return {(ime, pokrajina, spol, zaporednast): MereEnodelniKosDto(dolzinatelesa) for (ime, pokrajina, spol, zaporednast, dolzinatelesa) in oblacila}
+
+    def mere_plesalci(self, tip: str, seznam_plesalcev): 
+        if tip == 'ZgornjiDel':
+            pogoji_tabele = "sirinaramen IS NOT NULL AND obsegprsi IS NOT NULL AND dolzinarokava IS NOT NULL"
+        elif tip == 'SpodnjiDel':
+            pogoji_tabele = "dolzinaodpasunavzdol IS NOT NULL"
+        else:
+            pogoji_tabele = "dolzinatelesa IS NOT NULL"
+
+        id_conditions = " OR ".join([f"(emso = '{emso}' AND {pogoji_tabele})" for emso in seznam_plesalcev])
+        sql_cmd = f"SELECT emso, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa FROM Plesalec WHERE {id_conditions};"
+
+        self.cur.execute(sql_cmd)
+        plesalec = self.cur.fetchall()
+        return {emso: MerePlesalcaDto(sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa) for (emso, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa) in plesalec}
+    
+    def izberi_oblacila(self, vrsta: Tuple[str]) -> List[GlavnaOblacilaDto]:
+        ime_vrste, pokrajina_vrste, spol_vrste = vrsta 
+        sql_cmd = f"SELECT ime, pokrajina, spol, zaporednast, stanje FROM GlavnaOblacila WHERE ime = '{ime_vrste}' AND pokrajina = '{pokrajina_vrste}' AND spol = '{spol_vrste}';"
+
+        self.cur.execute(sql_cmd)
+        oblacila = self.cur.fetchall()
+        return [GlavnaOblacilaDto(pokrajina, spol, ime, zaporednast, stanje) for (ime, pokrajina, spol, zaporednast, stanje) in oblacila]

@@ -65,16 +65,14 @@ class GlavnaOblacila:
     stanje: bool = field(default=True) # False = neuporabno, True = uporabno
     opombe: str = field(default="")
 
-#@dataclass
-#class GlavnaOblacilaDto:
-#    idvrste: int
-#    ime: str
-#    pokrajina: str
-#    spol: str
-#    zaporednast: int
-#    barva: str = field(default="")
-#    stanje: bool = field(default=True) # False = neuporabno, True = uporabno
-  
+@dataclass
+class GlavnaOblacilaDto:
+    pokrajina: str
+    spol: str
+    ime: str
+    zaporednast: int
+    stanje: bool
+
 @dataclass_json
 @dataclass
 class ZgornjiDel:
@@ -97,6 +95,12 @@ class ZgornjiDelDto:
     obsegprsi: Decimal
     dolzinarokava: Decimal
 
+@dataclass
+class MereZgornjiDelDto:
+    sirinaramen: Decimal
+    obsegprsi: Decimal
+    dolzinarokava: Decimal
+
 @dataclass_json
 @dataclass
 class SpodnjiDel:
@@ -113,6 +117,10 @@ class SpodnjiDelDto:
     stanje: bool
     opombe: str
     slika: bytes
+    dolzinaodpasunavzdol: Decimal
+
+@dataclass
+class MereSpodnjiDelDto:
     dolzinaodpasunavzdol: Decimal
 
 @dataclass_json
@@ -133,7 +141,9 @@ class EnodelniKosDto:
     slika: bytes
     dolzinatelesa: Decimal
 
-
+@dataclass
+class MereEnodelniKosDto:
+    dolzinatelesa: Decimal
 
 @dataclass_json
 @dataclass
@@ -231,6 +241,14 @@ class PlesalecDto:
     dolzinatelesa: Decimal = field(default=None)
     stevilkanoge: Decimal = field(default=None)
     rola: bool = field(default=False)
+
+@dataclass
+class MerePlesalcaDto:
+    sirinaramen: Decimal
+    obsegprsi: Decimal
+    dolzinarokava: Decimal
+    dolzinaodpasunavzdol: Decimal
+    dolzinatelesa: Decimal
 
 @dataclass
 class CevljiDto:

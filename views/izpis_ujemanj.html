@@ -1,0 +1,76 @@
+%rebase('osnova.html', naslov='Dodeljevanje oblačil za nastop', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4"><b>Izpis ujemanj</b></p>                 
+                  <div class="table-container">
+                    <table class="table borderless" data-toggle="table" data-sticky-header="true">
+                        <thead class="table-light">
+                          <tr >
+                            <th scope="col">Vrsta oblačila</th>
+                            <th scope="col">Pokrajina</th>
+                            <th scope="col">Zaporedna številka</th>
+                            <th scope="col">Plesalec</th>
+                            % if tip == 'ZgornjiDel':
+                              <th scope="col">Širina ramen (cm)</th>
+                              <th scope="col">Obseg prsi (cm)</th>
+                              <th scope="col">Dolžina rokava (cm)</th>
+                            % elif tip == 'SpodnjiDel':
+                              <th scope="col">Dolžina od pasu navzdol (cm)</th>
+                            % else:
+                              <th scope="col">Dolžina telesa (cm)</th>
+                            % end
+                          </tr>
+                        </thead>
+                        <tbody>
+                         % for i in range(len(ujemanja)):
+                          % p = pripadajoci_plesalci[i]
+                        
+                            <tr>
+                            
+                              <td>{{ujemanja[i][0]}}</td>
+                              <td>{{ujemanja[i][1]}}</td>
+                              <td>{{ujemanja[i][3]}}</td>
+                              <td>{{plesalci[p].ime}} {{plesalci[p].priimek}}</td>
+                              % if tip == 'ZgornjiDel':
+                                <td scope="col">{{slovar_oblacil[ujemanja[i]].sirinaramen}} (oblačilo) : {{slovar_plesalcev[p].sirinaramen}} (plesalec)</td>
+                                <td scope="col">{{slovar_oblacil[ujemanja[i]].obsegprsi}} (oblačilo) : {{slovar_plesalcev[p].obsegprsi}} (plesalec)</td>
+                                <td scope="col">{{slovar_oblacil[ujemanja[i]].dolzinarokava}} (oblačilo) : {{slovar_plesalcev[p].dolzinarokava}} (plesalec)</td>
+                              % elif tip == 'SpodnjiDel':
+                                <td scope="col">{{slovar_oblacil[ujemanja[i]].dolzinaodpasunavzdol}} (oblačilo) : {{slovar_plesalcev[p].dolzinaodpasunavzdol}} (plesalec)</td>
+                              % else:
+                                <td scope="col">{{slovar_oblacil[ujemanja[i]].dolzinatelesa}} (oblačilo) : {{slovar_plesalcev[p].dolzinatelesa}} (plesalec)</td>
+                              % end
+                            </tr>
+                          
+                           % end 
+                        </tbody>
+                      </table>
+                    </div>
+
+
+
+
+
+
+
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+

@@ -1,0 +1,116 @@
+%rebase('osnova.html', naslov='Dodeljevanje oblačil za nastop', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4"><b>Iskanje oblačil - 3.stopnja</b></p>
+                   
+                  <div class="form-group">  
+                    <p><b>Spol:</b> {{spol}}</p>
+                  
+                  </div>
+                  <div class="form-group">  
+                    <p><b>Tip:</b>
+                    
+                      % if tip == 'ZgornjiDel':
+                        zgornji del
+                      % elif tip == 'SpodnjiDel':
+                       spodnji del
+                      % elif tip == 'EnodelniKos':
+                       enodelni kos
+                      % else:
+                       {{tip}}
+                      % end
+                    </p>
+                  </div>  
+                  <div class="form-group">  
+                  <label for="izbraniplesalci"><b>Plesalci:</b></label>
+                  <ul class="list-group" id="izbraniplesalci">
+                    % for i in plesalci:
+                    <li class="list-group-item"> {{plesalci[i].ime}} {{plesalci[i].priimek}} ({{plesalci[i].emso}}) </li>
+                    % end
+                  </ul>
+                  </div> 
+                  <div class="form-group">  
+                    <label for="izbranevrste"><b>Vrste oblačil:</b></label>
+                    <ul class="list-group" id="izbranevrste">
+                      % mn = set()
+                      % for i in seznam_oblacil:
+                        % mn.add((i.ime, i.pokrajina))
+                      % end
+                      % for j in mn:
+                      <li class="list-group-item"> {{j[0]}}, {{j[1]}}</li>
+                      % end
+                    </ul>
+                    </div> 
+                    <label for="izberikose"><b>Izberite kose oblačil</b> (POZOR: Izbrati morate VSAJ toliko kosov oblačil kot je izbranih plesalcev. V tem primeru {{len(plesalci)}}.)</label>                          
+                    <form id="izberikose" action="{{url('ujemanje_plesalec_oblacilo_3')}}" method="POST">
+                        <input type="hidden" name="tip" value="{{tip}}">
+                        <input type="hidden" name="plesalci" value="{{plesalci_json}}">   
+                    <div class="form-group d-flex justify-content-between">
+                        <div class="row">
+                          <div class="col-12">
+                            <table class="table table-bordered">
+                              <thead>
+                                <tr>
+                                  <th scope="col">IZBERI</th>
+                                  <th scope="col">Ime</th>
+                                  <th scope="col">Pokrajina</th>
+                                  <th scope="col">Spol</th>
+                                  <th scope="col">Zaporedena številka</th>
+                                  <th scope="col">Stanje</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                              % for i in seznam_oblacil:
+                                <tr>
+                                  <td>
+                                    <div class="custom-control custom-checkbox " style="text-align: center;">
+                                        <input type="checkbox" class="custom-control-input" id="{{i}}" name="oblacilo" value="({{i.ime}}, {{i.pokrajina}}, {{i.spol}}, {{i.zaporednast}})">
+                                        <label class="custom-control-label" for="{{i}}"></label>
+                                    </div>
+                                  </td>
+                                  <td>{{i.ime}}</td>
+                                  <td>{{i.pokrajina}}</td>
+                                  <td>{{i.spol}}</td>
+                                  <td>{{i.zaporednast}}</td>
+                                  % if i.stanje == True:
+                                    <td>uporabno</td>
+                                  % else:
+                                    <td style="color: red;">neuporabno</td>
+                                  % end
+                                </tr>
+                              % end
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="form-group d-flex justify-content-between">
+                      <form>
+                        <button type="submit" class="btn btn-secondary" id="gumb" >POTRDI</button>
+                      </form>
+                      <form action="{{url('dodaj_oblacilo')}}" method="GET">
+                        <label for="gumb2">Tukaj lahko vnesete več kosov:</label>
+                        <button type="submit" class="btn btn-secondary btn-sm" id="gumb2" ><i class="bi bi-clipboard2-plus"></i></button>
+                      </form>
+                    </div>
+                    
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+</section>
+
+
+
+
+

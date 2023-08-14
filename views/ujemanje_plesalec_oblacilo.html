@@ -1,0 +1,76 @@
+%rebase('osnova.html', naslov='Dodeljevanje oblačil za nastop', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4"><b>Iskanje oblačil - 1.stopnja</b></p>
+                    % if napaka:
+                    <div  style="margin-top: 5px;" class="alert alert-danger">
+                      {{napaka}}
+                    </div>
+                    % end
+                    <form action="{{url('ujemanje_plesalec_oblacilo_1')}}" method="POST">
+                        <div class="form-group">
+                        <label for="izberi_spol">Izberi spol plesalcev</label>
+                        <select class="custom-select" id="izberi_spol" name="spol">
+                            <option selected>Izberi...</option>
+                            <option value="Ž">Ž</option>
+                            <option value="M">M</option>
+                          </select>
+                        <label for="izberi_tip">Izberi tip oblačil</label>
+                        <select class="custom-select" id="izberi_tip" name="tip">
+                            <option selected>Izberi...</option>
+                            <option value="ZgornjiDel">zgornji del</option>
+                            <option value="SpodnjiDel">spodnji del</option>
+                            <option value="EnodelniKos">enodelni kos</option>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                        <div class="form-group d-flex justify-content-between">
+                            <div class="dropdown btn-group">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Izberi plesalce
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    % for i in plesalci:
+                                    <div class="form-check plesalec-checkbox">
+                                        <input class="form-check-input" type="checkbox" value="{{i}}" id="checkbox{{i}}" name="{{i}}">
+                                        <label class="form-check-label" for="checkbox{{i}}">{{plesalci[i].ime}} {{plesalci[i].priimek}} ({{plesalci[i].spolplesalca}})</label>
+                                    </div>
+                                    % end
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="form-group">
+                        <button type="submit" class="btn btn-secondary" id="gumb" disabled>POTRDI</button>
+                        </div>
+                    </form>
+                    
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+</section>
+
+<script>
+    
+</script>
+
+<script>
+    $(document).ready(function() {
+        FiltriranjeGledeNaSpol()
+    });
+    $(document).ready(function() {
+        IzbraniVsiPodatki()
+    });
+    
+</script>
