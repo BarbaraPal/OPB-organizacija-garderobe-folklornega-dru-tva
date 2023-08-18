@@ -1,0 +1,60 @@
+%rebase('osnova.html', naslov='Čevlji', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="card mb-4 mb-lg-4">
+        
+          <div class="card-body p-0">
+          
+            <div class="table-container">
+            <table class="table borderless" data-toggle="table" data-sticky-header="true" data-search="true" data-show-columns="true" >
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col" data-sortable="true">Ime</th>
+                    <th scope="col" data-sortable="true">Priimek</th>
+                    <th scope="col" data-sortable="true">Emšo</th>
+
+                    <th scope="col" data-sortable="true">Delo v tem mesecu (trajanje)</th>
+                    <th scope="col" data-sortable="true">Delo v tem letu (trajanje)</th>
+                    <th scope="col" class="text-center">Več</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    % for plesalec in delo:
+                
+                    <tr class="clickable-row">
+                      
+                      <td>{{plesalec.ime}}</td>
+                      <td>{{plesalec.priimek}}</td>
+                      <td>{{plesalec.emso}}</td>
+                      % if plesalec.delo_mesec is not None: 
+                      <td>{{plesalec.delo_mesec}}</td>
+                      % else:
+                      <td>0</td>
+                      % end
+                      % if plesalec.delo_leto is not None:
+                      <td>{{plesalec.delo_leto}}</td>
+                      % else:
+                      <td>0</td>
+                      % end
+
+                      <td class="text-center">
+                        <form action="{{url('delo_statistika', emso = plesalec.emso) }}" method="GET" id = "poglejpodatkeplesalcadelo" class="needs-validation" novalidate>
+                          <button type="submit" id = "poglejpodatkeplesalcadelo2" class="btn btn-outline-secondary btn-sm"><i class="bi bi-person-lines-fill"></i></button>
+                        </form>
+                      </td>
+                    </tr>
+                  
+                    % end
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    
+    </div>
+  </section>
+  

@@ -17,6 +17,11 @@ import json
 import io
 import base64
 from itertools import permutations
+import matplotlib.pyplot as plt # še ni dodano v requirements.txt
+import plotly.io as pio
+
+
+
 
 #import tracemalloc
 #tracemalloc.start()
@@ -126,6 +131,10 @@ def static_style(filename):
 @get('/static_js/<filename:path>')
 def static_js(filename):
     return static_file(filename, root='static')
+
+@get('/grafi/<ime>.html')
+def grafi(ime: str):
+    return template(f'grafi/{ime}.html')
 
 @get('/')
 def index(): 
@@ -330,10 +339,12 @@ def delo():
     uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
     rola = bottle.request.get_cookie('rola')
     potrdilo = bottle.request.query.getunicode('potrdilo')
+    napaka = bottle.request.query.getunicode('napaka')
     plesalci = repo.plesalci()
     emso = [emso for emso, plesalec in plesalci.items() if plesalec.uporabniskoime == uporabnisko_ime][0]
     seznam_plesalcev = [f'{plesalci[emso].ime} {plesalci[emso].priimek}: {emso}' for emso in plesalci.keys()]
-    return template('dodajanje_dela.html', uporabnisko_ime = uporabnisko_ime, rola = rola, seznam_plesalcev = seznam_plesalcev, potrdilo = potrdilo, emso = emso)
+    return template('dodajanje_dela.html', uporabnisko_ime = uporabnisko_ime, rola = rola, 
+                    seznam_plesalcev = seznam_plesalcev, potrdilo = potrdilo, napaka = napaka, emso = emso)
 
 @post('/dodaj_delo/')
 @cookie_required
@@ -346,6 +357,9 @@ def dodaj_delo():
         emso_plesalca = ime_plesalca.split(': ')[1]
     else:
         emso_plesalca = ime_plesalca
+    plesalec = repo.dobi_gen_id(Plesalec, (emso_plesalca,), ('emso',))
+    if datum_izvajanja < plesalec.datumprikljucitve:
+        redirect(url('delo', napaka= 'Plesalcu poskušate dodati delo preden se je priključil!'))    
     delo = Delo(emso_plesalca, vrsta_dela, trajanje, datumizvajanja=datum_izvajanja)
     repo.dodaj_gen(delo, serial_col="iddela")
     redirect(url('delo', potrdilo= 'Uspešno dodano delo!'))
@@ -895,11 +909,52 @@ def ujemanje_plesalec_oblacilo_3():
         slovar_oblacil = repo.mere_spodnji_del(tip, seznam_naborov=seznam_oblacil)
     else:
         slovar_oblacil = repo.mere_enodelni_kos(tip, seznam_naborov=seznam_oblacil)
-
     ujemanja, pripadajoci_plesalci = najdi_optimum(slovar_plesalcev, slovar_oblacil, tip)
+    
     return template('izpis_ujemanj.html', uporabnisko_ime = uporabnisko_ime, rola= rola, 
                     slovar_oblacil = slovar_oblacil, slovar_plesalcev = slovar_plesalcev,
                     ujemanja = ujemanja, pripadajoci_plesalci = pripadajoci_plesalci, plesalci = plesalci, tip = tip)
+
+@get('/delo_skupno/')
+@rola_required
+def delo_skupno():
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
+    delo = repo.delo_skupno()
+
+    return template('pregled_dela.html', uporabnisko_ime = uporabnisko_ime, rola = rola, delo = delo)
+
+@get('/delo_statistika/<emso>/')
+@cookie_required
+def delo_statistika(emso):
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
+    plesalec = repo.dobi_gen_id(Plesalec, (emso,), ('emso',))
+    plesalec_uporabnik = repo.dobi_gen_id(Uporabnik, (uporabnisko_ime,), ('uporabniskoime',))
+    if rola == 'False' and plesalec_uporabnik.emso != emso:
+        redirect(url('delo_statistika', emso = plesalec_uporabnik.emso))
+    zgodovina_dela = repo.zgodovina_dela_posameznika(emso)
+    if zgodovina_dela == []:
+        podatki_za_graf = None
+        podatki_za_graf2 = None
+    else:
+        fig = repo.risanje_interaktivnega_piechart(emso)
+        podatki_za_graf = pio.to_json(fig)
+        fig2 = repo.slider(emso)
+        podatki_za_graf2 = pio.to_json(fig2)
+    return template('profil_dela.html', uporabnisko_ime = uporabnisko_ime, rola = rola, zgodovina_dela = zgodovina_dela, plesalec = plesalec, podatki_za_graf=podatki_za_graf, podatki_za_graf2 = podatki_za_graf2)
+        
+@get('/delo_posameznika/')
+@cookie_required
+def delo_posameznika():
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
+    if rola == 'True':
+        redirect(url('delo_skupno'))
+    else:
+        uporabnik = repo.dobi_gen_id(Uporabnik, (uporabnisko_ime,), ('uporabniskoime',))
+        redirect(url('delo_statistika', emso = uporabnik.emso))
+
 
 @error(404)
 def error_404(error):

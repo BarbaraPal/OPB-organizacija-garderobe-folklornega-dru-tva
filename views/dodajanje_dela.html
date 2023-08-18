@@ -9,38 +9,43 @@
                 <div class="card-body">
                   <p class="mb-4"><b>Dodajanje dela</b></p>
                   % if potrdilo:
-                <div class="alert alert-success" role="alert" style="margin-top: 3%;"> 
-                {{potrdilo}}
-                </div>
-                % end
+                  <div class="alert alert-success" role="alert" style="margin-top: 3%;"> 
+                  {{potrdilo}}
+                  </div>
+                  % end
+                  % if napaka:
+                  <div class="alert alert-danger" role="alert" style="margin-top: 3%;"> 
+                  {{napaka}}
+                  </div>
+                  % end
                     
                     <form action="{{url('dodaj_delo')}}" method="POST" id="myForm">
                         % if rola == 'True':
                         <div class="form-group">
-                            <input type="text" class="form-control" id="imeInput" list="existingNames1" placeholder="Vnesi ime" name="plesalec">
-                            <datalist id="existingNames1">
+                          <label for="imeInput">Plesalec:</label>
+                            <select class="custom-select required custom-select-sm" id="imeInput" name="plesalec">
                               % for v in seznam_plesalcev:
                                 <option value="{{v}}">{{v}}</option>
                               % end
-                            </datalist>
+                            </select>
                         </div>
                         % else:
                         <input type="hidden" name="plesalec" value="{{emso}}">
                         % end
                     
                         <div class="form-group">
+                            <label for="vrstaDela">Vrsta dela:</label>
                             <select class="custom-select required custom-select-sm" name="vrsta_dela" id="vrstaDela">
-                                <option value="" selected>Izberi vrsto dela</option>
-                                <option value="likanje">Likanje</option>
+                                <option value="likanje" >Likanje</option>
                                 <option value="pranje">Pranje</option>
                                 <option value="šivanje">Šivanje</option>
-                                <option value="drugo">Drugo</option>
+                                <option value="drugo" selected>Drugo</option>
                             </select>
                         </div>
                     
                         <div class="form-group">
                             <label for="trajanjeMinut">Trajanje dela (min):</label>
-                            <input type="number" class="form-control" id="trajanjeMinut" name="trajanje" min="1" step="1">
+                            <input type="number" class="form-control form-control-sm" id="trajanjeMinut" name="trajanje" min="1" step="1">
                         </div>
                     
                         <div class="input-group date form-group" id="datetimepicker1">

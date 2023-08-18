@@ -1,0 +1,82 @@
+%rebase('osnova.html', naslov='Čevlji', uporabnik=uporabnisko_ime, rola = rola)
+<section style="background-color: #eee;">
+  % if podatki_za_graf and podatki_za_graf2:
+    <div class="container py-4">
+      <div class="row">
+        <p class="mb-4"><b>Statistika dela: {{plesalec.ime}} {{plesalec.priimek}}</b></p>
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4 mb-md-0">
+                      <div class="card-body">
+                        <div id="interaktivni-graf2"></div>
+                      </div>
+                    </div>
+                  </div>
+                <div class="col-md-6">
+                  <div class="card mb-4 mb-md-0">
+                    <div class="card-body">
+                      <div id="interaktivni-graf"></div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container py-1">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card mb-4 mb-md-0">
+                <div class="card-body">
+                  <p class="mb-4"><b>Zgodovina dela</b></p>
+                  <table class="table borderless" data-toggle="table" data-sticky-header="true" data-search="true" data-show-columns="true" >
+                    <thead class="table-light">
+                      <tr >
+                        <th scope="col" data-sortable="true">Datum izvajanja</th>
+                        <th scope="col" data-sortable="true">Vrsta dela</th>
+                        <th scope="col" data-sortable="true">Trajanje</th>
+               
+                      </tr>
+                    </thead>
+                    <tbody>
+                      % for delo in zgodovina_dela:
+                      <tr>
+                        
+                        <td>{{delo.datumizvajanja}}</td>
+                        <td>{{delo.vrstadela}}</td>
+                        <td>{{delo.trajanje}} </td> 
+                      </tr>
+                      % end
+                  </tbody>
+                  </table>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    % else:
+    <div class="container py-1">
+      <div class="row">
+        <div class="col-lg-12"> 
+            Ni podatkov o delu.
+        </div>
+      </div>
+    </div>
+    
+    % end
+  </section>
+ 
+  <script src="https://cdn.plot.ly/plotly-2.25.2.min.js"></script>
+  <script>
+    var podatki_za_graf = {{!podatki_za_graf}};
+    Plotly.newPlot('interaktivni-graf', podatki_za_graf);
+    var podatki_za_graf2 = {{!podatki_za_graf2}};
+    Plotly.newPlot('interaktivni-graf2', podatki_za_graf2);
+  </script>

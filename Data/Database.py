@@ -14,6 +14,10 @@ from dataclasses_json import dataclass_json
 
 import base64
 import dataclasses
+from collections import defaultdict
+import plotly.express as px
+import pandas as pd
+
 # Ustvarimo generično TypeVar spremenljivko. Dovolimo le naše entitene, ki jih imamo tudi v bazi
 # kot njene vrednosti. Ko dodamo novo entiteno, jo moramo dodati tudi v to spremenljivko.
 
@@ -267,45 +271,105 @@ class Repo:
         
         podatki_o_delu_uporabnika = self.cur.fetchall()
         return [DeloDto(emso, vrstadela, skupno_trajanje) for (vrstadela, skupno_trajanje, emso ) in podatki_o_delu_uporabnika]
-
-    def delo_posameznika_mesec(self, emso, mesec) -> List[DeloDto]:
+    
+    def delo_skupno(self) -> List[SkupnoDeloDto]:
+        trenutni_mesec = datetime.now().month
+        trenutno_leto = datetime.now().year
+        
         self.cur.execute(
             """
-            SELECT SUM(trajanje) AS skupno_trajanje
+            SELECT 
+                p.emso,
+                p.ime,
+                p.priimek,
+                m.skupno_trajanje_mesec,
+                y.skupno_trajanje_leto
+            FROM (
+                SELECT ime, priimek, emso
+                FROM Plesalec
+                ) p
+            LEFT JOIN (
+                SELECT 
+                    emso,
+                    SUM(trajanje) AS skupno_trajanje_mesec
+                FROM Delo
+                WHERE EXTRACT('month' FROM datumizvajanja) = %s
+                    AND EXTRACT('year' FROM datumizvajanja) = %s
+                GROUP BY emso
+            ) m ON p.emso = m.emso
+            LEFT JOIN (
+                SELECT
+                    emso,
+                    SUM(trajanje) AS skupno_trajanje_leto
+                FROM Delo
+                WHERE EXTRACT('year' FROM datumizvajanja) = %s
+                GROUP BY emso
+            ) y ON p.emso = y.emso;
+            """, (trenutni_mesec, trenutno_leto, trenutno_leto))
+        
+        podatki_o_delu = self.cur.fetchall()
+        return [SkupnoDeloDto(ime, priimek, emso, delo_mesec, delo_leto) for (emso, ime, priimek, delo_mesec, delo_leto) in podatki_o_delu]
+
+    def zgodovina_dela_posameznika(self, emso) -> List[ZgodovinaDela]:
+        self.cur.execute(
+            """
+            SELECT vrstadela, trajanje, datumizvajanja
             FROM Delo
-            WHERE EXTRACT('month' FROM datumizvajanja) = %s
-            AND emso = %s
-            """, (mesec, emso,))
-        
-        podatki_o_delu_uporabnika = self.cur.fetchall()
-        return podatki_o_delu_uporabnika
-    
-    def delo_posameznika_leto(self, emso, leto) -> List[DeloDto]:
+            WHERE emso = %s;
+            """, (emso,))
+        zgodovina_dela = self.cur.fetchall()
+        return[ZgodovinaDela(vrsta_dela, trajanje, datum_izvajanja) for vrsta_dela, trajanje, datum_izvajanja in zgodovina_dela]
+
+    def delo_plesalca_po_mescih(self, emso) -> List[DeloPlesalcaMesecDto]:
         self.cur.execute(
             """
-            SELECT SUM(trajanje) AS skupno_trajanje, EXTRACT('month' FROM datumizvajanja) AS mesec
-            FROM Delo 
-            WHERE EXTRACT('year' FROM datumizvajanja) = %s
-            AND emso = %s
-            GROUP BY EXTRACT('month' FROM datumizvajanja);
-            """, (leto, emso,))
+            SELECT 
+                vrstadela,
+                SUM(trajanje) AS skupno_trajanje, 
+                EXTRACT('month' FROM datumizvajanja) AS mesec,
+                EXTRACT('year' FROM datumizvajanja) AS leto
+            FROM Delo
+            WHERE emso = %s
+            GROUP BY vrstadela, EXTRACT('month' FROM datumizvajanja), EXTRACT('year' FROM datumizvajanja);
+            """, (emso,))
         
-        podatki_o_delu_uporabnika = self.cur.fetchall()
-        return {mesec: skupno_trajanje for (skupno_trajanje, mesec) in podatki_o_delu_uporabnika}
+        podatki_o_delu = self.cur.fetchall()
+        return [DeloPlesalcaMesecDto(vrsta_dela, mesec, leto, skupno_trajanje) for (vrsta_dela, skupno_trajanje, mesec, leto) in podatki_o_delu]
     
-    def delo_posameznika_leto_skupaj(self, emso, leto) -> List[DeloDto]:
+    def delo_skupno_delo_plesalca_po_mesecih(self, emso) -> List[DeloPlesalcaMesecSkupajDto]:
         self.cur.execute(
             """
-            SELECT SUM(trajanje) AS skupno_trajanje
-            FROM Delo 
-            WHERE EXTRACT('year' FROM datumizvajanja) = %s
-            AND emso = %s;
-            """, (leto, emso,))
+            SELECT  
+                EXTRACT('month' FROM datumizvajanja) AS mesec,
+                EXTRACT('year' FROM datumizvajanja) AS leto,
+                SUM(trajanje) AS skupno_trajanje
+            FROM Delo
+            WHERE emso = %s
+            GROUP BY EXTRACT('month' FROM datumizvajanja), EXTRACT('year' FROM datumizvajanja);
+            """, (emso,))
         
-        podatki_o_delu_uporabnika = self.cur.fetchall()
-        return (emso, podatki_o_delu_uporabnika)
-
-
+        podatki_o_delu = self.cur.fetchall()
+        return [DeloPlesalcaMesecSkupajDto(mesec, leto, skupno_trajanje) for (mesec, leto, skupno_trajanje) in podatki_o_delu]
+    
+    def mesecna_povprecja_dela(self):
+        self.cur.execute(
+            """
+            WITH SkupnoDelo AS (
+                SELECT
+                    SUM(trajanje) AS skupno_trajanje_v_mescu, 
+                    EXTRACT('month' FROM datumizvajanja) AS mesec,
+                    EXTRACT('year' FROM datumizvajanja) AS leto
+                FROM Delo
+                GROUP BY EXTRACT('month' FROM datumizvajanja), EXTRACT('year' FROM datumizvajanja)
+            )
+            SELECT
+                sd.mesec,
+                sd.leto,
+                sd.skupno_trajanje_v_mescu / (SELECT COUNT(emso) FROM Plesalec WHERE datumprikljucitve < DATE(sd.leto || '-' || LPAD(sd.mesec::text, 2, '0') || '-01')) AS povprecno_trajanje
+            FROM SkupnoDelo sd;
+            """)
+        povprecja = self.cur.fetchall()
+        return [PovprecjaDto(mesec, leto, povprecje) for (mesec, leto, povprecje) in povprecja]
 
     def kostumske_podobe(self, uporabnik):
         if uporabnik.rola == True:
@@ -330,16 +394,6 @@ class Repo:
         
         podatki = self.cur.fetchall()
         return [OpravaKostumskePodobeDto(imekostumske_podobe, ime_oprave, spol_oprave, vrsta_cevljev, posebnosti) for (imekostumske_podobe, ime_oprave, spol_oprave, vrsta_cevljev, posebnosti) in podatki]
-    
-    #def izberi_moznosti(self, ime_tabele):
-    #    query = """
-    #        SELECT MAX(moznost) AS max_value
-    #        FROM {};
-    #    """.format(ime_tabele)
-    #    self.cur.execute(query)
-    #    max_value = self.cur.fetchone()[0]
-    #    print(max_value)
-
     
     def oprava_kostumske_podobe(self, kostumska_podoba, oprava)-> List[OpravaDto]:
         self.cur.execute(
@@ -508,3 +562,69 @@ class Repo:
         self.cur.execute(sql_cmd)
         oblacila = self.cur.fetchall()
         return [GlavnaOblacilaDto(pokrajina, spol, ime, zaporednast, stanje) for (ime, pokrajina, spol, zaporednast, stanje) in oblacila]
+
+    def risanje_interaktivnega_piechart(self, emso):
+        delo_po_mesecih = self.delo_plesalca_po_mescih(emso)
+
+        # Priprava podatkov za graf
+        organizirani_podatki = defaultdict(list)
+        for podatek in delo_po_mesecih:
+            kljuc = (podatek.mesec, podatek.leto)
+            organizirani_podatki[kljuc].append((podatek.vrstadela, podatek.skupno_trajanje.total_seconds() / 60))
+
+        data = []
+        for kljuc, podatki in organizirani_podatki.items():
+            mesec, leto = kljuc
+            df = pd.DataFrame(podatki, columns=['vrstadela', 'skupno_trajanje'])
+            df['mesec'] = mesec
+            df['leto'] = leto
+            data.append(df)
+
+        final_df = pd.concat(data, ignore_index=True)
+        
+        # Najdi najnovejši mesec in leto
+        najnovejse_leto = max(final_df['leto'])
+        najnovejse_mesec = max(final_df[final_df['leto'] == najnovejse_leto]['mesec'])
+
+        # Filtriraj podatke za najnovejši mesec in leto
+        najnovejse_podatki = final_df[(final_df['mesec'] == najnovejse_mesec) & (final_df['leto'] == najnovejse_leto)]
+
+        # Izdelava začetnega pie chart grafa
+        fig = px.pie(najnovejse_podatki, values='skupno_trajanje', names='vrstadela',
+                     title=f"Razmerje med vrstami opravljenega dela - {najnovejse_mesec}/{najnovejse_leto}",
+                     color_discrete_sequence=px.colors.sequential.Purp_r,
+                     labels={'vrstadela': 'Vrsta dela', 'skupno_trajanje': 'Skupno trajanje'})
+
+        return fig
+
+    def slider(self, emso):
+        podatki = self.delo_skupno_delo_plesalca_po_mesecih(emso)
+        df = pd.DataFrame(podatki).sort_values(by='leto')
+        for i in range(len(df['skupno_trajanje'])):
+            df['skupno_trajanje'][i] = df['skupno_trajanje'][i].total_seconds()/ 60
+
+        vsi_meseci = list(range(1, 13))
+
+        # Pridobi mesece, za katere imate podatke
+        meseci_s_podatki = df['mesec'].unique()
+
+        # Dopolni seznam mesecev s tistimi brez podatkov
+        manjkajoci_meseci = list(set(vsi_meseci) - set(meseci_s_podatki))
+        vsi_mesi_s_podatki = sorted(list(meseci_s_podatki) + manjkajoci_meseci)
+
+
+        # Ustvari histogram z osjo x, ki prikazuje vse mesece
+        fig = px.histogram(df, x='mesec', y='skupno_trajanje', animation_frame="leto", title="Opravljeno delo")
+
+        # Nastavi kategorije na x-osi
+        fig.update_xaxes(type='category', categoryorder='array', categoryarray=vsi_mesi_s_podatki)
+        fig.update_layout(xaxis_range=[0, 12])
+        # Odstrani gumb za animacijo
+        fig["layout"].pop("updatemenus")
+        fig.update_xaxes(title_text="Mesec")
+        fig.update_yaxes(title_text="Skupno trajanje dela (min)")
+
+        return fig                
+
+    
+

@@ -62,16 +62,7 @@ function DodajanjeDela(seznam_plesalcev, rola){
         var trajanjeMinut = $("#trajanjeMinut").val().trim();
         var datumIzvajanja = $("#datum_izvajanja").val().trim();
         var vsaPoljaIzpolnjena = true;
-        if (rola === "True"){
-            var imeInput = $("#imeInput").val().trim();
-        }
-  
-        // Preveri ime, če je rola enaka true in ime pravilno
-        if (rola === "True" && (imeInput === "" || predlogi.indexOf(imeInput) === -1)) {
-        vsaPoljaIzpolnjena = false;
-        }
-        
-  
+      
         // Preveri vrsto dela
         if (vrstaDela === "") {
           vsaPoljaIzpolnjena = false;

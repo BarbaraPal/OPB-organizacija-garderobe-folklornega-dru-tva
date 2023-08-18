@@ -182,7 +182,39 @@ class Delo:
     trajanje: timedelta
     datumizvajanja: date = field(default=date.today())
     iddela: int = field(default=None)
+    
+@dataclass
+class SkupnoDeloDto:
+    ime: str
+    priimek: str
+    emso: str
+    delo_mesec : timedelta
+    delo_leto: timedelta
 
+@dataclass
+class ZgodovinaDela:
+    vrstadela: str
+    trajanje: timedelta
+    datumizvajanja: date = field(default=date.today())
+
+@dataclass
+class DeloPlesalcaMesecDto:
+    vrstadela: str
+    mesec: int
+    leto: int
+    skupno_trajanje: timedelta
+
+@dataclass
+class DeloPlesalcaMesecSkupajDto:
+    mesec: int
+    leto: int
+    skupno_trajanje: timedelta
+
+@dataclass
+class PovprecjaDto:
+    mesec: int
+    leto: int
+    povprecje: timedelta
 
 @dataclass_json
 @dataclass

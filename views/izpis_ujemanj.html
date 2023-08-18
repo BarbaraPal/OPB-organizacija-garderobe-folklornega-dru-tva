@@ -9,6 +9,11 @@
                 <div class="card-body">
                   <p class="mb-4"><b>Izpis ujemanj</b></p>                 
                   <div class="table-container">
+                    % if ujemanja == False:
+                    <div  style="margin-top: 5px;" class="alert alert-danger">
+                      Ni bilo najdenih nobenih ujemanj. Preverite ali so vneseni vsi podatki o merah.
+                    </div>
+                    % else:
                     <table class="table borderless" data-toggle="table" data-sticky-header="true">
                         <thead class="table-light">
                           <tr >
@@ -28,6 +33,8 @@
                           </tr>
                         </thead>
                         <tbody>
+                       
+                        
                          % for i in range(len(ujemanja)):
                           % p = pripadajoci_plesalci[i]
                         
@@ -51,6 +58,7 @@
                            % end 
                         </tbody>
                       </table>
+                    % end
                     </div>
 
 
