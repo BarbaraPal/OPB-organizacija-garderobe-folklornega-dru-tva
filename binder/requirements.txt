@@ -6,4 +6,4 @@ dataclasses-json
 openpyxl
 bcrypt
 numpy
-
+plotly
