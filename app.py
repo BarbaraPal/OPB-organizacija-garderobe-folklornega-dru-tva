@@ -27,7 +27,7 @@ import plotly.io as pio
 
 # privzete nastavitve
 SERVER_PORT = os.environ.get('BOTTLE_PORT', 8080)
-RELOADER = os.environ.get('BOTTLE_RELOADER', False)
+RELOADER = os.environ.get('BOTTLE_RELOADER', True)
 DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
 
 # odkomentiraj, če želiš sporočila o napakah
@@ -186,14 +186,14 @@ def podatki_o_profilu():
     """
     Prikaže podatke o uporabniku in še kaj.
     """
-    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
-    rola = bottle.request.get_cookie("rola")
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
     uporabnik = repo.profil(uporabnisko_ime)
     cevlji = repo.cevlji_posameznika(uporabnisko_ime)
     delo = repo.delo_posameznika(uporabnik.emso)
     for d in delo:
         d.skupno_trajanje = f'{d.skupno_trajanje.total_seconds() // 60} min'
-    sprememba = bottle.request.query.get('sprememba')
+    sprememba = request.query.get('sprememba')
     return template('profil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, plesalecdto = uporabnik, cevljidto = cevlji, delodto = delo, sprememba = sprememba)
     
 @post('/spremeni_geslo/')
@@ -202,7 +202,7 @@ def spremeni_geslo():
     """
     Spremeni geslo trenutnega uporabnika
     """
-    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
     staro_geslo = request.forms.getunicode('staro_geslo')
     novo_geslo = request.forms.getunicode('novo_geslo')
     sprememba = auth.sprememba_gesla(uporabnisko_ime, staro_geslo,novo_geslo)
@@ -211,24 +211,24 @@ def spremeni_geslo():
 @get('/domov/')
 @cookie_required
 def osnovna_stran():
-    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
-    rola = bottle.request.get_cookie("rola")
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
     return template('domov.html', uporabnisko_ime = uporabnisko_ime, rola = rola)
 
 @get('/plesalci/<id>/')
 @rola_required
 def plesalci(id):
-    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
-    rola = bottle.request.get_cookie("rola")
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
     plesalci = repo.plesalci()
     seznam_imen = [plesalci[emso].uporabniskoime for emso in plesalci.keys() if plesalci[emso].uporabniskoime is not None]
     if id == 'vsi_plesalci':
-        odziv = bottle.request.query.getunicode('odziv')
+        odziv = request.query.getunicode('odziv')
         return template('plesalci.html', uporabnisko_ime = uporabnisko_ime, rola =rola, plesalci = plesalci, odziv = odziv)
     else:
-        napaka = bottle.request.query.getunicode('napaka')
-        potrdilo = bottle.request.query.getunicode('potrdilo')
-        potrdilo_mere = bottle.request.query.getunicode('potrdilo_mere')
+        napaka = request.query.getunicode('napaka')
+        potrdilo = request.query.getunicode('potrdilo')
+        potrdilo_mere = request.query.getunicode('potrdilo_mere')
         plesalec = plesalci[id]
         cevlji = repo.cevlji_posameznika(plesalec.emso)
         delo = repo.delo_posameznika(plesalec.emso)
@@ -237,8 +237,8 @@ def plesalci(id):
 @get('/dodajanje_plesalcev/')
 @rola_required
 def dodajanje_plesalcev():
-    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
-    rola = bottle.request.get_cookie("rola")
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
     return template('dodajanje_plesalcev.html', uporabnisko_ime = uporabnisko_ime, rola = rola)
 
 
@@ -335,10 +335,10 @@ def posodobi_mere():
 @get('/delo/')
 @cookie_required
 def delo():
-    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
-    rola = bottle.request.get_cookie('rola')
-    potrdilo = bottle.request.query.getunicode('potrdilo')
-    napaka = bottle.request.query.getunicode('napaka')
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie('rola')
+    potrdilo = request.query.getunicode('potrdilo')
+    napaka = request.query.getunicode('napaka')
     plesalci = repo.plesalci()
     emso = [emso for emso, plesalec in plesalci.items() if plesalec.uporabniskoime == uporabnisko_ime][0]
     seznam_plesalcev = [f'{plesalci[emso].ime} {plesalci[emso].priimek}: {emso}' for emso in plesalci.keys()]
@@ -366,8 +366,8 @@ def dodaj_delo():
 @get('/kostumske_podobe/<kostumska_podoba>/<imeoprave>/')
 @cookie_required
 def kostumske_podobe(kostumska_podoba, imeoprave):
-    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
-    rola = bottle.request.get_cookie("rola")
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
     odziv = request.query.getunicode('odziv')
     napaka_get = request.query.getunicode('napaka')
     napaka = napaka_get if napaka_get != "None" else None
@@ -486,16 +486,16 @@ def odstrani_posebnosti_oprave():
 @get('/oblacila/<stran>/')
 @cookie_required
 def oblacila(stran):
-    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
-    rola = bottle.request.get_cookie('rola')
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie('rola')
     vrste_oblacil = repo.vrste_oblacil()
     if stran == 'vrste_oblacil':
         odziv = request.query.getunicode('odziv')
         return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, napaka = False, odziv = odziv)
     else:
-        ime_vrste = bottle.request.query.getunicode('ime_vrste')
-        spol_vrste = bottle.request.query.getunicode('spol_vrste')
-        pokrajina_vrste = bottle.request.query.getunicode('pokrajina_vrste')
+        ime_vrste = request.query.getunicode('ime_vrste')
+        spol_vrste = request.query.getunicode('spol_vrste')
+        pokrajina_vrste = request.query.getunicode('pokrajina_vrste')
         vrsta = repo.dobi_gen_id(VrstaOblacila, (ime_vrste, spol_vrste, pokrajina_vrste), ('ime','spol', 'pokrajina'))
     
         try:
@@ -509,8 +509,8 @@ def oblacila(stran):
 @get('/dodaj_oblacilo/')
 @rola_required
 def dodaj_oblacilo():
-    uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
-    rola = bottle.request.get_cookie("rola")
+    uporabnisko_ime = request.get_cookie('uporabniskoime')
+    rola = request.get_cookie("rola")
     potrdilo = request.query.getunicode('potrdilo')
     napaka = request.query.getunicode('napaka')
     nova_vrsta_json = request.query.getunicode('nova_vrsta')
