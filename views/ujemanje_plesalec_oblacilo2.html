@@ -9,44 +9,43 @@
                 <div class="card-body">
                   <p class="mb-4"><b>Iskanje oblačil - 3.stopnja</b></p>
                    
+                    <div class="form-group">  
+                      <p><b>Spol:</b> {{spol}}</p> 
+                    </div>
+                    <div class="form-group">  
+                      <p><b>Tip:</b>
+                      
+                        % if tip == 'ZgornjiDel':
+                          zgornji del
+                        % elif tip == 'SpodnjiDel':
+                         spodnji del
+                        % elif tip == 'EnodelniKos':
+                         enodelni kos
+                        % else:
+                         {{tip}}
+                        % end
+                      </p>
+                    </div>  
                   <div class="form-group">  
-                    <p><b>Spol:</b> {{spol}}</p>
-                  
-                  </div>
-                  <div class="form-group">  
-                    <p><b>Tip:</b>
-                    
-                      % if tip == 'ZgornjiDel':
-                        zgornji del
-                      % elif tip == 'SpodnjiDel':
-                       spodnji del
-                      % elif tip == 'EnodelniKos':
-                       enodelni kos
-                      % else:
-                       {{tip}}
+                    <label for="izbraniplesalci"><b>Plesalci:</b></label>
+                    <ul class="list-group" id="izbraniplesalci">
+                      % for i in plesalci:
+                        <li class="list-group-item"> {{plesalci[i].ime}} {{plesalci[i].priimek}} ({{plesalci[i].emso}}) </li>
                       % end
-                    </p>
-                  </div>  
-                  <div class="form-group">  
-                  <label for="izbraniplesalci"><b>Plesalci:</b></label>
-                  <ul class="list-group" id="izbraniplesalci">
-                    % for i in plesalci:
-                    <li class="list-group-item"> {{plesalci[i].ime}} {{plesalci[i].priimek}} ({{plesalci[i].emso}}) </li>
-                    % end
-                  </ul>
+                    </ul>
                   </div> 
                   <div class="form-group">  
                     <label for="izbranevrste"><b>Vrste oblačil:</b></label>
-                    <ul class="list-group" id="izbranevrste">
-                      % mn = set()
-                      % for i in seznam_oblacil:
-                        % mn.add((i.ime, i.pokrajina))
-                      % end
-                      % for j in mn:
-                      <li class="list-group-item"> {{j[0]}}, {{j[1]}}</li>
-                      % end
-                    </ul>
-                    </div> 
+                      <ul class="list-group" id="izbranevrste">
+                        % mn = set()
+                        % for i in seznam_oblacil:
+                          % mn.add((i.ime, i.pokrajina))
+                        % end
+                        % for j in mn:
+                          <li class="list-group-item"> {{j[0]}}, {{j[1]}}</li>
+                        % end
+                      </ul>
+                  </div> 
                     <label for="izberikose"><b>Izberite kose oblačil</b> (POZOR: Izbrati morate VSAJ toliko kosov oblačil kot je izbranih plesalcev. V tem primeru {{len(plesalci)}}.)</label>                          
                     <form id="izberikose" action="{{url('ujemanje_plesalec_oblacilo_3')}}" method="POST">
                         <input type="hidden" name="tip" value="{{tip}}">
@@ -98,16 +97,14 @@
                         <label for="gumb2">Tukaj lahko vnesete več kosov:</label>
                         <button type="submit" class="btn btn-secondary btn-sm" id="gumb2" ><i class="bi bi-clipboard2-plus"></i></button>
                       </form>
-                    </div>
-                    
+                    </div>    
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    
+    </div>    
 </section>
 
 

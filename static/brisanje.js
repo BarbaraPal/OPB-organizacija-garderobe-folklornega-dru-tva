@@ -14,23 +14,3 @@ function IzbrisiUpRacun(){
         });
       });
 }
-
-function showConfirmation() {
-  // Display a confirmation dialog
-  if (confirm("Ali ste prepričani, da želite izbrisati plesalca?")) {
-      // No need to do anything here, the form will be submitted
-  } else {
-    alert("Brisanje plesalca preklicano.");
-    event.preventDefault(); // Prekine standardno obnašanje obrazca
-  }
-}
-
-function showConfirmation2() {
-  // Display a confirmation dialog
-  if (confirm("Ali ste prepričani, da želite izbrisati ta vnos?")) {
-      // No need to do anything here, the form will be submitted
-  } else {
-    alert("Brisanje preklicano.");
-    event.preventDefault(); // Prekine standardno obnašanje obrazca
-  }
-}

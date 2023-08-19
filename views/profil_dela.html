@@ -79,4 +79,15 @@
     Plotly.newPlot('interaktivni-graf', podatki_za_graf);
     var podatki_za_graf2 = {{!podatki_za_graf2}};
     Plotly.newPlot('interaktivni-graf2', podatki_za_graf2);
+
+    $.fn.bootstrapTable.locales['sl-SI'] = {
+      formatSearch: function () {
+        return 'Iskanje';
+      },
+      formatNoMatches: function () {
+        return 'Ni najdenih rezultatov.';
+      },
+    };
+    $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['sl-SI']);
+
   </script>

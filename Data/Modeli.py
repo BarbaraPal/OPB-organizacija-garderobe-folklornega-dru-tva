@@ -52,7 +52,6 @@ class DodatnaOblacilaDto:
     opombe: str
     slika: bytes
 
-# Apply the custom decoder configuration
 @dataclass_json
 @dataclass
 class GlavnaOblacila:

@@ -199,27 +199,6 @@ class Repo:
         self.cur.execute(sql_cmd, id_tuple)
         self.conn.commit()
     
-    def dobi_gen_slike(self, typ: Type[T], id_tuple: Tuple[str], id_cols: Tuple[str]) -> T:
-        """
-        Generična metoda, ki vrne dataclass objekt pridobljen iz baze na podlagi njegovega PRIMARY KEY-a.
-        """
-        tbl_name = typ.__name__
-        id_conditions = " AND ".join([f"{col} = %s" for col in id_cols])
-        sql_cmd = f"SELECT * FROM {tbl_name} WHERE {id_conditions};"
-        self.cur.execute(sql_cmd, id_tuple)
-
-        d = self.cur.fetchone()
-
-        if d is None:
-            raise Exception(f"Vrstica s ključem {id_tuple} ne obstaja v {tbl_name}.")
-        
-        if 'slika' in d:  # Check if the 'slika' key is present
-            slika_memoryview = d['slika']
-            if isinstance(slika_memoryview, memoryview):
-                d['slika'] = bytes(slika_memoryview)
-        return typ(**d)
-
-
     def profil(self, uporabnisko_ime) -> PlesalecDto:
         self.cur.execute(
             """
@@ -243,7 +222,6 @@ class Repo:
 
         plesalci = self.cur.fetchall()
         return { emso: PlesalecDto(emso, uporabniskoime, ime, priimek, spolplesalca, datumprikljucitve.strftime("%d.%m.%Y"), sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, rola) for emso, ime, priimek, spolplesalca, datumprikljucitve, sirinaramen, obsegprsi, dolzinarokava, dolzinaodpasunavzdol, dolzinatelesa, stevilkanoge, uporabniskoime, rola in plesalci}
-    
 
     def cevlji_posameznika(self, emso) -> List[CevljiDto]:
         self.cur.execute(
@@ -408,7 +386,6 @@ class Repo:
         oprava = self.cur.fetchall()
         return [OpravaDto(ime, spol, moznost, pokrajina, omara) for (ime, spol, moznost, pokrajina, omara) in oprava]   
 
-
     def vrste_oblacil(self) -> List[VrstaOblacilaDto]:
         self.cur.execute(
             """
@@ -419,7 +396,6 @@ class Repo:
 
         oblacila = self.cur.fetchall()
         return  [VrstaOblacilaDto(ime, spol, pokrajina, omara, tip) for (ime, spol, pokrajina, omara, tip) in oblacila]
-
 
     def poisci_oblacila(self, vrsta_tupple):
         pokrajna, ime, spol = vrsta_tupple
@@ -516,30 +492,30 @@ class Repo:
         slike = self.cur.fetchall()
         return [SlikeCevljevDto(vrsta, slika if slika is None else base64.b64encode(slika).decode('utf-8')) for (vrsta, slika) in slike]    
     
-    def mere_zgornji_del(self, tip: str , seznam_naborov):          
-        id_conditions = " OR ".join([f"(ime = '{ime}' AND pokrajina = '{pokrajina}' AND spol = '{spol}' AND zaporednast = '{zaporednast}' AND sirinaramen IS NOT NULL AND obsegprsi IS NOT NULL AND dolzinarokava IS NOT NULL)" for (ime, pokrajina, spol, zaporednast) in seznam_naborov])
+    def mere_delov(self, tip: str , seznam_naborov):
+        if tip == 'ZgornjiDel':
+            mere = ['sirinaramen', 'obsegprsi', 'dolzinarokava']
+        elif tip == 'SpodnjiDel':
+            mere = ['dolzinaodpasunavzdol']
+        else:
+            mere = ['dolzinatelesa']
+        pogoji_mere = [f"{mera} IS NOT NULL" for mera in mere]
+        pogoji_tipa = ' AND '.join(pogoji_mere)         
+        id_conditions = " OR ".join([f"(ime = '{ime}' AND pokrajina = '{pokrajina}' AND spol = '{spol}' AND zaporednast = '{zaporednast}' AND {pogoji_tipa})" for (ime, pokrajina, spol, zaporednast) in seznam_naborov])
         sql_cmd = f"SELECT * FROM {tip} WHERE {id_conditions};"
 
         self.cur.execute(sql_cmd)
         oblacila = self.cur.fetchall()
-        return {(ime, pokrajina, spol, zaporednast): MereZgornjiDelDto(sirinaramen, obsegprsi, dolzinarokava) for (ime, pokrajina, spol, zaporednast, sirinaramen, obsegprsi, dolzinarokava) in oblacila}
 
-    def mere_spodnji_del(self, tip: str, seznam_naborov):          
-        id_conditions = " OR ".join([f"(ime = '{ime}' AND pokrajina = '{pokrajina}' AND spol = '{spol}' AND zaporednast = '{zaporednast}' AND dolzinaodpasunavzdol IS NOT NULL)" for (ime, pokrajina, spol, zaporednast) in seznam_naborov])
-        sql_cmd = f"SELECT * FROM {tip} WHERE {id_conditions};"
-
-        self.cur.execute(sql_cmd)
-        oblacila = self.cur.fetchall()
-        return {(ime, pokrajina, spol, zaporednast): MereSpodnjiDelDto(dolzinaodpasunavzdol) for (ime, pokrajina, spol, zaporednast, dolzinaodpasunavzdol) in oblacila}
-
-    def mere_enodelni_kos(self, tip: str, seznam_naborov):  
-        id_conditions = " OR ".join([f"(ime = '{ime}' AND pokrajina = '{pokrajina}' AND spol = '{spol}' AND zaporednast = '{zaporednast}' AND dolzinatelesa IS NOT NULL)" for (ime, pokrajina, spol, zaporednast) in seznam_naborov])
-        sql_cmd = f"SELECT * FROM {tip} WHERE {id_conditions};"
-
-        self.cur.execute(sql_cmd)
-        oblacila = self.cur.fetchall()
-        return {(ime, pokrajina, spol, zaporednast): MereEnodelniKosDto(dolzinatelesa) for (ime, pokrajina, spol, zaporednast, dolzinatelesa) in oblacila}
-
+        if tip == 'ZgornjiDel':
+            slovar = {(ime, pokrajina, spol, zaporednast): MereZgornjiDelDto(sirinaramen, obsegprsi, dolzinarokava) for (ime, pokrajina, spol, zaporednast, sirinaramen, obsegprsi, dolzinarokava) in oblacila}
+        elif tip == 'SpodnjiDel':
+            slovar = {(ime, pokrajina, spol, zaporednast): MereSpodnjiDelDto(dolzinaodpasunavzdol) for (ime, pokrajina, spol, zaporednast, dolzinaodpasunavzdol) in oblacila}
+        else:
+            slovar = {(ime, pokrajina, spol, zaporednast): MereEnodelniKosDto(dolzinatelesa) for (ime, pokrajina, spol, zaporednast, dolzinatelesa) in oblacila}
+        
+        return slovar
+    
     def mere_plesalci(self, tip: str, seznam_plesalcev): 
         if tip == 'ZgornjiDel':
             pogoji_tabele = "sirinaramen IS NOT NULL AND obsegprsi IS NOT NULL AND dolzinarokava IS NOT NULL"
@@ -563,6 +539,10 @@ class Repo:
         oblacila = self.cur.fetchall()
         return [GlavnaOblacilaDto(pokrajina, spol, ime, zaporednast, stanje) for (ime, pokrajina, spol, zaporednast, stanje) in oblacila]
 
+    #########################################################################################################################################
+    # FUNKCIJI ZA RISANJE GRAFOV
+    #########################################################################################################################################
+    
     def risanje_interaktivnega_piechart(self, emso):
         delo_po_mesecih = self.delo_plesalca_po_mescih(emso)
 
@@ -589,7 +569,7 @@ class Repo:
         # Filtriraj podatke za najnovejši mesec in leto
         najnovejse_podatki = final_df[(final_df['mesec'] == najnovejse_mesec) & (final_df['leto'] == najnovejse_leto)]
 
-        # Izdelava začetnega pie chart grafa
+        # Izdelava tortnega grafa
         fig = px.pie(najnovejse_podatki, values='skupno_trajanje', names='vrstadela',
                      title=f"Razmerje med vrstami opravljenega dela - {najnovejse_mesec}/{najnovejse_leto}",
                      color_discrete_sequence=px.colors.sequential.Purp_r,
@@ -597,7 +577,7 @@ class Repo:
 
         return fig
 
-    def slider(self, emso):
+    def interaktivni_histogram(self, emso):
         podatki = self.delo_skupno_delo_plesalca_po_mesecih(emso)
         df = pd.DataFrame(podatki).sort_values(by='leto')
         for i in range(len(df['skupno_trajanje'])):

@@ -2,14 +2,14 @@ function OznacenKvadratek(){
 
     $(document).ready(function () {
         $("#inlineFormCustomSelect").change(function () {
-          // Preveri ali je izbrano karkoli ustreznega 
+          // Preveri ali je izbrano karkoli ustreznega. 
           if ($(this).val() !== "Izberi...") {
-            // Če je izbrana ustrezna možnost, omogoči klik na gumb
+            // Če je izbrana ustrezna možnost, omogoči klik na gumb.
             $("#submitBtn4").attr("disabled", false);
             $('#submitBtn4').addClass('btn-secondary').removeClass('btn-primary');
             $(this).removeClass("is-invalid").addClass("is-valid");
           } else {
-            // Če ni izbrana nobena od ustreznih možnosti, onemogoči klik na gumb
+            // Če ni izbrana nobena od ustreznih možnosti, onemogoči klik na gumb.
             $(this).removeClass("is-valid").addClass("is-invalid");
             $("#submitBtn4").attr("disabled", true);
             $('#submitBtn4').addClass('btn-secondary').removeClass('btn-primary');
@@ -44,6 +44,7 @@ function FiltriranjeGledeNaSpol(){
         });
     });
 }
+
 function IzbraniVsiPodatki(){
   var izberiSpolSelect = document.getElementById("izberi_spol");
   var izberiTipSelect = document.getElementById("izberi_tip");
@@ -65,7 +66,7 @@ function IzbraniVsiPodatki(){
       }
   }
 
-  // Poslušaj spremembe v izbirnih poljih in checkboxih
+  // Spremlja spremembe v izbirnih poljih in checkboxih.
   izberiSpolSelect.addEventListener("change", preveriGumb);
   izberiTipSelect.addEventListener("change", preveriGumb);
   plesalciCheckboxes.forEach(function(checkbox) {

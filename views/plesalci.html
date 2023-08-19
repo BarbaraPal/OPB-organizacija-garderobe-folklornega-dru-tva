@@ -75,14 +75,21 @@
 
 
 <script>
-    
+  $.fn.bootstrapTable.locales['sl-SI'] = {
+    formatSearch: function () {
+      return 'Iskanje';
+    },
+    formatNoMatches: function () {
+      return 'Ni najdenih rezultatov.';
+    },
+  };
+  $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['sl-SI']);
+
   function showConfirmation() {
-    // Display a confirmation dialog
     if (confirm("Ali ste prepričani, da želite izbrisati plesalca?")) {
-      // No need to do anything here, the form will be submitted
     } else {
       alert("Brisanje plesalca preklicano.");
-      event.preventDefault(); // Prekine standardno obnašanje obrazca
+      event.preventDefault();
     }
   }
 </script>

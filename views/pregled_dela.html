@@ -57,4 +57,14 @@
     
     </div>
   </section>
-  
+<script>
+    $.fn.bootstrapTable.locales['sl-SI'] = {
+    formatSearch: function () {
+      return 'Iskanje';
+    },
+    formatNoMatches: function () {
+      return 'Ni najdenih rezultatov.';
+    },
+  };
+  $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['sl-SI']);
+</script>

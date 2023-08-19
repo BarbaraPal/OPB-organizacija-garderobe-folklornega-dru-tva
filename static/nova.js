@@ -6,14 +6,14 @@ function IskanjeImenDelo(seznam_imen_priimkov_in_up_imen){
     var vnos = $(this).val();
     var predlogi = [];
 
-    // Filtrirajte imena, ki se ujemajo z vnosom
+    // Filtrira imena, ki se ujemajo z vnosom
     for (var i = 0; i < imena_priimki_up_imena.length; i++) {
       if (imena_priimki_up_imena[i].toLowerCase().indexOf(vnos.toLowerCase()) === 0) {
         predlogi.push(imena_priimki_up_imena[i]);
       }
     }
 
-    // Prikazovanje predlogov
+    // Prikaže predloge
     var predlogiElement = $("#predlogi");
     predlogiElement.empty();
 
@@ -24,7 +24,6 @@ function IskanjeImenDelo(seznam_imen_priimkov_in_up_imen){
         var nameParts = fullName.split(" ");
         // Ko uporabnik klikne na predlog, ga vstavimo v input polje
         $("#imeInput").val(fullName);
-        // Set the username input to the first letter of name + surname
         var username = nameParts[0][0].toLowerCase() + nameParts[1].toLowerCase();
         $("#uporabniskoImeInput").val(username);
         predlogiElement.empty();
@@ -33,7 +32,7 @@ function IskanjeImenDelo(seznam_imen_priimkov_in_up_imen){
     }
   });
 
-  // Skrijte predloge, ko uporabnik klikne drugam na stran
+  // Skrije predloge, ko uporabnik klikne drugam na stran
   $(document).on("click", function(event) {
     var target = $(event.target);
     if (!target.is("#imeInput") && !target.is(".predlog")) {
@@ -41,6 +40,7 @@ function IskanjeImenDelo(seznam_imen_priimkov_in_up_imen){
     }
   });
 }
+
 function IzbiranjeDatuma(){
     $(function() {
         $('#datetimepicker1').datepicker({
@@ -50,7 +50,6 @@ function IzbiranjeDatuma(){
         });
     });
 }
-
 
 function DodajanjeDela(seznam_plesalcev, rola){
     $(document).ready(function() {
@@ -78,7 +77,7 @@ function DodajanjeDela(seznam_plesalcev, rola){
           vsaPoljaIzpolnjena = false;
         }
   
-        // Enable/Disable the button based on whether all fields are filled
+        // Gumb za oddajo (omogoči/onemogoči)
         var $gumb = $("#gumb");
         if (vsaPoljaIzpolnjena) {
           $gumb.attr("disabled", false);
@@ -90,22 +89,22 @@ function DodajanjeDela(seznam_plesalcev, rola){
         }
       }
   
-      // Function to check if the date is valid
+      // Funkcija, ki preverja če je datum veljaven.
       function isValidDate(dateString) {
         var regEx = /^\d{4}-\d{2}-\d{2}$/;
-        if (!dateString.match(regEx)) return false;  // Invalid format
+        if (!dateString.match(regEx)) return false;  
         var d = new Date(dateString);
         var dNum = d.getTime();
-        if (!dNum && dNum !== 0) return false; // NaN value, invalid date
+        if (!dNum && dNum !== 0) return false; 
         return d.toISOString().slice(0, 10) === dateString;
       }
   
-      // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna
+      // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna.
       $("#imeInput, #vrstaDela, #trajanjeMinut, #datum_izvajanja").on("input change", function () {
         preveriVeljavnostPolj();
       });
   
-      // Ob oddaji obrazca preveri, če so vsa polja izpolnjena
+      // Ob oddaji obrazca preveri, če so vsa polja izpolnjena.
       $("#myForm").on("submit", function (event) {
         preveriVeljavnostPolj();
         if (!$("#gumb").prop("disabled")) {
@@ -119,7 +118,6 @@ function DodajanjeDela(seznam_plesalcev, rola){
   
     });
 }
-
 
 function DodajanjePlesalca(){
   $(document).ready(function() {    
@@ -190,7 +188,6 @@ function DodajanjePlesalca(){
   });
 }
 
-
 function DodajanjeKosaOblacila(seznam, imeId, pokrajinaId, obrazecId, gumbId) {
   $(document).ready(function() {
     var seznam_nezazelenih = seznam;    
@@ -206,7 +203,7 @@ function DodajanjeKosaOblacila(seznam, imeId, pokrajinaId, obrazecId, gumbId) {
           vsaPoljaIzpolnjena = false;
         }
       }
-      // Enable/Disable the button based on whether all fields are filled
+      // Gumb za oddajo (omogoči/onemogoči).
       var $gumb = $("#" + gumbId);
       
       if (vsaPoljaIzpolnjena) {
@@ -218,13 +215,13 @@ function DodajanjeKosaOblacila(seznam, imeId, pokrajinaId, obrazecId, gumbId) {
       }
     }
 
-    // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna
+    // Ob pisanju v poljih obrazca preveri vsako polje, če je vrednost prazna.
     $("#" + imeId + ", #" + pokrajinaId).on("input change", function () {
       preveriVeljavnostPolj(seznam_nezazelenih, imeId, pokrajinaId, gumbId);
     });
     
 
-    // Ob oddaji obrazca preveri, če so vsa polja izpolnjena
+    // Ob oddaji obrazca preveri, če so vsa polja izpolnjena.
     $("#" + obrazecId).on("submit", function (event) {
       preveriVeljavnostPolj(seznam_nezazelenih, imeId, pokrajinaId, gumbId);
       var $gumb = $("#" + gumbId);
@@ -256,7 +253,6 @@ function PrikazovanjeImenaSlike(slikaid, slikalabel){
     });
 });
 }
-
 
 function DodajanjeOpraveKostumskePodobe(){
   $(document).ready(function() {    
@@ -295,8 +291,6 @@ function DodajanjeOpraveKostumskePodobe(){
         alert("Prosim izpolnite vsa polja.");
       }
     });
-    
-
   });
 }
 
@@ -384,7 +378,6 @@ function DodajanjeMoznosti(){
   });
 }
 
-
 function DodajanjeKEniIzmedMoznosti(){
   $(document).ready(function() {    
     function preveriVeljavnostPolj() {
@@ -426,7 +419,6 @@ function DodajanjeKEniIzmedMoznosti(){
 
   });
 }
-
 
 function DodajanjeTipaCevljev(){
   $(document).ready(function() {    
@@ -498,10 +490,3 @@ function DodajanjePosebnosti(){
 
   });
 }
-
-
-
-
-
-
-

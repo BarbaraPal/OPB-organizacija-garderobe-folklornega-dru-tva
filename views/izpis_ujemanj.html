@@ -8,13 +8,13 @@
               <div class="card mb-4 mb-md-0">
                 <div class="card-body">
                   <p class="mb-4"><b>Izpis ujemanj</b></p>                 
-                  <div class="table-container">
-                    % if ujemanja == False:
-                    <div  style="margin-top: 5px;" class="alert alert-danger">
-                      Ni bilo najdenih nobenih ujemanj. Preverite ali so vneseni vsi podatki o merah.
-                    </div>
-                    % else:
-                    <table class="table borderless" data-toggle="table" data-sticky-header="true">
+                    <div class="table-container">
+                      % if ujemanja == False:
+                        <div  style="margin-top: 5px;" class="alert alert-danger">
+                          Ni bilo najdenih nobenih ujemanj. Preverite ali so vneseni vsi podatki o merah.
+                        </div>
+                      % else:
+                      <table class="table borderless" data-toggle="table" data-sticky-header="true">
                         <thead class="table-light">
                           <tr >
                             <th scope="col">Vrsta oblačila</th>
@@ -34,12 +34,9 @@
                         </thead>
                         <tbody>
                        
-                        
                          % for i in range(len(ujemanja)):
-                          % p = pripadajoci_plesalci[i]
-                        
+                          % p = pripadajoci_plesalci[i] 
                             <tr>
-                            
                               <td>{{ujemanja[i][0]}}</td>
                               <td>{{ujemanja[i][1]}}</td>
                               <td>{{ujemanja[i][3]}}</td>
@@ -54,20 +51,11 @@
                                 <td scope="col">oblačilo: {{slovar_oblacil[ujemanja[i]].dolzinatelesa}} <br>plesalec: {{slovar_plesalcev[p].dolzinatelesa}}</td>
                               % end
                             </tr>
-                          
                            % end 
                         </tbody>
                       </table>
                     % end
-                    </div>
-
-
-
-
-
-
-
-
+                  </div>
                 </div>
               </div>
             </div>
@@ -75,10 +63,4 @@
         </div>
       </div>
     </div>
-  </div>
 </section>
-
-
-
-
-

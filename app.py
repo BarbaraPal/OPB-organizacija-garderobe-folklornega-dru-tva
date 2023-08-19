@@ -2,36 +2,23 @@
 # -*- encoding: utf-8 -*-
 
 # uvozimo bottle.py
-#from bottleext import get, post, run, request, template, redirect, static_file, url, error, response, template_user
 from bottleext import *
-# uvozimo ustrezne podatke za povezavo
 
+# uvozimo ustrezne podatke za povezavo
 from Data.Database import Repo
 from Data.Modeli import *
-
 from Data.Services import AuthService
 from functools import wraps
 
 import os
 import json
-import io
-import base64
 from itertools import permutations
 import plotly.io as pio
-
-
-
-
-#import tracemalloc
-#tracemalloc.start()
 
 # privzete nastavitve
 SERVER_PORT = os.environ.get('BOTTLE_PORT', 8080)
 RELOADER = os.environ.get('BOTTLE_RELOADER', True)
 DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
-
-# odkomentiraj, če želiš sporočila o napakah
-#debug(True)
 
 repo = Repo()
 
@@ -54,7 +41,7 @@ def cookie_required(f):
 
 def rola_required(f):
     """
-    Dekorator, ki zahteva veljaven piškotek. Če piškotka ni, uporabnika preusmeri na stran za prijavo.
+    Dekorator, ki zahteva piškotek, ki je 'rola=True'. Če rola='False', uporabnika preusmeri na domačo stran.
     """
     @wraps(f)
     def decorated( *args, **kwargs):
@@ -68,29 +55,29 @@ def rola_required(f):
     return decorated
 
 def pretvori_v_decimal(vrednost):
+    '''Funkcija, ki vrne int kot decimalno število.'''
     try:
         return Decimal(vrednost)
     except:
         return None
 
-def pretvori_v_bytes(slika):
-    try:
-        return bytes(slika)
-    except:
-        return None
-
-def find_all_combinations(plesalci, oblacila):
-    all_combinations = list(permutations(oblacila, len(plesalci)))
-    return all_combinations
+def najdi_vse_moznosti(plesalci, oblacila):
+    '''Funkcija, ki vrne seznam vseh kombinacij.'''
+    vse_kombinacije = list(permutations(oblacila, len(plesalci)))
+    return vse_kombinacije
 
 def najdi_optimum(slovar_plesalcev, slovar_oblacil, tip_oblacil):
-    oblacila = [primary for primary in slovar_oblacil.keys()]
+    '''
+    Funkcija izmed vseh možnosti, kjer so mere oblačila večje ali enake meram plesalca, izbere tisto, 
+    ki je po metodi najmanjših kvadratov najboljša.
+    '''
+    oblacila = [kljuc for kljuc in slovar_oblacil.keys()]
     plesalci = [emso for emso in slovar_plesalcev.keys()]
-    combinations = find_all_combinations(plesalci, oblacila)
+    kombinacije = najdi_vse_moznosti(plesalci, oblacila)
     minimum = 1000000
     kombinacija = False
 
-    for i in combinations:
+    for i in kombinacije:
         minimum_primer = 0
         for j in plesalci:
             index = plesalci.index(j)
@@ -116,7 +103,7 @@ def najdi_optimum(slovar_plesalcev, slovar_oblacil, tip_oblacil):
             kombinacija = i
     
     return (kombinacija, plesalci)
-
+############################################################################################################################################################
 
 @get('/static/<filename:path>')
 def static(filename):
@@ -184,7 +171,7 @@ def odjava():
 @cookie_required
 def podatki_o_profilu():
     """
-    Prikaže podatke o uporabniku in še kaj.
+    Prikaže podatke o uporabniku.
     """
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
@@ -211,6 +198,9 @@ def spremeni_geslo():
 @get('/domov/')
 @cookie_required
 def osnovna_stran():
+    '''
+    Prikaže osnovno stran.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     return template('domov.html', uporabnisko_ime = uporabnisko_ime, rola = rola)
@@ -218,6 +208,9 @@ def osnovna_stran():
 @get('/plesalci/<id>/')
 @rola_required
 def plesalci(id):
+    '''
+    Uporabniku, ki ima rolo True, se prikaže seznam vseh plesalcev. Ob kliku na točno določenega plesalca, se prikaže več podatkov o njem.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     plesalci = repo.plesalci()
@@ -232,11 +225,17 @@ def plesalci(id):
         plesalec = plesalci[id]
         cevlji = repo.cevlji_posameznika(plesalec.emso)
         delo = repo.delo_posameznika(plesalec.emso)
-        return template('podatki_plesalca.html', uporabnisko_ime = uporabnisko_ime, rola = rola, plesalecdto = plesalec, seznam_imen = seznam_imen, napaka = napaka, potrdilo = potrdilo, cevljidto = cevlji, delodto = delo, potrdilo_mere = potrdilo_mere)
+        return template('podatki_plesalca.html', uporabnisko_ime = uporabnisko_ime, rola = rola, 
+                        plesalecdto = plesalec, seznam_imen = seznam_imen, 
+                        napaka = napaka, potrdilo = potrdilo, potrdilo_mere = potrdilo_mere, 
+                        cevljidto = cevlji, delodto = delo)
 
 @get('/dodajanje_plesalcev/')
 @rola_required
 def dodajanje_plesalcev():
+    '''
+    Prikaz obrazca za dodajanje plesalca v bazo podatkov.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     return template('dodajanje_plesalcev.html', uporabnisko_ime = uporabnisko_ime, rola = rola)
@@ -245,6 +244,9 @@ def dodajanje_plesalcev():
 @post('/dodaj_plesalca/')
 @rola_required
 def dodaj_plesalca():
+    '''
+    Doda plesalca v bazo podatkov. Če je dodajanje uspešno, se pokaže pozitiven odziv, drugače pa uporabnika opozori da dodajanje ni bilo uspešno.
+    '''
     emso = request.forms.getunicode('emsonovega') 
     ime = request.forms.getunicode('ime')
     priimek = request.forms.getunicode('priimek')
@@ -262,6 +264,9 @@ def dodaj_plesalca():
 @post('/izbrisi_plesalca/')
 @rola_required
 def izbrisi_plesalca():
+    '''
+    Izbriše plesalca iz baze podatkov.
+    '''
     emso_plesalca = request.forms.getunicode('emso')
     repo.izbrisi_gen(Plesalec, (emso_plesalca,), id_cols=('emso',))
     redirect(url('plesalci', id = 'vsi_plesalci', odziv = 'Uspešno izbrisan plesalec!'))
@@ -269,6 +274,9 @@ def izbrisi_plesalca():
 @post('/dodaj_uporabnika/')
 @rola_required
 def dodaj_uporabnika():
+    '''
+    Za obstoječega plesalca ustvari uporabniški račun.
+    '''
     uporabnisko_ime = request.forms.getunicode('uporabnisko_ime')
     geslo = request.forms.getunicode('geslo')
     funkcija = True if request.forms.getunicode('funkcija') == 'True' else False
@@ -283,6 +291,9 @@ def dodaj_uporabnika():
 @post('/spremeni_geslo_uporabnika/')
 @rola_required
 def spremeni_geslo_uporabnika():
+    '''
+    Spremeni geslo nekega obstoječega uporabnika. (Spremeni lahko samo nekdo z rolo True, uporabno v primeru ko uporabnik pozabi svoje geslo.)
+    '''
     uporabnik = request.forms.get('uporabnik')
     uporabnik_tabela = repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("uporabniskoime",))
     novo_geslo = request.forms.get('geslo')
@@ -294,6 +305,9 @@ def spremeni_geslo_uporabnika():
 @post('/spremeni_funkcijo_uporabnika/')
 @rola_required
 def spremeni_funkcijo_uporabnika():
+    '''
+    Spremeni rolo uporabniku.
+    '''
     uporabnik = request.forms.get('uporabnik')
     uporabnik_tabela = repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("uporabniskoime",))
     nova_funkcija = request.forms.get('funkcija')
@@ -304,6 +318,9 @@ def spremeni_funkcijo_uporabnika():
 @post('/odstrani_uporabnika/')
 @rola_required
 def odstrani_uporabnika():
+    '''
+    Odstrani uporabniški račun.
+    '''
     uporabnik = request.forms.getunicode('uporabnik')
     uporabnik_tabela = repo.dobi_gen_id(Uporabnik, (uporabnik,), id_cols=("uporabniskoime",))
     repo.izbrisi_gen(Uporabnik, (uporabnik,), id_cols=('uporabniskoime',))
@@ -312,6 +329,9 @@ def odstrani_uporabnika():
 @post('/posodobi_mere/')
 @rola_required
 def posodobi_mere():
+    '''
+    Spremeni mere plesalca.
+    '''
     emso_plesalca = request.forms.getunicode('id_plesalca')
     plesalec = repo.dobi_gen_id(Plesalec, (emso_plesalca,), id_cols=("emso",))
 
@@ -335,6 +355,9 @@ def posodobi_mere():
 @get('/delo/')
 @cookie_required
 def delo():
+    '''
+    Prikaz obrazca za dodajanje dela plesalca v bazo podatkov.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie('rola')
     potrdilo = request.query.getunicode('potrdilo')
@@ -348,6 +371,9 @@ def delo():
 @post('/dodaj_delo/')
 @cookie_required
 def dodaj_delo():
+    '''
+    Dodajanje dela plesalca v bazo podatkov.
+    '''
     vrsta_dela = request.forms.getunicode('vrsta_dela')
     datum_izvajanja = datetime.strptime(request.forms.get('datum_izvajanja'), '%Y-%m-%d').date()
     trajanje = timedelta(minutes = int(request.forms.get('trajanje')))
@@ -366,6 +392,9 @@ def dodaj_delo():
 @get('/kostumske_podobe/<kostumska_podoba>/<imeoprave>/')
 @cookie_required
 def kostumske_podobe(kostumska_podoba, imeoprave):
+    '''
+    Prikaz oprav kostumskih podob.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     odziv = request.query.getunicode('odziv')
@@ -399,6 +428,9 @@ def kostumske_podobe(kostumska_podoba, imeoprave):
 @post('/dodaj_kostumsko_podobo/')
 @rola_required
 def dodaj_kostumsko_podobo():
+    '''
+    Doda opravo kostumske podobe v bazo.
+    '''
     kostumska_podoba = request.forms.getunicode('kostumska_podoba')
     ime_oprave = request.forms.getunicode('oprava')
     spol_oprave = request.forms.getunicode('spol_oprave')
@@ -412,6 +444,9 @@ def dodaj_kostumsko_podobo():
 @post('/odstrani_opravo_kostumske_podobe/')
 @rola_required
 def odstrani_opravo_kostumske_podobe():
+    '''
+    Odstrani opravo kostumske podobe.
+    '''
     kostumska_podoba = request.forms.getunicode('kostumska_podoba')
     ime_oprave = request.forms.getunicode('oprava')
     repo.izbrisi_gen(OpravaKostumskePodobe, (kostumska_podoba, ime_oprave), ('imekostumskepodobe', 'imeoprave'))
@@ -420,6 +455,9 @@ def odstrani_opravo_kostumske_podobe():
 @post('/dodaj_oblacila_k_kostumski_podobi/')
 @rola_required
 def dodaj_oblacila_k_kostumski_podobi():
+    '''
+    Doda vrste oblačil k opravi kostumske podobe v bazi podatkov.
+    '''
     kostumska_podoba = request.forms.getunicode('kostumska_podoba')
     ime_oprave = request.forms.getunicode('oprava')
     moznost = int(request.forms.getunicode('moznost'))
@@ -438,17 +476,24 @@ def dodaj_oblacila_k_kostumski_podobi():
 @post('/odstrani_povezavo_oblacilo_KP/')
 @rola_required
 def odstrani_povezavo_oblacilo_KP():
+    '''
+    Odstrani vrsto oblačila iz oprave kostumskih podob.
+    '''
     kostumska_podoba = request.forms.getunicode('kostumska_podoba')
     ime_oprave = request.forms.getunicode('oprava')
     ime = request.forms.getunicode('ime_vrste')
     pokrajina = request.forms.getunicode('pokrajina_vrste')
     spol = request.forms.getunicode('spol_vrste')
-    repo.izbrisi_gen(ROpravaVrsta, (kostumska_podoba, ime_oprave, ime, pokrajina, spol), ('imekostumskepodobe', 'imeoprave', 'imevrste', 'pokrajinavrste', 'spolvrste'))
+    repo.izbrisi_gen(ROpravaVrsta, (kostumska_podoba, ime_oprave, ime, pokrajina, spol), 
+                     ('imekostumskepodobe', 'imeoprave', 'imevrste', 'pokrajinavrste', 'spolvrste'))
     redirect(url('kostumske_podobe', kostumska_podoba = kostumska_podoba, imeoprave = ime_oprave))
 
 @post('/spremeni_cevlje_oprave/')
 @rola_required
 def spremeni_čevlje_oprave():
+    '''
+    Spremeni podatek o čevljih ki sodijo k opravi kostumske podobe.
+    '''
     kostumska_podoba = request.forms.getunicode('kostumska_podoba')
     ime_oprave = request.forms.getunicode('oprava')
     tip_cevljev_get = request.forms.getunicode('cevlji')
@@ -461,6 +506,9 @@ def spremeni_čevlje_oprave():
 @post('/dodaj_posebnosti_oprave/')
 @rola_required
 def dodaj_posebnosti_oprave():
+    '''
+    Doda posebnosti oprave kostumske podobe.
+    '''
     kostumska_podoba = request.forms.getunicode('kostumska_podoba')
     ime_oprave = request.forms.getunicode('oprava')
     posebnost = request.forms.getunicode('posebnost')
@@ -475,6 +523,9 @@ def dodaj_posebnosti_oprave():
 @post('/odstrani_posebnosti_oprave/')
 @rola_required
 def odstrani_posebnosti_oprave():
+    '''
+    Odstrani posebnosti oprave kostumske podobe.
+    '''
     kostumska_podoba = request.forms.getunicode('kostumska_podoba')
     ime_oprave = request.forms.getunicode('oprava')
     oprava = repo.dobi_gen_id(OpravaKostumskePodobe, (kostumska_podoba, ime_oprave), ('imekostumskepodobe', 'imeoprave'))
@@ -486,12 +537,17 @@ def odstrani_posebnosti_oprave():
 @get('/oblacila/<stran>/')
 @cookie_required
 def oblacila(stran):
+    '''
+    Prikaže tabelo z vrstami oblačil in njihovimi osnovnimi podatki.
+    Ob kliku na točno določeno vrsto oblačil prikaže podatke o vseh kosih v garderobi.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie('rola')
     vrste_oblacil = repo.vrste_oblacil()
     if stran == 'vrste_oblacil':
         odziv = request.query.getunicode('odziv')
-        return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, napaka = False, odziv = odziv)
+        return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, 
+                        vrste_oblacil = vrste_oblacil, napaka = False, odziv = odziv)
     else:
         ime_vrste = request.query.getunicode('ime_vrste')
         spol_vrste = request.query.getunicode('spol_vrste')
@@ -501,14 +557,20 @@ def oblacila(stran):
         try:
             oblacila = repo.poisci_oblacila((pokrajina_vrste, ime_vrste, spol_vrste))
             if oblacila == []:
-                return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, napaka = 'Oblačil te vrste še/več ni!', odziv = False)    
+                return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, 
+                                vrste_oblacil = vrste_oblacil, napaka = 'Oblačil te vrste še/več ni!', odziv = False)    
         except Exception:
-            return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, napaka = 'Neznana napaka!', odziv = False)
-        return template('konkretna_vrsta.html', uporabnisko_ime = uporabnisko_ime, rola = rola, oblacila = oblacila, vrsta = vrsta)
+            return template('vse_vrste_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, 
+                            vrste_oblacil = vrste_oblacil, napaka = 'Neznana napaka!', odziv = False)
+        return template('konkretna_vrsta.html', uporabnisko_ime = uporabnisko_ime, rola = rola, 
+                        oblacila = oblacila, vrsta = vrsta)
 
 @get('/dodaj_oblacilo/')
 @rola_required
 def dodaj_oblacilo():
+    '''
+    Prikaže obrazec za dodajanje kosa oblačila v bazo podatkov.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     potrdilo = request.query.getunicode('potrdilo')
@@ -520,11 +582,18 @@ def dodaj_oblacilo():
     seznam_pokrajin = list(set([vrsta.pokrajina for vrsta in vrste_oblacil]))
     seznam_imen = list(set([vrsta.ime for vrsta in vrste_oblacil]))
     slovar_nezazeljenih ={tip: [ime for ime in seznam_imen if ime not in seznam] for tip, seznam in slovar_imen_tipov.items()}
-    return template('dodajanje_oblacil.html', uporabnisko_ime = uporabnisko_ime, rola = rola, vrste_oblacil = vrste_oblacil, slovar_imen_tipov = slovar_imen_tipov, pokrajina = seznam_pokrajin, slovar_nezazeljenih = slovar_nezazeljenih, napaka = napaka, potrdilo = potrdilo, nova_vrsta = nova_vrsta)
+    return template('dodajanje_oblacil.html', uporabnisko_ime = uporabnisko_ime, 
+                    rola = rola, vrste_oblacil = vrste_oblacil, 
+                    slovar_imen_tipov = slovar_imen_tipov, pokrajina = seznam_pokrajin, 
+                    slovar_nezazeljenih = slovar_nezazeljenih, 
+                    napaka = napaka, potrdilo = potrdilo, nova_vrsta = nova_vrsta)
 
 @post('/dodaj_oblacilo/')
 @rola_required
 def dodaj_oblacilo():
+    '''
+    Doda točno določeni kos oblačila v bazo podatkov. V primeru da kos že obstaja v bazi podatkov, vrne negativen odziv.
+    '''
     tip_oblacila = request.forms.getunicode('tip')
     ime = request.forms.getunicode('ime_vrste')
     pokrajina = request.forms.getunicode('pokrajina_vrste')
@@ -587,6 +656,9 @@ def dodaj_oblacilo():
 @post('/dodaj_omaro/')
 @rola_required
 def dodaj_omaro():
+    '''
+    Vrsti oblačila doda podatek o omari v kateri se nahaja.
+    '''
     ime = request.forms.getunicode('ime_vrste')
     pokrajina = request.forms.getunicode('pokrajina_vrste')
     spol = request.forms.getunicode('spol_vrste')
@@ -598,6 +670,9 @@ def dodaj_omaro():
 @post('/spremeni_omaro/')
 @rola_required
 def spremeni_omaro():
+    '''
+    Vrsti oblačila spremeni podatek o omari v kateri se nahaja.
+    '''
     ime = request.forms.getunicode('ime_vrste')
     pokrajina = request.forms.getunicode('pokrajina_vrste')
     spol = request.forms.getunicode('spol_vrste')
@@ -609,8 +684,11 @@ def spremeni_omaro():
     
 
 @post('/posodobi_podatke_glavna_oblacila/')
-@   rola_required
+@rola_required
 def posodobi_podatke_glavna_oblacila():
+    '''
+    Spremeni podatke točno določenega kosa oblačila.
+    '''
     ime = request.forms.getunicode('ime_vrste')
     pokrajina = request.forms.getunicode('pokrajina_vrste')
     spol = request.forms.getunicode('spol_vrste')
@@ -641,6 +719,9 @@ def posodobi_podatke_glavna_oblacila():
 @post('/odstrani_glavno_oblacilo/')
 @rola_required
 def odstrani_glavno_oblacilo():
+    '''
+    Odstrani točno določeni kos oblačila.
+    '''
     ime = request.forms.getunicode('ime_vrste')
     pokrajina = request.forms.getunicode('pokrajina_vrste')
     spol = request.forms.getunicode('spol_vrste')
@@ -651,6 +732,9 @@ def odstrani_glavno_oblacilo():
 @post('/spremeni_sliko_glavna/')
 @rola_required
 def spremeni_sliko_glavna():
+    '''
+    Spremeni sliko točno določenega kosa oblačila.
+    '''
     ime = request.forms.getunicode('ime_vrste')
     pokrajina = request.forms.getunicode('pokrajina_vrste')
     spol = request.forms.getunicode('spol_vrste')
@@ -663,8 +747,11 @@ def spremeni_sliko_glavna():
     redirect(url('oblacila', stran = 'oblacilo', ime_vrste = ime, pokrajina_vrste = pokrajina, spol_vrste = spol))
 
 @post('/posodobi_podatke_dodatna_oblacila/')
-@   rola_required
+@rola_required
 def posodobi_podatke_dodatna_oblacila():
+    '''
+    Spremeni podatke o točno določeni vrsti dodatnih oblačil.
+    '''
     ime = request.forms.getunicode('ime_vrste')
     pokrajina = request.forms.getunicode('pokrajina_vrste')
     spol = request.forms.getunicode('spol_vrste')
@@ -680,6 +767,9 @@ def posodobi_podatke_dodatna_oblacila():
 @post('/odstrani_dodatno_oblacilo/')
 @rola_required
 def odstrani_dodatno_oblacilo():
+    '''
+    Odstrani vrsto dodatnih oblačil.
+    '''
     ime = request.forms.getunicode('ime_vrste')
     pokrajina = request.forms.getunicode('pokrajina_vrste')
     spol = request.forms.getunicode('spol_vrste')
@@ -689,6 +779,9 @@ def odstrani_dodatno_oblacilo():
 @post('/spremeni_sliko_dodatna/')
 @rola_required
 def spremeni_sliko_dodatna():
+    '''
+    Spremeni sliko neke vrste dodatnih oblačil.
+    '''
     ime = request.forms.getunicode('ime_vrste')
     pokrajina = request.forms.getunicode('pokrajina_vrste')
     spol = request.forms.getunicode('spol_vrste')
@@ -702,16 +795,22 @@ def spremeni_sliko_dodatna():
 @post('/odstrani_vrsto/')
 @rola_required
 def odstrani_vrsto():
+    '''
+    Odstrani vrsto oblačil v bazi podatkov.
+    S tem se izbrišejo tudi vsi kosi oblačil te vrste.
+    '''
     ime = request.forms.getunicode('ime')
     pokrajina = request.forms.getunicode('pokrajina')
     spol = request.forms.getunicode('spol')
     repo.izbrisi_gen(VrstaOblacila, (ime,pokrajina, spol), id_cols=('ime','pokrajina', 'spol'))
     redirect(url('oblacila', stran = 'vrste_oblacil', odziv = 'Uspešno izbrisana vrsta oblačil!'))
 
-
 @get('/vsi_cevlji/')
 @cookie_required
 def vsi_cevlji():
+    '''
+    Prikaže tabelo vseh čevljev z njihovimi osnovnimi informacijami.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     cevlji = repo.vsi_cevlji()
@@ -719,10 +818,12 @@ def vsi_cevlji():
     odziv = request.query.getunicode('odziv')
     return template('vsi_cevlji.html', uporabnisko_ime = uporabnisko_ime, rola = rola, cevlji = cevlji, plesalci = plesalci, odziv = odziv)
 
-
 @get('/dodajanje_cevljev/')
 @rola_required
 def dodajanje_cevljev():
+    '''
+    Prikaže obrazec za dodajanje para čevljev.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     plesalci = repo.plesalci()
@@ -737,6 +838,10 @@ def dodajanje_cevljev():
 @post('/dodaj_cevlje/')
 @rola_required
 def dodaj_cevlje():
+    '''
+    Doda par čevljev v bazo podatkov.
+    V primeru da par čevljev že obstaja ali da vnešen plesalec ne obstaja, vrne negativen odziv.
+    '''
     vrste_cevljev = repo.tipi_cevljev()
     tip = request.forms.getunicode('tip')
     velikost = request.forms.getunicode('velikost')
@@ -770,6 +875,9 @@ def dodaj_cevlje():
 @post('/dodaj_sliko_cevljev/')
 @rola_required
 def dodaj_sliko_cevljev():
+    '''
+    Doda sliko določene vrste/tipa čevljev.
+    '''
     tip = request.forms.getunicode('tip')
     slika_get = bytes(request.files.get('slika').file.read())
     slika = slika_get if slika_get != b'' else None
@@ -790,6 +898,9 @@ def dodaj_sliko_cevljev():
 @post('/odstrani_cevlje/')
 @rola_required
 def odstrani_cevlje():
+    '''
+    Odstrani par čevljev iz baze podatkov.
+    '''
     vrsta = request.forms.getunicode('vrsta')
     velikost = int(request.forms.getunicode('velikost'))
     zapst = int(request.forms.getunicode('zapst'))
@@ -799,6 +910,9 @@ def odstrani_cevlje():
 @get('/slika_cevljev/<id>/')
 @cookie_required
 def slika_cevljev(id):
+    '''
+    Prikaže sliko vrste/tipa čevljev.
+    '''
     slike = repo.vrste_cevljev_in_slike()
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
@@ -807,6 +921,9 @@ def slika_cevljev(id):
 @post('/odstrani_tip_cevljev/')
 @rola_required
 def odstrani_tip_cevljev():
+    '''
+    Ostrani vrsto/tip čevljev iz baze podatkov in s tem vse pare čevljev te vrste/tipa.
+    '''
     vrsta = request.forms.getunicode('vrsta')
     repo.izbrisi_gen(TipCevljev, (vrsta,), ('vrsta',))
     redirect(url('dodajanje_cevljev', potrdilo1 = f'Vrsta čevljev: {vrsta} uspešno izbrisana.'))
@@ -814,6 +931,9 @@ def odstrani_tip_cevljev():
 @post('/urejanje_lastnika_cevljev/')
 @rola_required
 def urejanje_lastnika_cevljev():
+    '''
+    Paru čevljev dodeli novega lastnika. Če izbran plesalec ne obstaja v bazi podatkov, vrne negativen odziv.
+    '''
     vrsta = request.forms.getunicode('vrsta')
     velikost = int(request.forms.getunicode('velikost'))
     zapst = int(request.forms.getunicode('zapst'))
@@ -833,6 +953,9 @@ def urejanje_lastnika_cevljev():
 @get('/ujemanje_plesalec_oblacilo/')
 @rola_required
 def ujemanje_plesalec_oblacilo():
+    '''
+    Prikaže 1. del obrazca za iskanje ujemanja plesalcev in oblačila.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     napaka = request.query.getunicode('napaka')
@@ -842,6 +965,9 @@ def ujemanje_plesalec_oblacilo():
 @post('/ujemanje_plesalec_oblacilo_1/')
 @rola_required
 def ujemanje_plesalec_oblacilo_1():
+    '''
+    Prikaže 2. del obrazca za iskanje ujemanja plesalcev in oblačila.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     spol = request.forms.getunicode('spol')
@@ -866,6 +992,9 @@ def ujemanje_plesalec_oblacilo_1():
 @post('/ujemanje_plesalec_oblacilo_2/')
 @rola_required
 def ujemanje_plesalec_oblacilo_2():
+    '''
+    Prikaže 3. del obrazca za iskanje ujemanja plesalcev in oblačila.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     spol = request.forms.getunicode('spol')
@@ -890,6 +1019,10 @@ def ujemanje_plesalec_oblacilo_2():
 @post('/ujemanje_plesalec_oblacilo_3/')
 @rola_required
 def ujemanje_plesalec_oblacilo_3():
+    '''
+    Vrne seznam izbranih plesalcev z dodeljenimi oblačili. 
+    Če je bilo izbranih plesalcev več kot kosov oblačil, vrne negativen odziv in uporabnika vrne na 1.del obrazca.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     tip = request.forms.getunicode('tip')
@@ -910,12 +1043,7 @@ def ujemanje_plesalec_oblacilo_3():
     
     slovar_plesalcev = repo.mere_plesalci(tip, plesalci_emso)
     plesalci = repo.plesalci()
-    if tip == 'ZgornjiDel':
-        slovar_oblacil = repo.mere_zgornji_del(tip, seznam_naborov=seznam_oblacil)
-    elif tip == 'SpodnjiDel':
-        slovar_oblacil = repo.mere_spodnji_del(tip, seznam_naborov=seznam_oblacil)
-    else:
-        slovar_oblacil = repo.mere_enodelni_kos(tip, seznam_naborov=seznam_oblacil)
+    slovar_oblacil = repo.mere_delov(tip, seznam_naborov=seznam_oblacil)
     ujemanja, pripadajoci_plesalci = najdi_optimum(slovar_plesalcev, slovar_oblacil, tip)
     
     return template('izpis_ujemanj.html', uporabnisko_ime = uporabnisko_ime, rola= rola, 
@@ -925,15 +1053,21 @@ def ujemanje_plesalec_oblacilo_3():
 @get('/delo_skupno/')
 @rola_required
 def delo_skupno():
+    '''
+    Prikaže tabelo vseh plesalcev s podatki o njihovem delu v trenutnem mesecu in letu.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     delo = repo.delo_skupno()
-
     return template('pregled_dela.html', uporabnisko_ime = uporabnisko_ime, rola = rola, delo = delo)
 
 @get('/delo_statistika/<emso>/')
 @cookie_required
 def delo_statistika(emso):
+    '''
+    Prikaz statistike dela glede na uporabnikovo rolo.
+    Uporabnik z rolo True vidi statistiko vseh plesalcev, navaden uporabnik, pa vidi le svoje podatke.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     plesalec = repo.dobi_gen_id(Plesalec, (emso,), ('emso',))
@@ -947,13 +1081,18 @@ def delo_statistika(emso):
     else:
         fig = repo.risanje_interaktivnega_piechart(emso)
         podatki_za_graf = pio.to_json(fig)
-        fig2 = repo.slider(emso)
+        fig2 = repo.interaktivni_histogram(emso)
         podatki_za_graf2 = pio.to_json(fig2)
-    return template('profil_dela.html', uporabnisko_ime = uporabnisko_ime, rola = rola, zgodovina_dela = zgodovina_dela, plesalec = plesalec, podatki_za_graf=podatki_za_graf, podatki_za_graf2 = podatki_za_graf2)
+    return template('profil_dela.html', uporabnisko_ime = uporabnisko_ime, rola = rola, 
+                    zgodovina_dela = zgodovina_dela, plesalec = plesalec, 
+                    podatki_za_graf=podatki_za_graf, podatki_za_graf2 = podatki_za_graf2)
         
 @get('/delo_posameznika/')
 @cookie_required
 def delo_posameznika():
+    '''
+    Usmeri uporabnika na pravo stran, glede na njegovo rolo.
+    '''
     uporabnisko_ime = request.get_cookie('uporabniskoime')
     rola = request.get_cookie("rola")
     if rola == 'True':

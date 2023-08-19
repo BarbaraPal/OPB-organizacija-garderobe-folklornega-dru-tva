@@ -1,14 +1,14 @@
 function preveriVeljavnostGesla(){
 
     $("#novo_spremenjeno_geslo").on("input", function() {
-        // Preberite vrednost vnesenega gesla
+        // Prebere vrednost vnesenega gesla.
         var geslo = $(this).val();
       
-        // Preverite, ali je geslo veljavno (npr. dolžina od 8 do 25 znakov, črke, številke, in '_')
+        // Preveri, ali je geslo veljavno (npr. dolžina od 8 do 25 znakov, črke, številke, in '_').
         var gesloRegex = /^\w{8,25}$/;
         var isGesloValid = gesloRegex.test(geslo);
       
-        // Prikažite ustrezno sporočilo in nastavite barvo ozadja
+        // Prikaže ustrezno sporočilo in nastavite barvo ozadja.
         if (isGesloValid) {
           $("#gesloValidFeedback3").text("Geslo je veljavno.");
           $(this).removeClass("is-invalid").addClass("is-valid");
@@ -17,10 +17,10 @@ function preveriVeljavnostGesla(){
           $(this).removeClass("is-valid").addClass("is-invalid");
         }
       
-        // Preverite veljavnost celotnega obrazca
+        // Preveri veljavnost celotnega obrazca.
         var isFormValid = $("#myForm3")[0].checkValidity();
       
-        // Nastavite gumb za pošiljanje glede na veljavnost obrazca
+        // Nastavi gumb za oddajo glede na veljavnost obrazca.
         if (isFormValid) {
           $("#submitBtn3").attr("disabled", false);
           $('#submitBtn3').addClass('btn-primary').removeClass('btn-primary');

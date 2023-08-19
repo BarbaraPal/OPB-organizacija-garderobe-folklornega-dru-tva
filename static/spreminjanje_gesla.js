@@ -1,12 +1,5 @@
 function preveriGesla(){
-    // ----------- Set all elements as INVALID --------------
-    //var myInputElements = document.querySelectorAll(".form-control");
-    //var i;
-    //for (i = 0; i < myInputElements.length; i++) {
-    //  myInputElements[i].classList.add('is-invalid');
-    //  myInputElements[i].classList.remove('is-valid');
-    //}
-    // ------------ Check passwords similarity --------------
+    // ------------ Preveri ali se gesli ujemata --------------
     $('#pwdId, #cPwdId').on('keyup', function () {
       if ($('#pwdId').val() != '' && $('#cPwdId').val() != '' && $('#pwdId').val() == $('#cPwdId').val() ) {
         $('#cPwdValid').show();
@@ -34,7 +27,7 @@ function preveriGesla(){
         $('#submitBtn').addClass('btn-primary').removeClass('btn-primary');
       }
     });
-    // ----------------- Validate on submit -----------------
+    // ----------------- Gumb -----------------
     let currForm1 = document.getElementById('myForm1');
     currForm1.addEventListener('submit', function(event) {
       if (currForm1.checkValidity() === false) {
@@ -48,7 +41,6 @@ function preveriGesla(){
 
       }
     }, false);
-    // ----------------- Validate on input -----------------
     currForm1.querySelectorAll('.form-control').forEach(input => {
       input.addEventListener(('input'), () => {
         if (input.checkValidity()) {
@@ -59,7 +51,6 @@ function preveriGesla(){
           input.classList.add('is-invalid');
         }
         var is_valid = $('.form-control').length === $('.form-control.is-valid').length;
-        // $("#submitBtn").attr("disabled", !is_valid);
         if (is_valid) {
           $("#submitBtn").attr("disabled",false);
           $('#submitBtn').addClass('btn-primary').removeClass('btn-primary');
@@ -69,5 +60,4 @@ function preveriGesla(){
         }
       });
     });
-    // ------------------------------------------------------
   }
