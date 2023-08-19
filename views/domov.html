@@ -2,7 +2,7 @@
 <div class="container">
 <div class="row">
   <div class="col-md-6 mb-4">
-    <a href="/kostumske_podobe/osnovna/stran/">
+    <a href="{{url('kostumske_podobe', kostumska_podoba = 'osnovna', imeoprave = 'stran')}}">
       <img src="/static/oprava_kostumske_podobe.jpg" class="img-fluid" alt="...">
       <div class="carousel-caption d-md-block">
         <h1>Kostumske podobe</h1>
@@ -10,15 +10,15 @@
     </a>  
   </div>
   <div class="col-md-6 mb-4">
-    <a href="/plesalci/vsi_plesalci/">
+    <a href="{{url('oblacila', stran = 'vrste_oblacil')}}">
       <img src="/static/aktivni_plesalci.jpg" class="img-fluid" alt="...">
       <div class="carousel-caption d-md-block">
-        <h1>Aktivni plesalci</h1>
+        <h1>Oblačila</h1>
       </div>
     </a>
   </div>
   <div class="col-md-6 mb-4">
-    <a href="/vsi_cevlji/">
+    <a href="{{url('vsi_cevlji')}}">
       <img src="/static/cevlji.jpg" class="img-fluid" alt="...">
       <div class="carousel-caption d-md-block">
         <h1>Čevlji</h1>
@@ -26,7 +26,7 @@
     </a>
   </div>
   <div class="col-md-6 mb-4">
-    <a href="/delo/">
+    <a href="{{url('delo_posameznika')}}">
       <img src="/static/delo.jpg" class="img-fluid" alt="...">
       <div class="carousel-caption d-md-block">
         <h1>Delo</h1>
@@ -35,56 +35,3 @@
   </div>
 </div>
 </div>
-
-
-<!--
-<div id="slide" class="carousel slide">
-  <div class="carousel-inner">
-    <div class="carousel-item active">
-      <a href="/kostumske_podobe/osnovna/stran/">
-        <img src="/static/oprava_kostumske_podobe.jpg" class="d-block w-100 img-fluid" alt="...">
-        <div class="carousel-caption d-md-block">
-          <h1>Kostumske podobe</h1>
-        </div>
-      </a>  
-    </div>
-    <div class="carousel-item ">
-      <a href="/plesalci/vsi_plesalci/">
-        <img src="/static/aktivni_plesalci.jpg" class="d-block w-100 img-fluid" alt="...">
-        <div class="carousel-caption d-md-block">
-          <h1>Aktivni plesalci</h1>
-        </div>
-      </a>
-    </div>
-    <div class="carousel-item">
-      <a href="/vsi_cevlji/">
-        <img src="/static/cevlji.jpg" class="d-block w-100 img-fluid" alt="...">
-        <div class="carousel-caption d-md-block">
-          <h1>Čevlji</h1>
-        </div>
-      </a>
-    </div>
-    <div class="carousel-item">
-      <a href="/delo/">
-        <img src="/static/delo.jpg" class="d-block w-100 img-fluid" alt="...">
-        <div class="carousel-caption d-md-block">
-          <h1>Delo</h1>
-        </div>
-      </a>
-    </div>
-  </div>
-
-  <button class="carousel-control-prev" type="button" data-bs-target="#slide" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Previous</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#slide" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Next</span>
-  </button>
-</div>
-
--->
-  
-
-  

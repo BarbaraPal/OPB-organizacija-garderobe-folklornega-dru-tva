@@ -15,9 +15,11 @@
             % if i.slika is not None:
                 <p style="text-align: center;"><b>{{id}}</b></p>
                 <img src="data:image/jpg;base64,{{ pravi_i.slika }}" alt="Slika" style="max-width: 30vw; display: block; margin: 0 auto;">
+                % if rola == 'True':
                 <form action="" id="poglejsliko" class="needs-validation text-right" novalidate>
                   <button type="submit" id="uredibtn" class="btn btn-outline-secondary btn-sm" style="padding: 10px;">Uredi</button>
                 </form>
+                % end
             % else:
               % if rola == 'True':
               <div class="card mb-4 mb-md-0">

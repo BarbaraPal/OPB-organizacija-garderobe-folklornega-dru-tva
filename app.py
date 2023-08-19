@@ -237,7 +237,7 @@ def plesalci(id):
 
 @get('/dodajanje_plesalcev/')
 @rola_required
-def dodaj_plesalca():
+def dodajanje_plesalcev():
     uporabnisko_ime = bottle.request.get_cookie('uporabniskoime')
     rola = bottle.request.get_cookie("rola")
     return template('dodajanje_plesalcev.html', uporabnisko_ime = uporabnisko_ime, rola = rola)
@@ -409,6 +409,14 @@ def dodaj_kostumsko_podobo():
     except:
         redirect(url('kostumske_podobe', kostumska_podoba = 'osnovna', imeoprave = 'stran', odziv = 'Ta oprava kostumske podobe že obstaja.'))
     redirect(url('kostumske_podobe', kostumska_podoba = kostumska_podoba, imeoprave = ime_oprave))
+
+@post('/odstrani_opravo_kostumske_podobe/')
+@rola_required
+def odstrani_opravo_kostumske_podobe():
+    kostumska_podoba = request.forms.getunicode('kostumska_podoba')
+    ime_oprave = request.forms.getunicode('oprava')
+    repo.izbrisi_gen(OpravaKostumskePodobe, (kostumska_podoba, ime_oprave), ('imekostumskepodobe', 'imeoprave'))
+    redirect(url('kostumske_podobe', kostumska_podoba = 'osnovna', imeoprave = 'stran'))
 
 @post('/dodaj_oblacila_k_kostumski_podobi/')
 @rola_required

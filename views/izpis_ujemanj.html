@@ -45,13 +45,13 @@
                               <td>{{ujemanja[i][3]}}</td>
                               <td>{{plesalci[p].ime}} {{plesalci[p].priimek}}</td>
                               % if tip == 'ZgornjiDel':
-                                <td scope="col">{{slovar_oblacil[ujemanja[i]].sirinaramen}} (oblačilo) : {{slovar_plesalcev[p].sirinaramen}} (plesalec)</td>
-                                <td scope="col">{{slovar_oblacil[ujemanja[i]].obsegprsi}} (oblačilo) : {{slovar_plesalcev[p].obsegprsi}} (plesalec)</td>
-                                <td scope="col">{{slovar_oblacil[ujemanja[i]].dolzinarokava}} (oblačilo) : {{slovar_plesalcev[p].dolzinarokava}} (plesalec)</td>
+                                <td scope="col">oblačilo: {{slovar_oblacil[ujemanja[i]].sirinaramen}}  <br>plesalec: {{slovar_plesalcev[p].sirinaramen}}</td>
+                                <td scope="col">oblačilo: {{slovar_oblacil[ujemanja[i]].obsegprsi}} <br>plesalec: {{slovar_plesalcev[p].obsegprsi}}</td>
+                                <td scope="col">oblačilo: {{slovar_oblacil[ujemanja[i]].dolzinarokava}} <br>plesalec: {{slovar_plesalcev[p].dolzinarokava}}</td>
                               % elif tip == 'SpodnjiDel':
-                                <td scope="col">{{slovar_oblacil[ujemanja[i]].dolzinaodpasunavzdol}} (oblačilo) : {{slovar_plesalcev[p].dolzinaodpasunavzdol}} (plesalec)</td>
+                                <td scope="col">oblačilo: {{slovar_oblacil[ujemanja[i]].dolzinaodpasunavzdol}} <br>plesalec: {{slovar_plesalcev[p].dolzinaodpasunavzdol}}</td>
                               % else:
-                                <td scope="col">{{slovar_oblacil[ujemanja[i]].dolzinatelesa}} (oblačilo) : {{slovar_plesalcev[p].dolzinatelesa}} (plesalec)</td>
+                                <td scope="col">oblačilo: {{slovar_oblacil[ujemanja[i]].dolzinatelesa}} <br>plesalec: {{slovar_plesalcev[p].dolzinatelesa}}</td>
                               % end
                             </tr>
                           

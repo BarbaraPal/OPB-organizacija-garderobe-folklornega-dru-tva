@@ -1,7 +1,8 @@
 %rebase('osnova.html', naslov='Oblacila', uporabnik=uporabnisko_ime, rola = rola)
 <div class="container-fluid">
   <div class="row" >
-    <div class="col-md col-md-3 col-xl-2 px-sm-2 px-0" style="background-color: #f8f9fa">
+    <div class="col-2" style="background-color: #f8f9fa">
+    <div>
       <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-black min-vh-100">
         <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                 
@@ -34,12 +35,12 @@
         <hr>
       </div>
     </div>  
-    
+  </div>
+  <div class="col-10">
       % if kostumska_podoba == 'osnovna' and imeoprave == 'stran':
         <div class="col py-3">
           <h3>Kostumske podobe</h3>
           <p class="lead">
-            Za navadnega uporabnika bodo tu napisana navodila premikanja med kostumskimi podobami, za garderoberja pa bo tu obrazec za dodajanje oblačil v opravo.</p> 
             % mnozica = set()
             % for i in seznam.keys():
             % mnozica.add(i[0])
@@ -103,6 +104,55 @@
                   </div>
                 </div>
               </div>
+              <div class="container py-5">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="card mb-4 mb-md-0">
+                          <div class="card-body">
+                            <p class="mb-4"><b>Pregled vseh kostumskih podob in možnost brisanja</b></p>
+                            <div class="table-container">
+                              <table class="table borderless" data-toggle="table" data-sticky-header="true" >
+                                  <thead class="table-light">
+                                    <tr >
+                                      <th scope="col" data-sortable="true">Ime kostumske podobe</th>
+                                      <th scope="col" data-sortable="true">Oprava</th>
+                                      <th scope="col" class="text-center">Izbriši</th>
+                                    
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                  % for i in slovar_kostumskih_podob.keys():
+                                    % for j in slovar_kostumskih_podob[i]:
+                                      <tr>
+                                        <td>{{i}}</td>
+                                        <td>{{j}}</td>
+                                       
+                                        <td class="text-center">
+                                          <form id = "myForm5" action="{{url('odstrani_opravo_kostumske_podobe')}}" method="POST" class="needs-validation" formvalidate>
+                                            <input type="hidden" value="{{i}}" name="kostumska_podoba">
+                                            <input type="hidden" value="{{j}}" name="oprava">
+                                            <button type="submit" id = "submitBtn5" onclick="showConfirmation3()" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3-fill"></i></button>
+                                          </form>
+                                        </td> 
+                                      </tr>
+                                    % end
+                                  % end
+                                  </tbody>
+                                </table>
+                              </div>
+
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            % else:
+              Tukaj se nahajajo kostumske podobe z vsemi podrobnostmi. 
+                     
             % end
         </div>
       % else:
@@ -115,7 +165,7 @@
         </div>
         %end
         <div class="row">
-          <div class="col-lg-6">
+          <div class="col-lg-7">
             <div class="card mb-4">
               <div class="card-body">
                 <table id="table" class="table table-striped borderless" data-toggle="table" data-sticky-header="true" data-sortable="true ">
@@ -240,16 +290,16 @@
                 </div>
               </div> 
           </div>
-          <div class="col-lg-6">
+          <div class="col-lg-5">
             <div class="card mb-4">
               <div class="card-body">
                 <div class="row">
-                  <div class="col-sm-3">
+                  <div class="col-sm-4">
                     <p class="mb-0">Tip čevljev:</p>
                   </div>
                   
                     % if slovar_oprave[(kostumska_podoba, imeoprave)][0]:
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                       <p class="text-muted mb-0">{{slovar_oprave[(kostumska_podoba, imeoprave)][0]}}</p>
                     </div>
                       % if rola == 'True':
@@ -272,10 +322,10 @@
                 </div>
                 <hr>
                 <div class="row">
-                  <div class="col-sm-3">
+                  <div class="col-sm-4">
                     <p class="mb-0">Posebnosti:</p>
                   </div>
-                  <div class="col-sm-9">
+                  <div class="col-sm-8">
                       % for posebnost in slovar_oprave[(kostumska_podoba, imeoprave)][1]:                  
                       <p class="text-muted mb-0">{{posebnost}}</p>
                       % end
@@ -509,6 +559,7 @@
            
     </div>
   </div>
+</div>
 </div>     
 
 <script>
@@ -531,10 +582,20 @@
       event.preventDefault(); // Prekine standardno obnašanje obrazca
     }
   }
+  
 
   function showConfirmation2() {
     // Display a confirmation dialog
     if (confirm("Ali ste prepričani, da želite izbrisati posebnosti? S tem boste izgubili vse podatke o njih.")) {
+      // No need to do anything here, the form will be submitted
+    } else {
+      alert("Brisanje preklicano.");
+      event.preventDefault(); // Prekine standardno obnašanje obrazca
+    }
+  }
+  function showConfirmation3() {
+    // Display a confirmation dialog
+    if (confirm("Ali ste prepričani, da želite izbrisati to opravo kostumske podobe?")) {
       // No need to do anything here, the form will be submitted
     } else {
       alert("Brisanje preklicano.");
