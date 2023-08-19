@@ -1,4 +1,4 @@
-* [![bottle.py](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BarbaraPal/OPB-organizacija-garderobe-folklornega-dru-tva/master?urlpath=proxy/8080/)
+* [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BarbaraPal/OPB-organizacija-garderobe-folklornega-dru-tva/master?labpath=proxy%2F8080)
 ## ER diagram
 
 ![ER diagram](ERdiagram.png)
