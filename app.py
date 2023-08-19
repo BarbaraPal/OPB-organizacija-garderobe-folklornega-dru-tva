@@ -17,7 +17,6 @@ import json
 import io
 import base64
 from itertools import permutations
-import matplotlib.pyplot as plt # še ni dodano v requirements.txt
 import plotly.io as pio
 
 
@@ -28,7 +27,7 @@ import plotly.io as pio
 
 # privzete nastavitve
 SERVER_PORT = os.environ.get('BOTTLE_PORT', 8080)
-RELOADER = os.environ.get('BOTTLE_RELOADER', True)
+RELOADER = os.environ.get('BOTTLE_RELOADER', False)
 DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
 
 # odkomentiraj, če želiš sporočila o napakah
