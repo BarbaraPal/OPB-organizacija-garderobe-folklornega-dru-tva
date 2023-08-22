@@ -11,13 +11,14 @@ import Data.auth_public as auth
 from datetime import date, datetime
 from dataclasses_json import dataclass_json
 
-
+import os
 import base64
 import dataclasses
 from collections import defaultdict
 import plotly.express as px
 import pandas as pd
 
+DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
 # Ustvarimo generično TypeVar spremenljivko. Dovolimo le naše entitene, ki jih imamo tudi v bazi
 # kot njene vrednosti. Ko dodamo novo entiteno, jo moramo dodati tudi v to spremenljivko.
 
@@ -42,7 +43,7 @@ T = TypeVar(
 class Repo:
 
     def __init__(self):
-        self.conn = psycopg2.connect(database=auth.db, host=auth.host, user=auth.user, password=auth.password, port=5432)
+        self.conn = psycopg2.connect(database=auth.db, host=auth.host, user=auth.user, password=auth.password, port=DB_PORT)
         self.cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     def camel_case(self, s):
