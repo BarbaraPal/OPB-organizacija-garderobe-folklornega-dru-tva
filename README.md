@@ -1,8 +1,7 @@
 # Organizacija garderobe folklornega društva
 Projekt pri predmetu Osnove podatkovnih baz
 
-* [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BarbaraPal/OPB-organizacija-garderobe-folklornega-dru-tva/master?labpath=proxy%2F8080)
-
+* [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BarbaraPal/OPB-organizacija-garderobe-folklornega-dru-tva/master?urlpath=proxy%2F8080)
 ## Opis
 Aplikacija je v prvi vrsti namenjena garderoberjem folklornega društva, je pa uporabna tudi za navadne plesalce.
 
