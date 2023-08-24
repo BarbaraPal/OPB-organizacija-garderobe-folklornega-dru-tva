@@ -25,7 +25,7 @@ Pogled navadnega uporabnika:
 
 Aplikacijo zaženemo tako, da poženemo program [`app.py`](app.py), npr.
 ```bash
-python primer.py
+python app.py
 ```
 Za vstop v vsebino aplikacije sta ustvarjena dva uporabniška računa. 
 Uporabnik **admin** s funkcijo garderoberja:
