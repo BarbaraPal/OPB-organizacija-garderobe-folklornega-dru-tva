@@ -91,7 +91,7 @@ class Repo:
         tbl_name = typ.__name__
         sql_cmd = f'''SELECT * FROM {tbl_name} OFFSET {skip};'''
         self.cur.execute(sql_cmd)
-        return [typ.from_dict(d) for d in self.cur.fetchall()]
+        return [typ(**d) for d in self.cur.fetchall()]
 
     
     def dobi_gen_id(self, typ: Type[T], id_tuple: Tuple[str], id_cols: Tuple[str]) -> T:

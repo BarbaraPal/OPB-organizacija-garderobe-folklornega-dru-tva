@@ -43,7 +43,7 @@ def dodaj_vrsto_oblacil_in_tipe(df):
     poskusaj_dodati_v_bazo(df2,'TipImena')
     poskusaj_dodati_v_bazo(df,'VrstaOblacila')
     
-#dodaj_vrsto_oblacil_in_tipe(slovar_podatkov['VrstaOblacila'])
+dodaj_vrsto_oblacil_in_tipe(slovar_podatkov['VrstaOblacila'])
 
 
 def pripravi_dele(df):
@@ -71,13 +71,14 @@ def dodaj_glavna_oblacila(zgornji, spodnji, enodelni, dodatni):
     dodajanje_oblacil_v_bazo(df_enodelni, ['dolzinatelesa'], 'EnodelniKos')
     poskusaj_dodati_v_bazo(df_dodatni,'DodatnaOblacila')
 
-#dodaj_glavna_oblacila(slovar_podatkov['ZgornjiDel'],slovar_podatkov['SpodnjiDel'],slovar_podatkov['EnodelniKos'],slovar_podatkov['DodatnaOblacila'])
+dodaj_glavna_oblacila(slovar_podatkov['ZgornjiDel'],slovar_podatkov['SpodnjiDel'],slovar_podatkov['EnodelniKos'],slovar_podatkov['DodatnaOblacila'])
 
 def dodaj_plesalce(df):
     df.columns = df.columns.str.lower()
     df.rename(columns ={'spol':'spolplesalca'}, inplace=True)
     poskusaj_dodati_v_bazo(df,'Plesalec')
-#dodaj_plesalce(slovar_podatkov['Plesalec'])
+
+dodaj_plesalce(slovar_podatkov['Plesalec'])
 
 def dobi_plesalce():
     plesalci = repo.dobi_gen_vse(Plesalec)
@@ -91,13 +92,13 @@ def dodaj_delo(df):
     df_vse = pd.merge(df, df_plesalci, on=['ime', 'priimek']).drop(['ime', 'priimek', 'datumprikljucitve','spol'], axis=1)
     poskusaj_dodati_v_bazo(df_vse,'Delo')
 
-#dodaj_delo(slovar_podatkov['Delo'])
+dodaj_delo(slovar_podatkov['Delo'])
 
 def dodaj_tip_cevljev(df):
     df.columns = df.columns.str.lower()
     poskusaj_dodati_v_bazo(df,'TipCevljev')
 
-#dodaj_tip_cevljev(slovar_podatkov['TipCevljev'])
+dodaj_tip_cevljev(slovar_podatkov['TipCevljev'])
 
 def dodaj_cevlje(df):
     df.rename(columns ={'TipCevljev':'vrsta'}, inplace=True)
@@ -109,7 +110,7 @@ def dodaj_cevlje(df):
 
     poskusaj_dodati_v_bazo(df_cevlji_plesalci,'Cevlji')
     
-#dodaj_cevlje(slovar_podatkov['Cevlji'])
+dodaj_cevlje(slovar_podatkov['Cevlji'])
 
 def dodaj_opravo_kostumske_podobe(df):
     df.rename(columns ={'TipCevljev':'vrsta'}, inplace=True)
@@ -117,43 +118,49 @@ def dodaj_opravo_kostumske_podobe(df):
     
     poskusaj_dodati_v_bazo(df,'OpravaKostumskePodobe')
 
-# dodaj_opravo_kostumske_podobe(slovar_podatkov['OpravaKostumskePodobe'])
+dodaj_opravo_kostumske_podobe(slovar_podatkov['OpravaKostumskePodobe'])
 
 def dodaj_relacijo_oprava_vrsta(df):
     df['PokrajinaVrste'] = df['PokrajinaVrste'].fillna('SLO')
     df.columns = df.columns.str.lower()
     poskusaj_dodati_v_bazo(df,'ROpravaVrsta')
 
-#dodaj_relacijo_oprava_vrsta(slovar_podatkov['ROpravaVrsta'])
+dodaj_relacijo_oprava_vrsta(slovar_podatkov['ROpravaVrsta'])
 
 # primer ročnega dodajanja uporabnikov
 
-#uporabnik1 = auth.dodaj_uporabnika("maja", True, "novogeslo","1111111111111")
-#uporabnik2 = auth.dodaj_uporabnika("navaden plesalec", False, "11111111", "1111111111112")
-#uporabnik3 = auth.dodaj_uporabnika("garderober2", True, "12345678", "1111111111113")
-#uporabnik4 = auth.dodaj_uporabnika("navaden", False, "12345678", "1111111111124")
+uporabnik1 = auth.dodaj_uporabnika("admin", True, "novogeslo","1111111111111")
+uporabnik2 = auth.dodaj_uporabnika("plesalec", False, "novogeslo", "1111111111112")
 
 def uvoz_slik(tabela, id_cols, id, pot):
-    slika = open(pot, 'rb').read()
-    objekt = repo.dobi_gen_slike(tabela, id, id_cols=id_cols)
-    objekt.slika = slika
-    repo.posodobi_gen(objekt, id_cols=id_cols)
+    try:
+        slika = open(pot, 'rb').read()
+        objekt = repo.dobi_gen_id(tabela, id, id_cols=id_cols)
+        objekt.slika = slika
+        repo.posodobi_gen(objekt, id_cols=id_cols)
+    except:
+        pass
 
-#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 9), "Data/podatki/slike_stajerska_bluza/modra_rjava_mala_kockasta.jpg")
-#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 8), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
-#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 7), "Data/podatki/slike_stajerska_bluza/bez_rozice.jpg")
-#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 5), "Data/podatki/slike_stajerska_bluza/oranzna_s_krizci.jpg")
-#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 4), "Data/podatki/slike_stajerska_bluza/rdeca_modre_rozice.jpg")
-#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 3), "Data/podatki/slike_stajerska_bluza/modra_bez_kockasta.jpg")
-#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 2), "Data/podatki/slike_stajerska_bluza/modra_s_pikicami.jpg")
-#uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"),('bluza', 'Štajerska', 'Ž', 1), "Data/podatki/slike_stajerska_bluza/modra_rjava_velika_kockasta.jpg")
+def dodajanje_slik_v_bazo_glavna():
+    oblacila = repo.dobi_gen_vse(GlavnaOblacila)
+    for oblacilo in oblacila:
+        pot = f'Data/podatki/slike_{oblacilo.ime}_{oblacilo.pokrajina}_{oblacilo.spol}/{oblacilo.barva}.jpg'
+        uvoz_slik(GlavnaOblacila, ("ime","pokrajina","spol","zaporednast"), (oblacilo.ime, oblacilo.pokrajina, oblacilo.spol, oblacilo.zaporednast), pot)
 
-#uvoz_slik(TipCevljev, ('vrsta',),('škorenjci',), "slike/logom.jpg")
-#uvoz_slik(TipCevljev, ('vrsta',),('mežiški nizki čeveljci',), "slike/logom.jpg")
+dodajanje_slik_v_bazo_glavna()
 
+def dodajanje_slik_v_bazo_dodatna():
+    oblacila = repo.dobi_gen_vse(DodatnaOblacila)
+    for oblacilo in oblacila:
+        pot = f'Data/podatki/slike_dodatna_oblacila/{oblacilo.ime}_{oblacilo.pokrajina}_{oblacilo.spol}.jpg'
+        uvoz_slik(DodatnaOblacila, ("ime","pokrajina","spol"), (oblacilo.ime, oblacilo.pokrajina, oblacilo.spol), pot)
 
-#def dodajanje_slik_v_bazo():
-#    oblacila = repo.dobi_gen_vse(GlavnaOblacila)
-#    print(oblacila)
+dodajanje_slik_v_bazo_dodatna()
 
-#dodajanje_slik_v_bazo()
+def dodajanje_slik_v_bazo_cevlji():
+    cevlji = repo.dobi_gen_vse(TipCevljev)
+    for vrsta in cevlji:
+        pot = f'Data/podatki/slike_cevlji/{vrsta.vrsta}.jpg'
+        uvoz_slik(TipCevljev, ('vrsta',),(vrsta.vrsta,), pot)
+
+dodajanje_slik_v_bazo_cevlji()
