@@ -124,7 +124,7 @@ def grafi(ime: str):
 
 @get('/')
 def index(): 
-    redirect('/domov/')
+    redirect(url('/domov/'))
 
 @get('/prijava/') 
 def prijava_get():
