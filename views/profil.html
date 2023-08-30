@@ -6,9 +6,9 @@
         <div class="card mb-4">
           <div class="card-body text-center">
             % if plesalecdto.spolplesalca == 'M':
-            <img src="/static/moska_slika.jpg" alt="simbolicna_slika" class="rounded-circle img-fluid" style="width: 170px;">
+            <img src="{{url('static', filename = 'moska_slika.jpg')}}" alt="simbolicna_slika" class="rounded-circle img-fluid" style="width: 170px;">
             % else: 
-            <img src="/static/zenska_slika.png" alt="simbolicna_slika" class="rounded-circle img-fluid" style="width: 170px;">
+            <img src="{{url('static', filename = 'zenska_slika.png')}}" alt="simbolicna_slika" class="rounded-circle img-fluid" style="width: 170px;">
             % end
             <h5 class="my-3">{{plesalecdto.uporabniskoime}}</h5>
             <p class="text-muted mb-1">plesalec</p>

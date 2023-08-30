@@ -36,7 +36,7 @@
           <div class="col-md-3 mb-4">
             <div class="card" style="width: 18rem;">
               % if oblacilo.slika is None or oblacilo.slika =='':
-              <img src="/static/obesalnik.jpg" alt="Ni slike">
+              <img src="{{url('static', filename = 'obesalnik.jpg')}}" alt="Ni slike">
               % else:
               <img src="data:image/png;base64,{{ oblacilo.slika }}" alt="Slika">
               % end
@@ -164,7 +164,7 @@
         <div class="col-md-3 mb-4">
           <div class="card" style="width: 18rem;">
             % if oblacilo.slika is None or oblacilo.slika =='':
-            <img src="/static/obesalnik.jpg" alt="Ni slike">
+            <img src="{{url('static', filename = 'obesalnik.jpg')}}" alt="Ni slike">
             % else:
             <img src="data:image/png;base64,{{ oblacilo.slika }}" alt="Slika">
             % end
