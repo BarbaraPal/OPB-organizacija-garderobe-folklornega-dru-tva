@@ -7,7 +7,7 @@
         <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                 
             <li class="nav-item">
-              <a href="/kostumske_podobe/osnovna/stran/" class="nav-link align-middle px-0">
+              <a href="{{url('kostumske_podobe', kostumska_podoba = 'osnovna', imeoprave = 'stran')}}" class="nav-link align-middle px-0">
                 <span class="ms-1 d-inline d-sm-none">Kostumske podobe</span>
                 <span class="ms-1 d-none d-sm-inline">Kostumske podobe</span>
               </a>
@@ -22,7 +22,7 @@
                 <ul class="collapse nav flex-column ms-1" id="{{a}}" data-bs-parent="#menu">
                 % for j in slovar_kostumskih_podob[i]:  
                     <li class="w-100">
-                      <a href="/kostumske_podobe/{{i}}/{{j}}/" class="nav-link px-0">
+                      <a href="{{url('kostumske_podobe', kostumska_podoba = i, imeoprave = j)}}" class="nav-link px-0">
                         <span class="d-inline d-sm-none">{{j}}</span>
                         <span class="d-none d-sm-inline">{{j}}</span>
                       </a>
