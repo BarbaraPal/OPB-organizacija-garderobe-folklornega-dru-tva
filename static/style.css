@@ -31,8 +31,6 @@
   .register-photo .image-holder {
     display:table-cell;
     width:auto;
-    background:url(url(static, filename='prijava.jpg'))
-    background-size:cover;
   }
   
   .register-photo .form-container {

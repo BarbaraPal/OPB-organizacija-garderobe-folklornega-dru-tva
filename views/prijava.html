@@ -1,7 +1,8 @@
 %rebase('osnova.html', naslov='Prijava', stran='prijava')
     <div class="register-photo">
         <div class="form-container">
-            <div class="image-holder">
+            <div class="image-holder" style="background: url({{url('static', filename = 'prijava.jpg')}}); background-size:100%; background-repeat: no-repeat;">
+    
             </div>
             <form action="{{url('prijava')}}" method="POST">
                 <h2 class="text-center"><strong>Prijava</strong></h2>
